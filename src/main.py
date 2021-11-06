@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from optparse import OptionParser, OptionGroup
 from os import getpid
+from os.path import join
 
 from psutil import Process
-from pygame import display, event, mixer, init, time
+from pygame import display, event, mixer, init, time, Surface, image
 
-from config import SCREEN_SIZE, FONT, RED
+from scenes import EmptyScene
+from settings import SCREEN_SIZE, FONT, IMG_PATH, Colors
+from sprites import Txt
 
 
 class BarbarianMain(object):
@@ -13,6 +16,9 @@ class BarbarianMain(object):
         self.screen = display.set_mode(SCREEN_SIZE)
         mixer.pre_init(44100, -16, 1, 4096)
         init()
+        display.set_caption('BARBARIAN AMIGA (PyGame)', 'BARBARIAN')
+        icon = image.load(join(IMG_PATH, 'menu/icone.gif')).convert_alpha()
+        display.set_icon(icon)
 
     def main(self, opts):
         if not opts.sound:
@@ -22,27 +28,20 @@ class BarbarianMain(object):
         pid = getpid()
         pu = Process(pid)
 
-        # import after init, to load images
-        #   pygame.error: cannot convert without pygame.display initialized
-        from sprite.common import Txt
-        if opts.viewer:
-            from scene.viewer import AnimationViewerScene
-            scene = AnimationViewerScene(self.screen)
-            display.set_caption('Barbarian - Animation viewer')
-        else:
-            from scene.battle import BattleScene
-            scene = BattleScene(self.screen)
-            display.set_caption('Barbarian')
+        back = Surface(SCREEN_SIZE)
+        back.fill(Colors.BACK, back.get_rect())
+        scene = EmptyScene(self.screen, back)
         clock = time.Clock()
 
-        cpu = Txt(FONT, 8, 'CPU: ', RED, 0, 566)
+        cpu = Txt(FONT, 8, 'CPU: ', Colors.DEBUG, 0, 368)
         # 'Resident Set Size', this is the non-swapped
         #   physical memory a process has used.
-        mem_rss = Txt(FONT, 8, 'Mem RSS: ', RED, 0, cpu.rect.bottom)
+        mem_rss = Txt(FONT, 8, 'Mem RSS: ', Colors.DEBUG, 0, cpu.rect.bottom)
         # 'Virtual Memory Size', this is the total amount of
         #   virtual memory used by the process.
-        mem_vms = Txt(FONT, 8, 'Mem VMS: ', RED, 0, mem_rss.rect.bottom)
-        fps = Txt(FONT, 8, 'FPS: ', RED, 0, mem_vms.rect.bottom)
+        mem_vms = Txt(FONT, 8, 'Mem VMS: ', Colors.DEBUG, 0,
+                      mem_rss.rect.bottom)
+        fps = Txt(FONT, 8, 'FPS: ', Colors.DEBUG, 0, mem_vms.rect.bottom)
         if opts.debug:
             scene.add(cpu, mem_rss, mem_vms, fps)
 
@@ -50,7 +49,6 @@ class BarbarianMain(object):
             for evt in event.get():
                 scene.process_event(evt)
 
-            # Update all the sprites
             current_time = time.get_ticks()
             if opts.debug:
                 fps.msg = 'FPS: {0:.0f}'.format(clock.get_fps())
@@ -68,7 +66,6 @@ class BarbarianMain(object):
                     mem_vms.msg = virtual.replace(',', ' ')
             scene.update(current_time)
 
-            # Draw the scene
             dirty = scene.draw(self.screen)
             display.update(dirty)
             clock.tick(60)
@@ -78,11 +75,6 @@ def option_parser():
     parser = OptionParser(usage='usage: %prog [options]',
                           version='%prog 0.1')
 
-    parser.add_option('-v', '--viewer',
-                      action='store_true',
-                      dest='viewer',
-                      default=False,
-                      help='launch animation Viewer scene')
     parser.add_option('-s', '--sound',
                       action='store_true',
                       dest='sound',
