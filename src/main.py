@@ -1,74 +1,172 @@
 # -*- coding: utf-8 -*-
+import gc
+import sys
 from optparse import OptionParser, OptionGroup
 from os import getpid
 from os.path import join
 
+import pygame
 from psutil import Process
-from pygame import display, event, mixer, init, time, Surface, image
+from pygame import display, event, mixer, init, time, image
 
-from scenes import EmptyScene
-from settings import SCREEN_SIZE, FONT, IMG_PATH, Colors
-from sprites import Txt
+import scenes
+from settings import SCREEN_SIZE, IMG_PATH, Options
 
 
 class BarbarianMain(object):
-    def __init__(self):
+    def __init__(self, opts):
         self.screen = display.set_mode(SCREEN_SIZE)
-        mixer.pre_init(44100, -16, 1, 4096)
+        if opts.sound:
+            mixer.pre_init(44100, -16, 1, 4096)
         init()
         display.set_caption('BARBARIAN AMIGA (PyGame)', 'BARBARIAN')
         icon = image.load(join(IMG_PATH, 'menu/icone.gif')).convert_alpha()
         display.set_icon(icon)
+        self.opts = opts
+        self.scene = scenes.Logo(opts, on_load=self.show_menu)
+        self.running = True
+        self.scoreA = 0
+        self.scoreB = 0
 
-    def main(self, opts):
-        if not opts.sound:
-            mixer.quit()
+    def menu(self):
+        return scenes.Menu(self.opts,
+                           on_demo=self.start_battle_demo,
+                           on_solo=self.start_battle_solo,
+                           on_duel=self.start_battle_duel,
+                           on_options=self.show_opts_ver,
+                           on_controls=self.show_ctrl_keys,
+                           on_history=self.show_history,
+                           on_credits=self.show_credits,
+                           on_quit=self.quit)
+
+    def quit(self):
+        self.running = False
+
+    def show_menu(self):
+        self.scene = self.menu()
+        gc.collect()
+
+    def start_battle_demo(self):
+        Options.DECOR = 'foret'
+        Options.DEMO = True
+        Options.IA = 4
+        Options.PARTIE = "solo"
+        Options.SORCIER = False
+        self.start_battle()
+
+    def start_battle_solo(self):
+        Options.DECOR = 'foret'
+        Options.DEMO = False
+        Options.IA = 0
+        Options.PARTIE = "solo"
+        Options.SORCIER = False
+        self.start_battle()
+
+    def start_battle_duel(self):
+        Options.DEMO = False
+        Options.IA = 0
+        Options.PARTIE = "vs"
+        Options.CHRONOMETRE = 60
+        Options.SORCIER = False
+        self.scene = scenes.SelectStage(self.opts,
+                                        on_start=self.start_battle,
+                                        on_back=self.show_menu)
+        gc.collect()
+
+    def start_battle(self):
+        self.scene = scenes.Battle(self.opts,
+                                   score_a=self.scoreA,
+                                   score_b=self.scoreB,
+                                   on_esc=self.cancel_battle)
+        gc.collect()
+
+    def cancel_battle(self):
+        self.scoreA = 0
+        self.scoreB = 0
+        self.show_menu()
+
+    def show_opts_ver(self):
+        self.scene = scenes.Version(self.opts,
+                                    on_display=self.show_opts_display)
+        gc.collect()
+
+    def show_opts_display(self):
+        self.scene = scenes.Display(self.opts,
+                                    on_fullscreen=self.on_fullscreen,
+                                    on_window=self.on_window)
+        gc.collect()
+
+    def show_ctrl_keys(self):
+        self.scene = scenes.ControlsKeys(self.opts,
+                                         on_next=self.show_ctrl_moves)
+        gc.collect()
+
+    def show_ctrl_moves(self):
+        self.scene = scenes.ControlsMoves(self.opts,
+                                          on_next=self.show_ctrl_fight)
+        gc.collect()
+
+    def show_ctrl_fight(self):
+        self.scene = scenes.ControlsFight(self.opts, on_next=self.show_menu)
+        gc.collect()
+
+    def show_credits(self):
+        self.scene = scenes.Credits(self.opts, on_back=self.show_menu)
+        gc.collect()
+
+    def show_history(self):
+        self.scene = scenes.History(self.opts, on_back=self.show_menu)
+        gc.collect()
+
+    def on_fullscreen(self):
+        # TODO: Toggle fullscreen with multi-display
+        self.scene = self.menu()
+        gc.collect()
+
+    def on_window(self):
+        # TODO: Toggle fullscreen with multi-display
+        self.scene = self.menu()
+        gc.collect()
+
+    def main(self):
         cpu_timer = 0
         mem_timer = 0
         pid = getpid()
         pu = Process(pid)
 
-        back = Surface(SCREEN_SIZE)
-        back.fill(Colors.BACK, back.get_rect())
-        scene = EmptyScene(self.screen, back)
         clock = time.Clock()
 
-        cpu = Txt(FONT, 8, 'CPU: ', Colors.DEBUG, 0, 368)
-        # 'Resident Set Size', this is the non-swapped
-        #   physical memory a process has used.
-        mem_rss = Txt(FONT, 8, 'Mem RSS: ', Colors.DEBUG, 0, cpu.rect.bottom)
-        # 'Virtual Memory Size', this is the total amount of
-        #   virtual memory used by the process.
-        mem_vms = Txt(FONT, 8, 'Mem VMS: ', Colors.DEBUG, 0,
-                      mem_rss.rect.bottom)
-        fps = Txt(FONT, 8, 'FPS: ', Colors.DEBUG, 0, mem_vms.rect.bottom)
-        if opts.debug:
-            scene.add(cpu, mem_rss, mem_vms, fps)
-
-        while True:
+        while self.running:
             for evt in event.get():
-                scene.process_event(evt)
+                if evt.type == pygame.QUIT:
+                    self.quit()
+                self.scene.process_event(evt)
 
             current_time = time.get_ticks()
-            if opts.debug:
-                fps.msg = 'FPS: {0:.0f}'.format(clock.get_fps())
+            if self.opts.debug:
+                self.scene.fps.msg = f'FPS: {clock.get_fps():.0f}'
 
-                if current_time - cpu_timer > opts.cpu_time:
+                if current_time - cpu_timer > self.opts.cpu_time:
                     cpu_timer = current_time
-                    cpu.msg = 'CPU: {0:.1f}%'.format(pu.cpu_percent())
+                    self.scene.cpu.msg = f'CPU: {pu.cpu_percent():.1f}%'
 
-                if current_time - mem_timer > opts.mem_time:
+                if current_time - mem_timer > self.opts.mem_time:
                     mem_timer = current_time
                     mem = pu.memory_info()
-                    resident = 'Mem RSS: {0:>7,.0f} Kb'.format(mem.rss / 1024)
-                    mem_rss.msg = resident.replace(',', ' ')
-                    virtual = 'Mem VMS: {0:>7,.0f} Kb'.format(mem.vms / 1024)
-                    mem_vms.msg = virtual.replace(',', ' ')
-            scene.update(current_time)
+                    resident = f'Mem RSS: {mem.rss / 1024:>7,.0f} Kb'
+                    self.scene.mem_rss.msg = resident.replace(',', ' ')
+                    virtual = f'Mem VMS: {mem.vms / 1024:>7,.0f} Kb'
+                    self.scene.mem_vms.msg = virtual.replace(',', ' ')
+            self.scene.update(current_time)
 
-            dirty = scene.draw(self.screen)
+            dirty = self.scene.draw(self.screen)
             display.update(dirty)
             clock.tick(60)
+
+        if self.opts.sound:
+            pygame.mixer.stop()
+            pygame.mixer.quit()
+        pygame.quit()
 
 
 def option_parser():
@@ -78,7 +176,7 @@ def option_parser():
     parser.add_option('-s', '--sound',
                       action='store_true',
                       dest='sound',
-                      default=False,
+                      default=True,
                       help='turn sound on. Default: false (off)')
 
     debug = OptionGroup(parser, 'Debug Options', description='')
@@ -86,7 +184,7 @@ def option_parser():
     debug.add_option('-d', '--debug',
                      action='store_true',
                      dest='debug',
-                     default=False,
+                     default=True,
                      help='show debug info (CPU, VMS, RSS, FPS)')
     debug.add_option('-c', '--cpu-time',
                      action='store',
@@ -108,4 +206,5 @@ def option_parser():
 if __name__ == '__main__':
     (options, args) = option_parser().parse_args()
 
-    BarbarianMain().main(options)
+    BarbarianMain(options).main()
+    sys.exit(0)
