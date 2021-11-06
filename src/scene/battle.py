@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
+
 from pygame import Surface
 from pygame.locals import *
 
@@ -19,9 +21,10 @@ DIST = 60
 class BarbarianFighter(Barbarian):
     def __init__(self, x, y, rtl):
         super(BarbarianFighter, self).__init__(x, y, rtl)
-        self.opponent = None
+        self.opponent = None  # type: Optional[BarbarianFighter]
         self.input = {inp: False for inp in INPUT}
         self.on_hit = None
+        self.on_decapitate = None
 
     def is_pressed(self, *inp):
         return all(self.input[i] for i in inp)
@@ -136,6 +139,7 @@ class BarbarianFighter(Barbarian):
                     'idle', 'high_defense',
                     'move_forward', 'move_backward'):
                 self.opponent.select_anim('decapitate')
+                self.opponent.on_decapitate(self.opponent, self)
             elif self.opponent.anim != 'duck':
                 if self.on_hit:
                     self.on_hit(self.opponent.x, self.opponent.y)
@@ -159,7 +163,7 @@ class BarbarianFighter(Barbarian):
                 self.select_anim('idle')
 
             elif anim in ('high_defense', 'mid_defense', 'duck', 'decapitate'):
-                self.animStopped = True
+                self.is_stopped = True
 
         elif action == 'push' and anim == 'roll_forward':
             if (self.opp_distance() <= DIST
@@ -195,8 +199,10 @@ class BattleScene(EmptyScene):
         self.player2 = BarbarianFighterAI(600, 400, True)
         self.player1.opponent = self.player2
         self.player1.on_hit = self.on_hit
+        self.player1.on_decapitate = self.on_decapitate
         self.player2.opponent = self.player1
         self.player2.on_hit = self.on_hit
+        self.player2.on_decapitate = self.on_decapitate
         self.add(self.player1, self.player1.stuff,
                  self.player2, self.player2.stuff)
 
@@ -222,3 +228,14 @@ class BattleScene(EmptyScene):
 
     def on_hit(self, x, y):
         self.add(Hit(x, y), layer=255)
+
+    def on_decapitate(self,
+                      decapitated: BarbarianFighter,
+                      slayer: BarbarianFighter):
+        self.change_layer(decapitated, 1)
+        for s in decapitated.stuff:
+            self.change_layer(s, 1)
+
+        self.change_layer(slayer, 0)
+        for s in slayer.stuff:
+            self.change_layer(s, 0)

@@ -31,7 +31,7 @@ class AnimationViewerScene(EmptyScene):
         self.animsTxtList = self.create_anims_txt(self.anims)
         #
         lbl = Txt(FONT, 8, 'Speed: ', WHITE, 10, 10, self)
-        self.speedTxt = Txt(FONT, 8, TXT_SPEED.format(self.target.animSpeed),
+        self.speedTxt = Txt(FONT, 8, TXT_SPEED.format(self.target.speed),
                             GREEN, lbl.rect.right, 10, self)
         Txt(FONT, 8, '(S)lower / (F)aster', WHITE, 10, 23, self)
         #
@@ -89,10 +89,10 @@ class AnimationViewerScene(EmptyScene):
                     del img_cache[k_]
                 importlib.reload(sprite.barbarian)
 
-                speed = self.target.animSpeed
+                speed = self.target.speed
                 self.target = self.create_barbarian(self.target.rtl,
                                                     self.target.anim)
-                self.target.animSpeed = speed
+                self.target.speed = speed
                 self.add(self.target, self.target.stuff)
 
             elif evt.key in ANIM_KEYS:
@@ -112,12 +112,12 @@ class AnimationViewerScene(EmptyScene):
                 self.canMoveTxt.msg = self.canMove
 
             elif evt.key == K_s:
-                self.target.animSpeed -= 0.10
-                self.speedTxt.msg = TXT_SPEED.format(self.target.animSpeed)
+                self.target.speed -= 0.10
+                self.speedTxt.msg = TXT_SPEED.format(self.target.speed)
 
             elif evt.key == K_f:
-                self.target.animSpeed += 0.10
-                self.speedTxt.msg = TXT_SPEED.format(self.target.animSpeed)
+                self.target.speed += 0.10
+                self.speedTxt.msg = TXT_SPEED.format(self.target.speed)
 
             elif evt.key == K_d:
                 self.target.turn_around(not self.target.rtl)

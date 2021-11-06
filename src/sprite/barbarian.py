@@ -26,11 +26,12 @@ class Blood(AnimatedSprite):
     anims = {
         'decapitate': [
             Frame('barbarian-blue/blood/blood_0.png', -2, -46, duration=150),
-            Frame('barbarian-blue/blood/blood_1.png', -1, -54, duration=150),
-            Frame('barbarian-blue/blood/blood_2.png', 0, -60, duration=150),
-            Frame('barbarian-blue/blood/blood_3.png', -2, -55, duration=150),
-            Frame('barbarian-blue/blood/blood_4.png', 1, -46, duration=150,
-                  post_action='hide'),
+            Frame('barbarian-blue/blood/blood_1.png', 40, -23, duration=150),
+            Frame('barbarian-blue/blood/blood_2.png', 40, -30, duration=150),
+            Frame('barbarian-blue/blood/blood_3.png', 125, 47, duration=150,
+                  angle=-90),
+            Frame('barbarian-blue/blood/blood_4.png', 125, 47, duration=150,
+                  angle=-90, post_action='hide'),
         ],
     }
     anims_rtl = rtl_anims(anims)
@@ -107,13 +108,13 @@ class Barbarian(AnimatedSprite):
             Frame('barbarian-blue/loose_2.png', 0, 45, duration=300),
         ],
         'decapitate': [
-            Frame('barbarian-blue/idle.png',
+            Frame('barbarian-blue/idle.png', duration=10,
                   pre_action='start'),
-            Frame('barbarian-blue/decapitate_0.png', 0, 11, duration=750,
+            Frame('barbarian-blue/decapitate_0.png', 0, 11, duration=150,
                   pre_action='show_blood_n_head'),
             Frame('barbarian-blue/decapitate_1.png', 40, 26, duration=300),
             Frame('barbarian-blue/decapitate_2.png', 62, 47,
-                  post_action='end'),
+                  post_action='end', duration=1000),
         ],
         'fall': [
             Frame('barbarian-blue/idle.png'),
@@ -145,10 +146,10 @@ class Barbarian(AnimatedSprite):
             # https://www.mathe-fa.de
             *(Frame('barbarian-blue/hurt_0.png',
                     4 - x, int(1 - sin((x - 1) / 4) * 5),
-                    duration=1)
+                    duration=7)
               for x in range(14)),
             *(Frame('barbarian-blue/hurt_1.png', -15 - x, -5 + x,
-                    duration=1)
+                    duration=10)
               for x in range(1, 10, 1)),
             Frame('barbarian-blue/hurt_1.png', -26, 5, duration=50,
                   post_action='end'),
@@ -316,24 +317,28 @@ class Barbarian(AnimatedSprite):
         self.decapitated_blood = Blood(x, y, rtl)
         self.decapitated_head = Head(x, y, rtl)
         self.stuff = [self.decapitated_blood, self.decapitated_head]
+        for s in self.stuff:
+            s.visible = False
         #
         self.rtl = rtl
         self.select_anim(anim)
 
-    def _set_anim_speed(self, speed):
+    @AnimatedSprite.speed.setter
+    def speed(self, speed):
         for s in self.stuff:
-            s.animSpeed = speed
-        super(Barbarian, self)._set_anim_speed(speed)
+            s.speed = speed
+        super(Barbarian, Barbarian).speed.fset(self, speed)
 
-    def _set_anim_stopped(self, stop):
+    @AnimatedSprite.is_stopped.setter
+    def is_stopped(self, stop):
         for s in self.stuff:
-            s.animStopped = stop
-        super(Barbarian, self)._set_anim_stopped(stop)
+            s.is_stopped = stop
+        super(Barbarian, Barbarian).is_stopped.fset(self, stop)
 
     def select_anim(self, anim):
+        super(Barbarian, self).select_anim(anim)
         for s in self.stuff:
             s.select_anim(anim)
-        super(Barbarian, self).select_anim(anim)
 
     def move(self, dx, dy):
         for s in self.stuff:

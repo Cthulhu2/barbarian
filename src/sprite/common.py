@@ -3,8 +3,8 @@ from os.path import join
 
 from pygame import image
 from pygame.font import Font
-from pygame.transform import scale, rotate, flip
 from pygame.sprite import DirtySprite
+from pygame.transform import scale, rotate, flip
 
 from config import IMAGE_PATH
 
@@ -46,27 +46,27 @@ class Txt(DirtySprite):
         self._color = color_
         self.image, self.rect = self._update_image()
 
-    def _get_msg(self):
+    @property
+    def msg(self):
         return self._msg
 
-    def _set_msg(self, msg):
+    @msg.setter
+    def msg(self, msg):
         if self._msg != msg:
             self._msg = msg
             self.image, self.rect = self._update_image()
             self.dirty = 1
 
-    msg = property(_get_msg, _set_msg, doc="Message Text")
-
-    def _get_color(self):
+    @property
+    def color(self):
         return self._msg
 
-    def _set_color(self, color):
+    @color.setter
+    def color(self, color):
         if self._color != color:
             self._color = color
             self.image, self.rect = self._update_image()
             self.dirty = 1
-
-    color = property(_get_color, _set_color, doc="Message Color")
 
     def _update_image(self):
         font_key = hash(self._font) + hash(self._size)

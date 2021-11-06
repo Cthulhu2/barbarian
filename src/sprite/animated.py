@@ -35,14 +35,12 @@ class Frame(object):
         self.post_action = post_action
 
     def rtl(self):
-        dx = -self.dx
         move_base = None
         if self.move_base:
             move_base = (-self.move_base[0], self.move_base[1])
-        xflip = not self.xflip
 
-        return Frame(self.name, dx, self.dy, self.w, self.h,
-                     self.duration, self.angle, xflip, self.fill,
+        return Frame(self.name, -self.dx, self.dy, self.w, self.h,
+                     self.duration, -self.angle, not self.xflip, self.fill,
                      self.blend_flags, move_base,
                      self.pre_action, self.post_action)
 
@@ -60,60 +58,58 @@ class AnimatedSprite(DirtySprite):
         super(AnimatedSprite, self).__init__(*groups)
         self.anims = animations
         self.animTimer = get_ticks()
-        self._animSpeed = 1.0
-        self._animStopped = False
+        self._speed = 1.0
+        self._is_stopped = False
 
         self.anim = next(iter(self.anims))
         self.frames = self.anims[self.anim]
         self.frameNum = 0
         self.frame = self.frames[self.frameNum]
-        self.frame_duration = self.frame.duration / self.animSpeed
+        self.frame_duration = self.frame.duration / self._speed
 
         self.image = self.frame.image
         self.rect = Rect(0, 0, 0, 0)
         self.center = center
         self._update_rect()
 
-    def _get_x(self):
+    @property
+    def x(self):
         return self.center[0]
 
-    def _set_x(self, x):
+    @x.setter
+    def x(self, x):
         self.center = (x, self.center[1])
         self._update_rect()
 
-    x = property(_get_x, _set_x)
-
-    def _get_y(self):
+    @property
+    def y(self) -> int:
         return self.center[1]
 
-    def _set_y(self, y):
+    @y.setter
+    def y(self, y: int):
         self.center = (self.center[0], y)
         self._update_rect()
 
-    y = property(_get_y, _set_y)
+    @property
+    def speed(self):
+        return self._speed
 
-    def _get_anim_speed(self):
-        return self._animSpeed
-
-    def _set_anim_speed(self, speed):
-        self._animSpeed = round(min(3, max(0, speed)), 3)
+    @speed.setter
+    def speed(self, speed: float):
+        self._speed = round(min(3.0, max(0.0, speed)), 3)
         self.frame_duration = self._calc_duration(self.frame.duration)
 
-    animSpeed = property(lambda self: self._get_anim_speed(),
-                         lambda self, speed: self._set_anim_speed(speed))
+    @property
+    def is_stopped(self):
+        return self._is_stopped
 
-    def _get_anim_stopped(self):
-        return self._animStopped
+    @is_stopped.setter
+    def is_stopped(self, stopped: bool):
+        self._is_stopped = stopped
 
-    def _set_anim_stopped(self, stop):
-        self._animStopped = stop
-
-    animStopped = property(lambda self: self._get_anim_stopped(),
-                           lambda self, stop: self._set_anim_stopped(stop))
-
-    def select_anim(self, anim):
+    def select_anim(self, anim: str):
         if anim in self.anims:
-            self.animStopped = False
+            self.is_stopped = False
             self.anim = anim
             self.frames = self.anims[anim]
             self.animTimer = get_ticks()
@@ -125,15 +121,16 @@ class AnimatedSprite(DirtySprite):
             self.visible = False
 
     def update(self, current_time, *args):
-        if self.visible and not self.animStopped:
+        if self.visible and not self.is_stopped and self.speed > 0:
             passed = current_time - self.animTimer
-            if passed > self.frame_duration and self.animSpeed > 0:
+            while passed > self.frame_duration:
+                passed -= self.frame_duration
                 self.animTimer = current_time
                 self.next_frame()
 
     def _calc_duration(self, duration):
-        if self.animSpeed > 0:
-            return duration / self.animSpeed
+        if self.speed > 0:
+            return duration / self.speed
         else:
             return duration
 
@@ -174,7 +171,7 @@ class AnimatedSprite(DirtySprite):
             if self.frame and self.frame.post_action:
                 cur_anim = self.anim
                 self.on_post_action(self.anim, self.frame.post_action)
-                if cur_anim != self.anim or self.animStopped:
+                if cur_anim != self.anim or self.is_stopped:
                     # Animation changed or stopped, don't process next frame
                     return
 
