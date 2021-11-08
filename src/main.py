@@ -77,7 +77,7 @@ class BarbarianMain(object):
         self.scene = scenes.Battle(self.opts,
                                    on_esc=self.cancel_battle,
                                    on_menu=self.show_menu,
-                                   on_fin=self.finish_battle)
+                                   on_next=self.next_stage)
         gc.collect()
 
     def cancel_battle(self):
@@ -85,11 +85,24 @@ class BarbarianMain(object):
         self.scoreB = 0
         self.show_menu()
 
-    def finish_battle(self):
+    def next_stage(self):
         if scenes.Game.Partie == 'solo':
-            if scenes.Game.Demo:
-                self.show_menu()
-                return
+            scenes.Game.IA += 1
+            if scenes.Game.IA == 1:
+                scenes.Game.Decor = 'plaine'
+            if scenes.Game.IA == 2:
+                scenes.Game.Decor = 'foret'
+            if scenes.Game.IA == 3:
+                scenes.Game.Decor = 'plaine'
+            if scenes.Game.IA == 4:
+                scenes.Game.Decor = 'trone'
+            if scenes.Game.IA == 5:
+                scenes.Game.Decor = 'arene'
+            if scenes.Game.IA == 6:
+                scenes.Game.Decor = 'trone'
+            if scenes.Game.IA == 7:
+                scenes.Game.Decor = 'arene'
+
         if scenes.Game.Partie == 'vs':
             scenes.Game.Chronometre = 60
             if scenes.Game.Decor == 'plaine':
@@ -100,7 +113,8 @@ class BarbarianMain(object):
                 scenes.Game.Decor = 'arene'
             elif scenes.Game.Decor == 'arene':
                 scenes.Game.Decor = 'trone'
-            self.start_battle()
+
+        self.start_battle()
 
     def show_opts_ver(self):
         self.scene = scenes.Version(self.opts,

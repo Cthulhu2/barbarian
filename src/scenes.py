@@ -7,7 +7,7 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE
 from sprites import (
     get_img, get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    serpent_anims, rtl_anims, loc_to_pix, loc, State
+    serpent_anims, rtl_anims, loc_to_pix, loc, State, Levier, Sorcier
 )
 
 
@@ -21,6 +21,7 @@ class Game:  # Mutable options
     Chronometre = 0
     ScoreA = 0
     ScoreB = 0
+    Rtl = False
 
 
 class EmptyScene(LayeredDirty):
@@ -276,13 +277,12 @@ class Menu(_MenuBackScene):
 class Battle(EmptyScene):
     def __init__(self, opts, *,
                  on_esc,
-                 on_fin,
-                 on_menu,
-                 rtl: bool = False):
+                 on_next,
+                 on_menu):
         super(Battle, self).__init__(opts)
         self.on_esc = on_esc
-        self.on_fin = on_fin
         self.on_menu = on_menu
+        self.on_next = on_next
         self.jeu = 'encours'  # perdu, gagne
 
         back = get_img(f'stage/{Game.Decor}.gif')
@@ -307,9 +307,11 @@ class Battle(EmptyScene):
             layer=2)
 
         self.joueurA = Barbarian(loc_to_pix(1), loc_to_pix(15),
-                                 'spritesA', rtl=rtl)
+                                 'spritesA',
+                                 rtl=Game.Rtl)
         self.joueurB = Barbarian(loc_to_pix(36), loc_to_pix(15),
-                                 f'spritesB/spritesB{Game.IA}', rtl=not rtl)
+                                 f'spritesB/spritesB{Game.IA}',
+                                 rtl=not Game.Rtl)
         sz = 8 * SCALE
         if Game.Partie == 'solo' and not Game.Demo:
             self.add(Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25)))
@@ -338,9 +340,9 @@ class Battle(EmptyScene):
                                        rtl_anims(serpent_anims()))
         self.add(self.serpentA, self.serpentB)
         self.entree = True
+        self.entreesorcier = False
         self.lancerintro = True
         self.temps = 0
-        self.reftemps = 0
         self.tempsfini = False
         self.sense = 'normal'  # inverse
 
@@ -349,9 +351,29 @@ class Battle(EmptyScene):
             get_snd('mortdecap.ogg').stop()
             get_snd('mortKO.ogg').stop()
             get_snd('prepare.ogg').stop()
-        self.on_fin()
+        self.on_menu()
+
+    def next_stage(self):
+        if self.opts.sound:
+            get_snd('mortdecap.ogg').stop()
+            get_snd('mortKO.ogg').stop()
+            get_snd('prepare.ogg').stop()
+        self.on_next()
 
     def process_event(self, evt):
+        if evt.type == KEYUP and evt.key == K_ESCAPE:
+            if self.jeu == 'encours':
+                if self.opts.sound:
+                    get_snd('mortdecap.ogg').stop()
+                    get_snd('mortKO.ogg').stop()
+                    get_snd('prepare.ogg').stop()
+            Game.IA = 0
+            self.on_esc()
+            return
+
+        if Game.Demo:
+            return
+
         # TODO: Joystick events
         if evt.type == KEYDOWN:
             # Joueur A
@@ -384,16 +406,6 @@ class Battle(EmptyScene):
             # Joueur B
             elif evt.key == K_SPACE:
                 self.joueurB.attaque = False
-            #
-            elif evt.key == K_ESCAPE:
-                if self.jeu == 'encours':
-                    if self.opts.sound:
-                        get_snd('mortdecap.ogg').stop()
-                        get_snd('mortKO.ogg').stop()
-                        get_snd('prepare.ogg').stop()
-                if self.jeu in ('gagne', 'perdu'):
-                    Game.IA = 0
-                self.on_esc()
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
@@ -401,6 +413,7 @@ class Battle(EmptyScene):
         if passed < 50:
             return
         self.timer = current_time
+
         # debout:
         self.temps += 1
         jax = self.joueurA.x_loc()
@@ -446,13 +459,80 @@ class Battle(EmptyScene):
         if self.joueurA.sortie:
             if not self.tempsfini:
                 if jax < 2 and jbx >= 37:
-                    self.finish()
+                    if Game.Partie == 'solo':
+                        if Game.Demo:
+                            self.finish()
+                            return
+                        if Game.IA < 7:
+                            self.next_stage()
+                        else:
+                            Game.Sorcier = True
+                            self.sense = 'inverse'
+                            self.joueurB = Sorcier(loc_to_pix(8),
+                                                   loc_to_pix(15))
+                            self.add(self.joueurB)
+                            self.joueurA.state = State.debout
+                            self.joueurA.x = loc_to_pix(36)
+                            self.entree = False
+                            self.joueurA.sortie = False
+                            self.entreesorcier = True
+                            self.joueurB.occupe = True
+                            self.joueurB.reftemps = self.temps
                     return
             elif ((self.sense == 'normal' and jax < 2 and jbx >= 37)
                   or (self.sense == 'inverse' and jbx < 2 and jax >= 37)):
                 Game.Chronometre = 60
-                self.finish()
+                self.next_stage()
                 return
+
+        # degats:
+        # degats sur joueurA
+        if Game.Sorcier:
+            if self.joueurA.x_loc() < 29:
+                if self.joueurB.xT < self.joueurB.xAtt <= self.joueurB.xT + 2:
+                    if self.joueurB.yAtt == self.joueurA.yT:
+                        self.gnome = False
+                        if self.jeu == 'perdu':
+                            pass
+                            # GOTO gestion
+                        self.joueurA.state = State.mortSORCIER
+                        self.joueurA.occupe = True
+                        self.joueurB.reftemps = self.temps
+                        self.joueurA.sang = False
+                        self.joueurB.state = State.sorcierFINI
+                        self.joueurB.occupe = True
+                        self.joueurB.reftemps = self.temps
+                        self.joueurB.sang = False
+                        self.jeu = 'perdu'
+                        # GOTO gestion
+                if self.joueurA.xG <= self.joueurB.xAtt <= self.joueurA.xG + 2:
+                    if self.joueurB.yAtt == self.joueurA.yG:
+                        self.gnome = False
+                        if self.jeu == 'perdu':
+                            pass
+                            # GOTO gestion
+                        self.joueurA.state = State.mortSORCIER
+                        self.joueurA.occupe = True
+                        self.joueurA.reftemps = self.temps
+                        self.joueurA.sang = False
+                        self.joueurB.state = State.sorcierFINI
+                        self.joueurB.occupe = True
+                        self.joueurB.reftemps = self.temps
+                        self.joueurB.sang = False
+                        self.jeu = 'perdu'
+                        # GOTO gestion
+            if self.joueurA.occupe:
+                pass
+                # GOTO gestion
+            self.joueurA.sang = False
+        # GOTO clavier
+
+
+        # clavier:
+        self.joueurA.clavier()
+        self.joueurB.clavier()
+
+        # gestion:
 
         if Game.Demo:
             distance = jbx - jax
@@ -480,7 +560,7 @@ class Battle(EmptyScene):
                 if self.joueurB.state == 'roulade':
                     self.joueurA.state = 'genou'
                     self.joueurA.occupe = True
-                if self.joueurB.levier == 'gauche':
+                if self.joueurB.levier == Levier.gauche:
                     self.joueurA.state = 'araignee'
                     self.joueurA.occupe = True
                 if self.joueurB.state == 'front':

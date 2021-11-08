@@ -407,6 +407,17 @@ def barb_anims(subdir: str):
     }
 
 
+def sorcier_anims():
+    return {
+        'debout': [
+            Frame(f'sprites/drax1.gif'),
+        ],
+        'attaque': [
+            Frame(f'sprites/drax2.gif'),
+        ],
+    }
+
+
 class Levier(enum.Enum):
     bas = enum.auto()
     basG = enum.auto()
@@ -450,6 +461,9 @@ class State(enum.Enum):
     rouladeAV = enum.auto()
     rouladeAR = enum.auto()
     saute = enum.auto()
+    #
+    mortSORCIER = enum.auto()
+    sorcierFINI = enum.auto()
 
 
 class Barbarian(AnimatedSprite):
@@ -477,11 +491,13 @@ class Barbarian(AnimatedSprite):
         self.xM = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
         self.xG = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
         #
+        self.reftemps = 0
+        self.sang = False
         self.attente = 1
         self.occupe = False
         self.sortie = False
         self.levier: Levier = Levier.neutre
-        self.state = ''
+        self.state: State = State.debout
         self.infoDegatG = 0
         self.infoDegatT = 0
         self.bonus = False
@@ -510,7 +526,72 @@ class Barbarian(AnimatedSprite):
         if self.clavierY > 6:
             self.clavierY -= 1
 
+    def clavier(self):
+        if self.clavierX <= 6 and self.clavierY <= 6:
+            self.levier = Levier.hautD if self.rtl else Levier.hautG
+        if self.clavierX >= 8 and self.clavierY <= 6:
+            self.levier = Levier.hautG if self.rtl else Levier.hautD
+        if self.clavierX <= 6 and self.clavierY >= 8:
+            self.levier = Levier.basD if self.rtl else Levier.basG
+        if self.clavierX >= 8 and self.clavierY >= 8:
+            self.levier = Levier.basG if self.rtl else Levier.basD
+
+        if self.clavierX <= 6 and self.clavierY == 7:
+            self.levier = Levier.gauche
+        if self.clavierX >= 8 and self.clavierY == 7:
+            self.levier = Levier.droite
+        if self.clavierX == 7 and self.clavierY >= 8:
+            self.levier = Levier.bas
+        if self.clavierX == 7 and self.clavierY <= 6:
+            self.levier = Levier.haut
+
     def on_pre_action(self, anim, action):
         if anim == 'attente':
             if action == 'attente1':
                 get_snd('attente.ogg').play()
+
+
+class Sorcier(AnimatedSprite):
+    def __init__(self, x, y, rtl=False, anim='idle'):
+        super(Sorcier, self).__init__(
+            (x, y),
+            rtl_anims(sorcier_anims()) if rtl else sorcier_anims())
+        self.rtl = rtl
+        self.select_anim(anim)
+        self.ltr_anims = self.anims
+        self.rtl_anims = rtl_anims(self.anims)
+        #
+        self.clavierX = 7
+        self.clavierY = 7
+        self.attaque = False
+        #
+        self.yAtt = 17
+        self.xAtt = 27 if rtl else 15
+        self.yF = 15  # front
+        self.yT = 16  # tete
+        self.yM = 18  # corps
+        self.yG = 20  # genou
+        self.xF = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
+        self.xT = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
+        self.xM = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
+        self.xG = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
+        #
+        self.reftemps = 0
+        self.sang = False
+        self.attente = 1
+        self.occupe = False
+        self.sortie = False
+        self.levier: Levier = Levier.neutre
+        self.state: State = State.debout
+        self.infoDegatG = 0
+        self.infoDegatT = 0
+        self.bonus = False
+
+    def x_loc(self):
+        return pix_to_loc(self.x)
+
+    def clavier(self):
+        pass
+
+    def on_pre_action(self, anim, action):
+        pass
