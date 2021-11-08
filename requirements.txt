@@ -1,2 +1,3 @@
-Pygame >= 2.0.2
+# Pygame >= 2.0.2 crash on load sound /snd/tombe.ogg
+Pygame == 2.0.1
 psutil >= 5.8.0

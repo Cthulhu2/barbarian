@@ -4,11 +4,23 @@ from pygame.locals import *
 from pygame.sprite import LayeredDirty
 from pygame.time import get_ticks
 
-from settings import Options, Theme, SCREEN_SIZE, SCALE
+from settings import Theme, SCREEN_SIZE, SCALE
 from sprites import (
     get_img, get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    serpent_anims, rtl_anims, loc_to_pix, loc, pix_to_loc
+    serpent_anims, rtl_anims, loc_to_pix, loc, State
 )
+
+
+class Game:  # Mutable options
+    Country = 'europe'  # USA, europe
+    Decor = 'foret'  # foret, plaine, trone, arene
+    Partie = 'solo'  # solo, vs
+    Sorcier = False
+    Demo = False
+    IA = 0
+    Chronometre = 0
+    ScoreA = 0
+    ScoreB = 0
 
 
 class EmptyScene(LayeredDirty):
@@ -62,7 +74,7 @@ class Logo(EmptyScene):
             return
         self.titre = True
 
-        if Options.COUNTRY == 'USA':
+        if Game.Country == 'USA':
             img = get_img('menu/titre.png').copy()
             logo_ds = get_img('menu/logoDS.png')
             img.blit(logo_ds, (46 * SCALE, 10 * SCALE))
@@ -196,7 +208,7 @@ class Logo(EmptyScene):
     def update(self, current_time, *args):
         super(Logo, self).update(current_time, *args)
         passed = current_time - self.timer
-        if Options.COUNTRY == 'USA':
+        if Game.Country == 'USA':
             if passed < 4000:
                 self.show_usa_logo()
             elif 4000 < passed < 8000:
@@ -215,7 +227,7 @@ class Logo(EmptyScene):
 class _MenuBackScene(EmptyScene):
     def __init__(self, opts, back: str):
         super(_MenuBackScene, self).__init__(opts)
-        if Options.COUNTRY == 'USA':
+        if Game.Country == 'USA':
             back = get_img(back).copy()
             logo_ds = get_img('menu/logoDS.png')
             back.blit(logo_ds, (46 * SCALE, 10 * SCALE))
@@ -262,54 +274,61 @@ class Menu(_MenuBackScene):
 
 
 class Battle(EmptyScene):
-    def __init__(self, opts, *, on_esc, score_a=0, score_b=0):
+    def __init__(self, opts, *,
+                 on_esc,
+                 on_fin,
+                 on_menu,
+                 rtl: bool = False):
         super(Battle, self).__init__(opts)
         self.on_esc = on_esc
+        self.on_fin = on_fin
+        self.on_menu = on_menu
         self.jeu = 'encours'  # perdu, gagne
 
-        back = get_img(f'stage/{Options.DECOR}.gif')
-        if Options.COUNTRY == 'USA':
+        back = get_img(f'stage/{Game.Decor}.gif')
+        if Game.Country == 'USA':
             back = back.copy()
-            if Options.DECOR in ('foret', 'plaine'):
+            if Game.Decor in ('foret', 'plaine'):
                 logo = get_img('stage/logoDS2.png')
-                if Options.DECOR == 'foret':
+                if Game.Decor == 'foret':
                     back.blit(logo, (59 * SCALE, 16 * SCALE))
-                elif Options.DECOR == 'plaine':
+                elif Game.Decor == 'plaine':
                     back.blit(logo, (59 * SCALE, 14 * SCALE))
-            if Options.DECOR in ('arene', 'trone'):
+            if Game.Decor in ('arene', 'trone'):
                 logo = get_img('stage/logoDS3.png')
                 back.blit(logo, (59 * SCALE, 16 * SCALE))
         # noinspection PyTypeChecker
         self.clear(None, back)
         self.add(
             StaticSprite((0, 104 * SCALE),
-                         f'stage/{Options.DECOR}ARBREG.gif'),
+                         f'stage/{Game.Decor}ARBREG.gif'),
             StaticSprite((272 * SCALE, 104 * SCALE),
-                         f'stage/{Options.DECOR}ARBRED.gif'),
+                         f'stage/{Game.Decor}ARBRED.gif'),
             layer=2)
 
-        self.joueurA = Barbarian(loc_to_pix(1), loc_to_pix(15), 'spritesA')
+        self.joueurA = Barbarian(loc_to_pix(1), loc_to_pix(15),
+                                 'spritesA', rtl=rtl)
         self.joueurB = Barbarian(loc_to_pix(36), loc_to_pix(15),
-                                 f'spritesB/spritesB{Options.IA}', rtl=True)
+                                 f'spritesB/spritesB{Game.IA}', rtl=not rtl)
         sz = 8 * SCALE
-        if Options.PARTIE == 'solo' and not Options.DEMO:
+        if Game.Partie == 'solo' and not Game.Demo:
             self.add(Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25)))
-        elif Options.PARTIE == 'vs':
+        elif Game.Partie == 'vs':
             self.add(Txt(sz, 'TWO PLAYER', Theme.TXT, loc(16, 25)))
-        elif Options.DEMO:
+        elif Game.Demo:
             self.add(Txt(sz, 'DEMONSTRATION', Theme.TXT, loc(14, 25)))
 
-        self.scoreA = Txt(sz, f'{score_a:05}', Theme.TXT, loc(13, 8))
-        self.scoreB = Txt(sz, f'{score_b:05}', Theme.TXT, loc(24, 8))
-        self.add(self.scoreA, self.scoreB)
+        self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8))
+        self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8))
+        self.add(self.txtScoreA, self.txtScoreB)
 
-        if Options.PARTIE == 'vs':
-            self.chronometer = Txt(sz, f'{Options.CHRONOMETRE:02}',
-                                   Theme.TXT, loc(19, 8))
-            self.add(self.chronometer)
+        if Game.Partie == 'vs':
+            self.txtChronometre = Txt(sz, f'{Game.Chronometre:02}',
+                                      Theme.TXT, loc(19, 8))
+            self.add(self.txtChronometre)
 
-        elif Options.PARTIE == 'solo':
-            self.add(Txt(sz, f'{Options.IA:02}', Theme.TXT, loc(20, 8)))
+        elif Game.Partie == 'solo':
+            self.add(Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8)))
         self.add(self.joueurA, self.joueurB)
         self.joueurA.select_anim('avance')
         self.joueurB.select_anim('avance')
@@ -320,6 +339,17 @@ class Battle(EmptyScene):
         self.add(self.serpentA, self.serpentB)
         self.entree = True
         self.lancerintro = True
+        self.temps = 0
+        self.reftemps = 0
+        self.tempsfini = False
+        self.sense = 'normal'  # inverse
+
+    def finish(self):
+        if self.opts.sound:
+            get_snd('mortdecap.ogg').stop()
+            get_snd('mortKO.ogg').stop()
+            get_snd('prepare.ogg').stop()
+        self.on_fin()
 
     def process_event(self, evt):
         # TODO: Joystick events
@@ -362,19 +392,44 @@ class Battle(EmptyScene):
                         get_snd('mortKO.ogg').stop()
                         get_snd('prepare.ogg').stop()
                 if self.jeu in ('gagne', 'perdu'):
-                    Options.IA = 0
+                    Game.IA = 0
                 self.on_esc()
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
         passed = current_time - self.timer
+        if passed < 50:
+            return
+        self.timer = current_time
+        # debout:
+        self.temps += 1
+        jax = self.joueurA.x_loc()
+        jbx = self.joueurB.x_loc()
+        if self.joueurA.bonus:
+            Game.ScoreA += 10
+            Game.Chronometre -= 1
+            if Game.Chronometre <= 0:
+                Game.ScoreA -= 10
+                if jbx >= 37:
+                    self.joueurA.sortie = True
+                    self.joueurA.occupe = False
+            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+        if self.joueurB.bonus:
+            Game.ScoreB += 10
+            Game.Chronometre -= 1
+            if Game.Chronometre <= 0:
+                Game.Chronometre = 0
+                Game.ScoreB -= 10
+                if jax >= 37:
+                    self.joueurB.sortie = True
+                    self.joueurB.occupe = False
+            self.txtScoreB.msg = f'{Game.ScoreB:05}'
+
         if self.lancerintro:
             get_snd('prepare.ogg').play()
             self.lancerintro = False
 
         if self.entree:
-            jax = pix_to_loc(self.joueurA.x)
-            jbx = pix_to_loc(self.joueurB.x)
             if self.serpentA.anim == 'idle' and jax >= 3:
                 self.serpentA.select_anim('bite')
                 self.serpentB.select_anim('bite')
@@ -383,9 +438,105 @@ class Battle(EmptyScene):
             if jbx <= 22:
                 self.joueurB.x = loc_to_pix(22)
             if jax >= 13 or jbx <= 22:
-                self.joueurA.select_anim('debout')
-                self.joueurB.select_anim('debout')
+                self.joueurA.set_anim_frame('debout', 0)
+                self.joueurB.set_anim_frame('debout', 0)
                 self.entree = False
+            return
+
+        if self.joueurA.sortie:
+            if not self.tempsfini:
+                if jax < 2 and jbx >= 37:
+                    self.finish()
+                    return
+            elif ((self.sense == 'normal' and jax < 2 and jbx >= 37)
+                  or (self.sense == 'inverse' and jbx < 2 and jax >= 37)):
+                Game.Chronometre = 60
+                self.finish()
+                return
+
+        if Game.Demo:
+            distance = jbx - jax
+            if distance >= 15:  # quand trop loin
+                self.joueurA.select_anim('roulade')
+                self.joueurA.occupe = True
+            if distance == 12 and self.joueurB.anim == 'debout':
+                self.joueurA.select_anim('decapite')
+                self.joueurA.occupe = True
+
+            if distance == 9:
+                if self.joueurB.attente > 100:
+                    self.joueurA.state = State.decapite
+                    self.joueurA.occupe = True
+                if self.joueurB.state == State.roulade:
+                    self.joueurA.state = State.genou
+                    self.joueurA.occupe = True
+                if self.joueurB.occupe:
+                    self.joueurA.state = State.roulade
+                    self.joueurA.occupe = True
+
+            if 6 < distance < 9:
+                # distance de combat 1
+                # pour se rapprocher
+                if self.joueurB.state == 'roulade':
+                    self.joueurA.state = 'genou'
+                    self.joueurA.occupe = True
+                if self.joueurB.levier == 'gauche':
+                    self.joueurA.state = 'araignee'
+                    self.joueurA.occupe = True
+                if self.joueurB.state == 'front':
+                    self.joueurA.state = 'protegeH'
+                # pour eviter les degats repetitifs
+                if self.joueurA.infoDegatG > 4:
+                    if self.joueurB.state in ('assis2', 'genou'):
+                        self.joueurA.state = 'genou'
+                        self.joueurA.occupe = True
+                    if self.joueurA.infoDegatG > 2:
+                        if self.joueurB.state in ('assis2', 'genou'):
+                            self.joueurA.state = 'rouladeAV'
+                            self.reftemps = self.temps
+                            self.joueurA.occupe = True
+                    if self.joueurA.infoDegatT > 2:
+                        if self.joueurB.state == 'cou':
+                            self.joueurA.state = 'genou'
+                            self.reftemps = self.temps
+                            self.joueurA.occupe = True
+
+    #                 IF infoAdegatF > 2 THEN
+    #                     IF joueurB$ = "front" THEN joueurA$ = "rouladeAV": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 END IF
+    #
+    #                 'pour alterner les attaques
+    #
+    #                 IF infocoupA = 0 THEN joueurA$ = "devant": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 1 THEN joueurA$ = "front": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 2 THEN joueurA$ = "araignee": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 3 THEN joueurA$ = "araignee": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 4 THEN joueurA$ = "cou": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 5 THEN levier1$ = "gauche": infocoupA = 0: GOTO action
+    #
+    #
+    #             END IF
+    #             IF distance <= 6 THEN
+    #
+    #                 IF joueurB$ = "devant" THEN joueurA$ = "protegeD": reftemps = temps: GOTO gestion
+    #
+    #                 IF infoAdegatG > 4 THEN
+    #                     IF joueurB$ = "assis2" OR joueurB$ = "genou" THEN joueurA$ = "genou": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 END IF
+    #                 IF infoAdegatG > 2 THEN
+    #                     IF joueurB$ = "coupdepied" THEN joueurA$ = "rouladeAV": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                     IF joueurB$ = "assis2" OR joueurB$ = "genou" THEN joueurA$ = "rouladeAV": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 END IF
+    #
+    #                 IF infocoupA = 0 THEN joueurA$ = "coupdepied": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 1 THEN joueurA$ = "coupdetete": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 2 THEN joueurA$ = "araignee": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 3 THEN joueurA$ = "genou": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 4 THEN joueurA$ = "genou": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
+    #                 IF infocoupA = 5 THEN levier1$ = "gauche": infocoupA = 0: GOTO action
+    #
+    #
+    #             END IF
 
 
 class Version(_MenuBackScene):
@@ -397,10 +548,10 @@ class Version(_MenuBackScene):
         if evt.type != KEYUP:
             return
         elif evt.key == K_1:
-            Options.COUNTRY = 'europe'
+            Game.Country = 'europe'
             self.on_display()
         elif evt.key == K_2:
-            Options.COUNTRY = 'USA'
+            Game.Country = 'USA'
             self.on_display()
 
 
@@ -429,16 +580,16 @@ class SelectStage(_MenuBackScene):
         if evt.type != KEYUP:
             return
         elif evt.key == K_1:
-            Options.DECOR = 'plaine'
+            Game.Decor = 'plaine'
             self.on_start()
         elif evt.key == K_2:
-            Options.DECOR = 'foret'
+            Game.Decor = 'foret'
             self.on_start()
         elif evt.key == K_3:
-            Options.DECOR = 'trone'
+            Game.Decor = 'trone'
             self.on_start()
         elif evt.key == K_4:
-            Options.DECOR = 'arene'
+            Game.Decor = 'arene'
             self.on_start()
         elif evt.key in (K_6, K_ESCAPE):
             self.on_back()

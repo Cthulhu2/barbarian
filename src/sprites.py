@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import enum
 from os.path import join
 from typing import Tuple, Dict
 
@@ -270,6 +271,16 @@ class AnimatedSprite(DirtySprite):
         else:
             self.visible = False
 
+    def set_anim_frame(self, anim: str, frame: int = 0):
+        if not self.is_stopped:
+            self.is_stopped = True
+        if not self.visible:
+            self.visible = True
+        self.anim = anim
+        self.frames = self.anims[anim]
+        self.frameNum = frame - 1
+        self.next_frame()
+
     def update(self, current_time, *args):
         if self.visible and not self.is_stopped and self.speed > 0:
             passed = current_time - self.animTimer
@@ -382,7 +393,6 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/debout.gif'),
         ],
         'attente': [
-            Frame(f'{subdir}/debout.gif'),
             Frame(f'{subdir}/attente1.gif', pre_action='attente1'),
             Frame(f'{subdir}/attente2.gif'),
             Frame(f'{subdir}/attente3.gif'),
@@ -395,6 +405,51 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/marche2.gif', mv=(8 * SCALE, 0)),
         ],
     }
+
+
+class Levier(enum.Enum):
+    bas = enum.auto()
+    basG = enum.auto()
+    basD = enum.auto()
+    droite = enum.auto()
+    gauche = enum.auto()
+    haut = enum.auto()
+    hautG = enum.auto()
+    hautD = enum.auto()
+    neutre = enum.auto()
+
+
+class State(enum.Enum):
+    araignee = enum.auto()
+    attente = enum.auto()
+    avance1 = enum.auto()
+    avance2 = enum.auto()
+    avance3 = enum.auto()
+    avance4 = enum.auto()
+    assis = enum.auto()
+    assis2 = enum.auto()
+    cou = enum.auto()
+    coupdepied = enum.auto()
+    coupdetete = enum.auto()
+    debout = enum.auto()
+    decapite = enum.auto()
+    devant = enum.auto()
+    finderoulade = enum.auto()
+    front = enum.auto()
+    genou = enum.auto()
+    protegeD = enum.auto()
+    protegeD1 = enum.auto()
+    protegeH = enum.auto()
+    protegeH1 = enum.auto()
+    recule1 = enum.auto()
+    recule2 = enum.auto()
+    recule3 = enum.auto()
+    recule4 = enum.auto()
+    releve = enum.auto()
+    roulade = enum.auto()
+    rouladeAV = enum.auto()
+    rouladeAR = enum.auto()
+    saute = enum.auto()
 
 
 class Barbarian(AnimatedSprite):
@@ -421,6 +476,18 @@ class Barbarian(AnimatedSprite):
         self.xT = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
         self.xM = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
         self.xG = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
+        #
+        self.attente = 1
+        self.occupe = False
+        self.sortie = False
+        self.levier: Levier = Levier.neutre
+        self.state = ''
+        self.infoDegatG = 0
+        self.infoDegatT = 0
+        self.bonus = False
+
+    def x_loc(self):
+        return pix_to_loc(self.x)
 
     def turn_around(self, rtl):
         self.anims = self.rtl_anims if rtl else self.ltr_anims

@@ -12,16 +12,6 @@ SCREEN_SIZE = (320 * SCALE, 200 * SCALE)
 FONT = FONT_PATH + 'PressStart2P-Regular.ttf'
 
 
-class Options:  # Mutable options
-    COUNTRY = 'europe'  # USA, europe
-    DECOR = 'foret'  # foret, plaine, trone, arene
-    PARTIE = 'solo'  # solo, vs
-    SORCIER = False
-    DEMO = False
-    IA = 0
-    CHRONOMETRE = 0
-
-
 class Theme:
     DEBUG = (28, 236, 36)  # green
     OPTS_TITLE = (255, 238, 0)

@@ -10,7 +10,7 @@ from psutil import Process
 from pygame import display, event, mixer, init, time, image
 
 import scenes
-from settings import SCREEN_SIZE, IMG_PATH, Options
+from settings import SCREEN_SIZE, IMG_PATH
 
 
 class BarbarianMain(object):
@@ -47,27 +47,27 @@ class BarbarianMain(object):
         gc.collect()
 
     def start_battle_demo(self):
-        Options.DECOR = 'foret'
-        Options.DEMO = True
-        Options.IA = 4
-        Options.PARTIE = "solo"
-        Options.SORCIER = False
+        scenes.Game.Decor = 'foret'
+        scenes.Game.Demo = True
+        scenes.Game.IA = 4
+        scenes.Game.Partie = "solo"
+        scenes.Game.Sorcier = False
         self.start_battle()
 
     def start_battle_solo(self):
-        Options.DECOR = 'foret'
-        Options.DEMO = False
-        Options.IA = 0
-        Options.PARTIE = "solo"
-        Options.SORCIER = False
+        scenes.Game.Decor = 'foret'
+        scenes.Game.Demo = False
+        scenes.Game.IA = 0
+        scenes.Game.Partie = "solo"
+        scenes.Game.Sorcier = False
         self.start_battle()
 
     def start_battle_duel(self):
-        Options.DEMO = False
-        Options.IA = 0
-        Options.PARTIE = "vs"
-        Options.CHRONOMETRE = 60
-        Options.SORCIER = False
+        scenes.Game.Demo = False
+        scenes.Game.IA = 0
+        scenes.Game.Partie = "vs"
+        scenes.Game.Chronometre = 60
+        scenes.Game.Sorcier = False
         self.scene = scenes.SelectStage(self.opts,
                                         on_start=self.start_battle,
                                         on_back=self.show_menu)
@@ -75,15 +75,32 @@ class BarbarianMain(object):
 
     def start_battle(self):
         self.scene = scenes.Battle(self.opts,
-                                   score_a=self.scoreA,
-                                   score_b=self.scoreB,
-                                   on_esc=self.cancel_battle)
+                                   on_esc=self.cancel_battle,
+                                   on_menu=self.show_menu,
+                                   on_fin=self.finish_battle)
         gc.collect()
 
     def cancel_battle(self):
         self.scoreA = 0
         self.scoreB = 0
         self.show_menu()
+
+    def finish_battle(self):
+        if scenes.Game.Partie == 'solo':
+            if scenes.Game.Demo:
+                self.show_menu()
+                return
+        if scenes.Game.Partie == 'vs':
+            scenes.Game.Chronometre = 60
+            if scenes.Game.Decor == 'plaine':
+                scenes.Game.Decor = 'foret'
+            elif scenes.Game.Decor == 'foret':
+                scenes.Game.Decor = 'plaine'
+            elif scenes.Game.Decor == 'trone':
+                scenes.Game.Decor = 'arene'
+            elif scenes.Game.Decor == 'arene':
+                scenes.Game.Decor = 'trone'
+            self.start_battle()
 
     def show_opts_ver(self):
         self.scene = scenes.Version(self.opts,
