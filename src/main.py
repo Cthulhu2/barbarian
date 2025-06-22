@@ -1,3 +1,4 @@
+#!/bin/env python3
 # -*- coding: utf-8 -*-
 import gc
 import sys
@@ -207,7 +208,7 @@ def option_parser():
     parser.add_option('-s', '--sound',
                       action='store_true',
                       dest='sound',
-                      default=True,
+                      default=True,  # False
                       help='turn sound on. Default: false (off)')
 
     debug = OptionGroup(parser, 'Debug Options', description='')
@@ -215,7 +216,7 @@ def option_parser():
     debug.add_option('-d', '--debug',
                      action='store_true',
                      dest='debug',
-                     default=True,
+                     default=True,  # False,
                      help='show debug info (CPU, VMS, RSS, FPS)')
     debug.add_option('-c', '--cpu-time',
                      action='store',

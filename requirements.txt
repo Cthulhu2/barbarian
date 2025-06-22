@@ -1,2 +1,2 @@
-Pygame == 2.5.2
+pygame-ce == 2.5.5
 psutil >= 5.8.0

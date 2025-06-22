@@ -13,7 +13,7 @@ FONT = FONT_PATH + 'PressStart2P-Regular.ttf'
 
 
 class Theme:
-    DEBUG = (28, 236, 36)  # green
+    DEBUG = (38, 213, 255)  # cyan
     OPTS_TITLE = (255, 238, 0)
     OPTS_TXT = (255, 255, 255)  # white
     BACK = (0, 0, 0)  # black

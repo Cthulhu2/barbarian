@@ -498,6 +498,8 @@ class Barbarian(AnimatedSprite):
         self.sortie = False
         self.levier: Levier = Levier.neutre
         self.state: State = State.debout
+        self.infoCoup = 0
+        self.infoDegatF = 0
         self.infoDegatG = 0
         self.infoDegatT = 0
         self.bonus = False
@@ -515,7 +517,7 @@ class Barbarian(AnimatedSprite):
             self.clavierX += 1
 
     def dec_clavier_x(self):
-        if self.clavierX > 6:
+        if self.clavierX > 5:
             self.clavierX -= 1
 
     def inc_clavier_y(self):
@@ -523,7 +525,7 @@ class Barbarian(AnimatedSprite):
             self.clavierY += 1
 
     def dec_clavier_y(self):
-        if self.clavierY > 6:
+        if self.clavierY > 5:
             self.clavierY -= 1
 
     def clavier(self):

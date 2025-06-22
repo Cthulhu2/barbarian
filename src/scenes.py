@@ -27,7 +27,7 @@ class Game:  # Mutable options
 class EmptyScene(LayeredDirty):
     def __init__(self, opts, *sprites_, **kwargs):
         super(EmptyScene, self).__init__(*sprites_, **kwargs)
-        self.set_timing_treshold(1000.0 / 25.0)
+        self.set_timing_threshold(1000.0 / 25.0)
         back = Surface(SCREEN_SIZE)
         back.fill(Theme.BACK, back.get_rect())
         # noinspection PyTypeChecker
@@ -89,6 +89,7 @@ class Logo(EmptyScene):
     def do_load(self):
         if self.load:
             return
+        self.load = True
         if self.opts.sound:
             get_snd('tombe.ogg')
             get_snd('epee.ogg')
@@ -532,8 +533,6 @@ class Battle(EmptyScene):
         self.joueurA.clavier()
         self.joueurB.clavier()
 
-        # gestion:
-
         if Game.Demo:
             distance = jbx - jax
             if distance >= 15:  # quand trop loin
@@ -554,69 +553,140 @@ class Battle(EmptyScene):
                     self.joueurA.state = State.roulade
                     self.joueurA.occupe = True
 
-            if 6 < distance < 9:
-                # distance de combat 1
+            if 6 < distance < 9:  # distance de combat 1
                 # pour se rapprocher
-                if self.joueurB.state == 'roulade':
-                    self.joueurA.state = 'genou'
+                if self.joueurB.state == State.roulade:
+                    self.joueurA.state = State.genou
                     self.joueurA.occupe = True
+                    # GOTO gestion
                 if self.joueurB.levier == Levier.gauche:
-                    self.joueurA.state = 'araignee'
+                    self.joueurA.state = State.araignee
                     self.joueurA.occupe = True
-                if self.joueurB.state == 'front':
-                    self.joueurA.state = 'protegeH'
+                    # GOTO gestion
+                if self.joueurB.state == State.front:
+                    self.joueurA.state = State.protegeH
+                    # GOTO gestion
                 # pour eviter les degats repetitifs
                 if self.joueurA.infoDegatG > 4:
-                    if self.joueurB.state in ('assis2', 'genou'):
-                        self.joueurA.state = 'genou'
+                    if self.joueurB.state in (State.assis2, State.genou):
+                        self.joueurA.state = State.genou
                         self.joueurA.occupe = True
-                    if self.joueurA.infoDegatG > 2:
-                        if self.joueurB.state in ('assis2', 'genou'):
-                            self.joueurA.state = 'rouladeAV'
-                            self.reftemps = self.temps
-                            self.joueurA.occupe = True
-                    if self.joueurA.infoDegatT > 2:
-                        if self.joueurB.state == 'cou':
-                            self.joueurA.state = 'genou'
-                            self.reftemps = self.temps
-                            self.joueurA.occupe = True
+                        # GOTO gestion
+                if self.joueurA.infoDegatG > 2:
+                    if self.joueurB.state in (State.assis2, State.genou):
+                        self.joueurA.state = State.rouladeAV
+                        self.reftemps = self.temps
+                        self.joueurA.occupe = True
+                        # GOTO gestion
+                if self.joueurA.infoDegatT > 2:
+                    if self.joueurB.state == State.cou:
+                        self.joueurA.state = State.genou
+                        self.reftemps = self.temps
+                        self.joueurA.occupe = True
+                        # GOTO gestion
+                if self.joueurA.infoDegatF > 2:
+                    if self.joueurB.state == State.front:
+                        self.joueurA.state = State.rouladeAV
+                        self.reftemps = self.temps
+                        self.joueurA.occupe = True
+                        # GOTO gestion
 
-    #                 IF infoAdegatF > 2 THEN
-    #                     IF joueurB$ = "front" THEN joueurA$ = "rouladeAV": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 END IF
-    #
-    #                 'pour alterner les attaques
-    #
-    #                 IF infocoupA = 0 THEN joueurA$ = "devant": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 1 THEN joueurA$ = "front": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 2 THEN joueurA$ = "araignee": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 3 THEN joueurA$ = "araignee": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 4 THEN joueurA$ = "cou": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 5 THEN levier1$ = "gauche": infocoupA = 0: GOTO action
-    #
-    #
-    #             END IF
-    #             IF distance <= 6 THEN
-    #
-    #                 IF joueurB$ = "devant" THEN joueurA$ = "protegeD": reftemps = temps: GOTO gestion
-    #
-    #                 IF infoAdegatG > 4 THEN
-    #                     IF joueurB$ = "assis2" OR joueurB$ = "genou" THEN joueurA$ = "genou": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 END IF
-    #                 IF infoAdegatG > 2 THEN
-    #                     IF joueurB$ = "coupdepied" THEN joueurA$ = "rouladeAV": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                     IF joueurB$ = "assis2" OR joueurB$ = "genou" THEN joueurA$ = "rouladeAV": reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 END IF
-    #
-    #                 IF infocoupA = 0 THEN joueurA$ = "coupdepied": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 1 THEN joueurA$ = "coupdetete": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 2 THEN joueurA$ = "araignee": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 3 THEN joueurA$ = "genou": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 4 THEN joueurA$ = "genou": infocoupA = infocoupA + 1: reftemps = temps: Aoccupe$ = "oui": GOTO gestion
-    #                 IF infocoupA = 5 THEN levier1$ = "gauche": infocoupA = 0: GOTO action
-    #
-    #
-    #             END IF
+                # pour alterner les attaques
+                if self.joueurA.infoCoup == 0:
+                    self.joueurA.state = State.devant
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 1:
+                    self.joueurA.state = State.front
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 2:
+                    self.joueurA.state = State.araignee
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 3:
+                    self.joueurA.state = State.araignee
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 4:
+                    self.joueurA.state = State.cou
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 5:
+                    self.joueurA.infoCoup = 0
+                    self.joueurA.levier = Levier.gauche
+                    # GOTO action
+
+            if distance <= 6:
+                if self.joueurB.state == State.devant:
+                    self.joueurA.state = State.protegeD
+                    self.reftemps = self.temps
+                    # GOTO gestion
+
+                if self.joueurA.infoDegatG > 4:
+                    if self.joueurB.state in (State.assis2, State.genou):
+                        self.joueurA.state = State.genou
+                        self.reftemps = self.temps
+                        self.joueurA.occupe = True
+                        # GOTO gestion
+                if self.joueurA.infoDegatG > 2:
+                    if self.joueurB.state == State.coupdepied:
+                        self.joueurA.state = State.rouladeAV
+                        self.reftemps = self.temps
+                        self.joueurA.occupe = True
+                        # GOTO gestion
+                    if self.joueurB.state in (State.assis2, State.genou):
+                        self.joueurA.state = State.rouladeAV
+                        self.reftemps = self.temps
+                        self.joueurA.occupe = True
+                        # GOTO gestion
+
+                if self.joueurA.infoCoup == 0:
+                    self.joueurA.state = State.coupdepied
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 1:
+                    self.joueurA.state = State.coupdetete
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 2:
+                    self.joueurA.state = State.araignee
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 3:
+                    self.joueurA.state = State.genou
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 4:
+                    self.joueurA.state = State.genou
+                    self.joueurA.infoCoup += 1
+                    self.reftemps = self.temps
+                    self.joueurA.occupe = True
+                    # GOTO gestion
+                if self.joueurA.infoCoup == 5:
+                    self.joueurA.infoCoup = 0
+                    self.joueurA.levier = Levier.gauche
+                    # GOTO action
+
+        # gestion:
 
 
 class Version(_MenuBackScene):
