@@ -408,14 +408,7 @@ class Battle(EmptyScene):
             elif evt.key == K_SPACE:
                 self.joueurB.attaque = False
 
-    def update(self, current_time, *args):
-        super(Battle, self).update(current_time, *args)
-        passed = current_time - self.timer
-        if passed < 50:
-            return
-        self.timer = current_time
-
-        # debout:
+    def _debut(self):
         self.temps += 1
         jax = self.joueurA.x_loc()
         jbx = self.joueurB.x_loc()
@@ -455,7 +448,7 @@ class Battle(EmptyScene):
                 self.joueurA.set_anim_frame('debout', 0)
                 self.joueurB.set_anim_frame('debout', 0)
                 self.entree = False
-            return
+            return None
 
         if self.joueurA.sortie:
             if not self.tempsfini:
@@ -463,7 +456,7 @@ class Battle(EmptyScene):
                     if Game.Partie == 'solo':
                         if Game.Demo:
                             self.finish()
-                            return
+                            return None
                         if Game.IA < 7:
                             self.next_stage()
                         else:
@@ -479,14 +472,15 @@ class Battle(EmptyScene):
                             self.entreesorcier = True
                             self.joueurB.occupe = True
                             self.joueurB.reftemps = self.temps
-                    return
+                    return None
             elif ((self.sense == 'normal' and jax < 2 and jbx >= 37)
                   or (self.sense == 'inverse' and jbx < 2 and jax >= 37)):
                 Game.Chronometre = 60
                 self.next_stage()
-                return
+                return None
+        return 'degats'
 
-        # degats:
+    def _degats(self):
         # degats sur joueurA
         if Game.Sorcier:
             if self.joueurA.x_loc() < 29:
@@ -494,8 +488,7 @@ class Battle(EmptyScene):
                     if self.joueurB.yAtt == self.joueurA.yT:
                         self.gnome = False
                         if self.jeu == 'perdu':
-                            pass
-                            # GOTO gestion
+                            return 'gestion'
                         self.joueurA.state = State.mortSORCIER
                         self.joueurA.occupe = True
                         self.joueurB.reftemps = self.temps
@@ -505,13 +498,12 @@ class Battle(EmptyScene):
                         self.joueurB.reftemps = self.temps
                         self.joueurB.sang = False
                         self.jeu = 'perdu'
-                        # GOTO gestion
+                        return 'gestion'
                 if self.joueurA.xG <= self.joueurB.xAtt <= self.joueurA.xG + 2:
                     if self.joueurB.yAtt == self.joueurA.yG:
                         self.gnome = False
                         if self.jeu == 'perdu':
-                            pass
-                            # GOTO gestion
+                            return 'gestion'
                         self.joueurA.state = State.mortSORCIER
                         self.joueurA.occupe = True
                         self.joueurA.reftemps = self.temps
@@ -521,80 +513,78 @@ class Battle(EmptyScene):
                         self.joueurB.reftemps = self.temps
                         self.joueurB.sang = False
                         self.jeu = 'perdu'
-                        # GOTO gestion
+                        return 'gestion'
             if self.joueurA.occupe:
-                pass
-                # GOTO gestion
+                return 'gestion'
             self.joueurA.sang = False
-        # GOTO clavier
+        return 'clavier'
 
-
-        # clavier:
+    def _clavier(self):
         self.joueurA.clavier()
         self.joueurB.clavier()
 
         if Game.Demo:
-            distance = jbx - jax
+            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
             if distance >= 15:  # quand trop loin
                 self.joueurA.select_anim('roulade')
                 self.joueurA.occupe = True
-                # GOTO gestion
+                return 'gestion'
             if distance == 12 and self.joueurB.anim == 'debout':
                 self.joueurA.select_anim('decapite')
                 self.joueurA.occupe = True
-                # GOTO gestion
+                return 'gestion'
 
             if distance == 9:
                 if self.joueurB.attente > 100:
                     self.joueurA.state = State.decapite
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurB.state == State.roulade:
                     self.joueurA.state = State.genou
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurB.occupe:
                     self.joueurA.state = State.roulade
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
 
             if 6 < distance < 9:  # distance de combat 1
                 # pour se rapprocher
                 if self.joueurB.state == State.roulade:
                     self.joueurA.state = State.genou
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurB.levier == Levier.gauche:
                     self.joueurA.state = State.araignee
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurB.state == State.front:
                     self.joueurA.state = State.protegeH
-                    # GOTO gestion
+                    return 'gestion'
                 # pour eviter les degats repetitifs
                 if self.joueurA.infoDegatG > 4:
                     if self.joueurB.state in (State.assis2, State.genou):
                         self.joueurA.state = State.genou
                         self.joueurA.occupe = True
-                        # GOTO gestion
+                        return 'gestion'
                 if self.joueurA.infoDegatG > 2:
                     if self.joueurB.state in (State.assis2, State.genou):
                         self.joueurA.state = State.rouladeAV
                         self.joueurA.reftemps = self.temps
                         self.joueurA.occupe = True
-                        # GOTO gestion
+                        return 'gestion'
                 if self.joueurA.infoDegatT > 2:
                     if self.joueurB.state == State.cou:
                         self.joueurA.state = State.genou
                         self.joueurA.reftemps = self.temps
                         self.joueurA.occupe = True
-                        # GOTO gestion
+                        return 'gestion'
                 if self.joueurA.infoDegatF > 2:
                     if self.joueurB.state == State.front:
                         self.joueurA.state = State.rouladeAV
                         self.joueurA.reftemps = self.temps
                         self.joueurA.occupe = True
-                        # GOTO gestion
+                        return 'gestion'
 
                 # pour alterner les attaques
                 if self.joueurA.infoCoup == 0:
@@ -602,105 +592,105 @@ class Battle(EmptyScene):
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 1:
                     self.joueurA.state = State.front
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 2:
                     self.joueurA.state = State.araignee
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 3:
                     self.joueurA.state = State.araignee
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 4:
                     self.joueurA.state = State.cou
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
                     self.joueurA.levier = Levier.gauche
-                    # GOTO action
+                    return 'action'
 
             if distance <= 6:
                 if self.joueurB.state == State.devant:
                     self.joueurA.state = State.protegeD
                     self.joueurA.reftemps = self.temps
-                    # GOTO gestion
+                    return 'gestion'
 
                 if self.joueurA.infoDegatG > 4:
                     if self.joueurB.state in (State.assis2, State.genou):
                         self.joueurA.state = State.genou
                         self.joueurA.reftemps = self.temps
                         self.joueurA.occupe = True
-                        # GOTO gestion
+                        return 'gestion'
                 if self.joueurA.infoDegatG > 2:
                     if self.joueurB.state == State.coupdepied:
                         self.joueurA.state = State.rouladeAV
                         self.joueurA.reftemps = self.temps
                         self.joueurA.occupe = True
-                        # GOTO gestion
+                        return 'gestion'
                     if self.joueurB.state in (State.assis2, State.genou):
                         self.joueurA.state = State.rouladeAV
                         self.joueurA.reftemps = self.temps
                         self.joueurA.occupe = True
-                        # GOTO gestion
+                        return 'gestion'
 
                 if self.joueurA.infoCoup == 0:
                     self.joueurA.state = State.coupdepied
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 1:
                     self.joueurA.state = State.coupdetete
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 2:
                     self.joueurA.state = State.araignee
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 3:
                     self.joueurA.state = State.genou
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 4:
                     self.joueurA.state = State.genou
                     self.joueurA.infoCoup += 1
                     self.joueurA.reftemps = self.temps
                     self.joueurA.occupe = True
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
                     self.joueurA.levier = Levier.gauche
-                    # GOTO action
+                    return 'action'
 
             if self.sense == 'inverse':
                 self.on_menu()
-                return
+                return None
 
         # redirection suivant les touches
         if self.joueurA.levier in (
                 Levier.hautG, Levier.hautD, Levier.haut,
                 Levier.basG, Levier.basD, Levier.bas,
                 Levier.gauche, Levier.droite):
-            pass  # GOTO action
+            return 'action'
 
         self.joueurA.avance = 0
         self.joueurA.recule = 0
@@ -714,33 +704,33 @@ class Battle(EmptyScene):
             self.joueurA.state = State.releve
             self.joueurA.occupe = True
             self.joueurA.reftemps = self.temps
-            # GOTO gestion
+            return 'gestion'
         if self.joueurA.state == State.assis2R:
             self.joueurA.state = State.releveR
             self.joueurA.occupe = True
             self.joueurA.reftemps = self.temps
-            # GOTO gestion
+            return 'gestion'
         # attente des 5 secondes
         if self.sense == 'normal':
             if self.joueurA.attente > 250:
                 self.joueurA.state = State.attente
                 self.joueurA.occupe = True
                 self.joueurA.reftemps = self.temps
-                # GOTO gestion
+                return 'gestion'
         if self.sense == 'inverse':
             if self.joueurA.attente > 250:
                 self.joueurA.state = State.attenteR
                 self.joueurA.occupe = True
                 self.joueurA.reftemps = self.temps
-                # GOTO gestion
+                return 'gestion'
         # etat debout
         if self.sense == 'normal':
             self.joueurA.state = State.debout
         if self.sense == 'inverse':
             self.joueurA.state = State.deboutR
-        # GOTO gestion
+        return 'gestion'
 
-        # action:
+    def _action(self):
         self.joueurA.attente = 1  # remise a zero de l'attente
         # *********************************************************
         # ***************** ACTIONS suivant clavier ***************
@@ -752,16 +742,16 @@ class Battle(EmptyScene):
                 self.joueurA.protegeD = False
                 if self.joueurA.spriteAvance == 1:
                     self.joueurA.state = State.avance1
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.spriteAvance == 2:
                     self.joueurA.state = State.avance2
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.spriteAvance == 3:
                     self.joueurA.state = State.avance3
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.spriteAvance == 4:
                     self.joueurA.state = State.avance4
-                    # GOTO gestion
+                    return 'gestion'
                 self.joueurA.state = State.avance
                 self.joueurA.reftemps = self.temps
                 if self.joueurA.attaque and not Game.Demo and not self.entree:
@@ -773,22 +763,49 @@ class Battle(EmptyScene):
                 self.joueurA.protegeH = False
                 if self.joueurA.spriteRecule == 1:
                     self.joueurA.state = State.recule1
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.spriteRecule == 2:
                     self.joueurA.state = State.recule2
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.spriteRecule == 3:
                     self.joueurA.state = State.recule3
-                    # GOTO gestion
+                    return 'gestion'
                 if self.joueurA.spriteRecule == 4:
                     self.joueurA.state = State.recule4
-                    # GOTO gestion
+                    return 'gestion'
                 self.joueurA.state = State.recule
                 self.joueurA.reftemps = self.temps
                 if self.joueurA.attaque and not Game.Demo and not self.joueurA.sortie:
                     self.joueurA.state = State.decapite
                     self.joueurA.occupe = True
                     self.joueurA.reftemps = self.temps
+
+        return 'gestion'
+
+    def _gestion(self):
+        return None
+
+    def update(self, current_time, *args):
+        super(Battle, self).update(current_time, *args)
+        passed = current_time - self.timer
+        if passed < 50:
+            return
+        self.timer = current_time
+
+        goto = 'debut'
+        while goto:
+            if goto == 'debut':
+                goto = self._debut()
+            if goto == 'degats':
+                goto = self._degats()
+            if goto == 'clavier':
+                goto = self._clavier()
+            if goto == 'action':
+                goto = self._action()
+            if goto == 'gestion':
+                goto = self._gestion()
+            else:
+                goto = None
 
         # gestion:
 
