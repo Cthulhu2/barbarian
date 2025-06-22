@@ -433,16 +433,20 @@ class Levier(enum.Enum):
 class State(enum.Enum):
     araignee = enum.auto()
     attente = enum.auto()
+    attenteR = enum.auto()
+    avance = enum.auto()
     avance1 = enum.auto()
     avance2 = enum.auto()
     avance3 = enum.auto()
     avance4 = enum.auto()
     assis = enum.auto()
     assis2 = enum.auto()
+    assis2R = enum.auto()
     cou = enum.auto()
     coupdepied = enum.auto()
     coupdetete = enum.auto()
     debout = enum.auto()
+    deboutR = enum.auto()
     decapite = enum.auto()
     devant = enum.auto()
     finderoulade = enum.auto()
@@ -452,11 +456,13 @@ class State(enum.Enum):
     protegeD1 = enum.auto()
     protegeH = enum.auto()
     protegeH1 = enum.auto()
+    recule = enum.auto()
     recule1 = enum.auto()
     recule2 = enum.auto()
     recule3 = enum.auto()
     recule4 = enum.auto()
     releve = enum.auto()
+    releveR = enum.auto()
     roulade = enum.auto()
     rouladeAV = enum.auto()
     rouladeAR = enum.auto()
@@ -503,6 +509,13 @@ class Barbarian(AnimatedSprite):
         self.infoDegatG = 0
         self.infoDegatT = 0
         self.bonus = False
+        self.assis = False
+        self.avance = 0
+        self.recule = 0
+        self.protegeD = False
+        self.protegeH = False
+        self.spriteAvance = 0
+        self.spriteRecule = 0
 
     def x_loc(self):
         return pix_to_loc(self.x)
