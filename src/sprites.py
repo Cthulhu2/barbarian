@@ -397,12 +397,21 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/attente2.gif'),
             Frame(f'{subdir}/attente3.gif'),
             Frame(f'{subdir}/attente2.gif'),
+            Frame(f'{subdir}/attente1.gif'),
         ],
         'avance': [
             Frame(f'{subdir}/marche1.gif', mv=(8 * SCALE, 0)),
             Frame(f'{subdir}/marche2.gif', mv=(8 * SCALE, 0)),
             Frame(f'{subdir}/marche3.gif', mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif', mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif'),
+        ],
+        'recule': [
+            Frame(f'{subdir}/marche3.gif', mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif', mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif'),
         ],
     }
 
@@ -432,41 +441,65 @@ class Levier(enum.Enum):
 
 class State(enum.Enum):
     araignee = enum.auto()
+    araigneeR = enum.auto()
     attente = enum.auto()
     attenteR = enum.auto()
     avance = enum.auto()
+    avanceR = enum.auto()
     avance1 = enum.auto()
+    avance1R = enum.auto()
     avance2 = enum.auto()
+    avance2R = enum.auto()
     avance3 = enum.auto()
+    avance3R = enum.auto()
     avance4 = enum.auto()
+    avance4R = enum.auto()
     assis = enum.auto()
+    assisR = enum.auto()
     assis2 = enum.auto()
     assis2R = enum.auto()
     cou = enum.auto()
     coupdepied = enum.auto()
+    coupdepiedR = enum.auto()
     coupdetete = enum.auto()
+    coupdeteteR = enum.auto()
     debout = enum.auto()
     deboutR = enum.auto()
     decapite = enum.auto()
+    decapiteR = enum.auto()
     devant = enum.auto()
+    devantR = enum.auto()
     finderoulade = enum.auto()
     front = enum.auto()
+    frontR = enum.auto()
     genou = enum.auto()
     protegeD = enum.auto()
+    protegeDR = enum.auto()
     protegeD1 = enum.auto()
+    protegeDR1 = enum.auto()
     protegeH = enum.auto()
+    protegeHR = enum.auto()
     protegeH1 = enum.auto()
+    protegeHR1 = enum.auto()
     recule = enum.auto()
+    reculeR = enum.auto()
     recule1 = enum.auto()
+    recule1R = enum.auto()
     recule2 = enum.auto()
+    recule2R = enum.auto()
     recule3 = enum.auto()
+    recule3R = enum.auto()
     recule4 = enum.auto()
+    recule4R = enum.auto()
     releve = enum.auto()
     releveR = enum.auto()
     roulade = enum.auto()
     rouladeAV = enum.auto()
+    rouladeAVR = enum.auto()
     rouladeAR = enum.auto()
+    rouladeARR = enum.auto()
     saute = enum.auto()
+    sauteR = enum.auto()
     #
     mortSORCIER = enum.auto()
     sorcierFINI = enum.auto()
@@ -517,6 +550,12 @@ class Barbarian(AnimatedSprite):
         self.spriteAvance = 0
         self.spriteRecule = 0
 
+    def reset_xX(self):
+        self.xF = self.x_loc() + (0 if self.rtl else 4)
+        self.xT = self.x_loc() + (0 if self.rtl else 4)
+        self.xM = self.x_loc() + (0 if self.rtl else 4)
+        self.xG = self.x_loc() + (0 if self.rtl else 4)
+
     def x_loc(self):
         return pix_to_loc(self.x)
 
@@ -524,6 +563,11 @@ class Barbarian(AnimatedSprite):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
         self.select_anim(self.anim)
         self.rtl = rtl
+
+    def occupe_state(self, state: State, temps: int):
+        self.state = state
+        self.occupe = True
+        self.reftemps = temps
 
     def inc_clavier_x(self):
         if self.clavierX < 9:

@@ -307,10 +307,10 @@ class Battle(EmptyScene):
                          f'stage/{Game.Decor}ARBRED.gif'),
             layer=2)
 
-        self.joueurA = Barbarian(loc_to_pix(1), loc_to_pix(15),
+        self.joueurA = Barbarian(loc_to_pix(1), loc_to_pix(14),
                                  'spritesA',
                                  rtl=Game.Rtl)
-        self.joueurB = Barbarian(loc_to_pix(36), loc_to_pix(15),
+        self.joueurB = Barbarian(loc_to_pix(36), loc_to_pix(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)
         sz = 8 * SCALE
@@ -402,9 +402,25 @@ class Battle(EmptyScene):
 
         if evt.type == KEYUP:
             # Joueur A
-            if evt.key == K_RSHIFT:
+            if evt.key == K_UP:
+                self.joueurA.dec_clavier_y()
+            elif evt.key == K_DOWN:
+                self.joueurA.inc_clavier_y()
+            elif evt.key == K_LEFT:
+                self.joueurA.inc_clavier_x()
+            elif evt.key == K_RIGHT:
+                self.joueurA.dec_clavier_x()
+            elif evt.key == K_RSHIFT:
                 self.joueurA.attaque = False
             # Joueur B
+            elif evt.key == K_i:
+                self.joueurB.dec_clavier_y()
+            elif evt.key == K_j:
+                self.joueurB.inc_clavier_y()
+            elif evt.key == K_k:
+                self.joueurB.inc_clavier_x()
+            elif evt.key == K_l:
+                self.joueurB.dec_clavier_x()
             elif evt.key == K_SPACE:
                 self.joueurB.attaque = False
 
@@ -517,6 +533,11 @@ class Battle(EmptyScene):
             if self.joueurA.occupe:
                 return 'gestion'
             self.joueurA.sang = False
+            return 'clavier'
+
+        if self.joueurA.occupe:
+            return 'gestion'
+        self.joueurA.sang = False
         return 'clavier'
 
     def _clavier(self):
@@ -755,9 +776,7 @@ class Battle(EmptyScene):
                 self.joueurA.state = State.avance
                 self.joueurA.reftemps = self.temps
                 if self.joueurA.attaque and not Game.Demo and not self.entree:
-                    self.joueurA.state = State.devant
-                    self.joueurA.occupe = True
-                    self.joueurA.reftemps = self.temps
+                    self.joueurA.occupe_state(State.devant, self.temps)
 
             if self.joueurA.levier == Levier.gauche:
                 self.joueurA.protegeH = False
@@ -776,19 +795,268 @@ class Battle(EmptyScene):
                 self.joueurA.state = State.recule
                 self.joueurA.reftemps = self.temps
                 if self.joueurA.attaque and not Game.Demo and not self.joueurA.sortie:
-                    self.joueurA.state = State.decapite
-                    self.joueurA.occupe = True
-                    self.joueurA.reftemps = self.temps
+                    self.joueurA.occupe_state(State.decapite, self.temps)
 
+        # droite, gauche, decapite, devant (inverse)
+        if self.sense == 'inverse':
+            if self.joueurA.levier == Levier.droite:
+                self.joueurA.protegeH = False
+                if self.joueurA.spriteRecule == 1:
+                    self.joueurA.state = State.recule1R
+                    return 'gestion'
+                if self.joueurA.spriteRecule == 2:
+                    self.joueurA.state = State.recule2R
+                    return 'gestion'
+                if self.joueurA.spriteRecule == 3:
+                    self.joueurA.state = State.recule3R
+                    return 'gestion'
+                if self.joueurA.spriteRecule == 4:
+                    self.joueurA.state = State.recule4R
+                    return 'gestion'
+                self.joueurA.state = State.reculeR
+                self.joueurA.reftemps = self.temps
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.decapiteR, self.temps)
+            if self.joueurA.levier == Levier.gauche:
+                self.joueurA.protegeD = False
+                if self.joueurA.spriteAvance == 1:
+                    self.joueurA.state = State.avance1R
+                    return 'gestion'
+                if self.joueurA.spriteAvance == 2:
+                    self.joueurA.state = State.avance2R
+                    return 'gestion'
+                if self.joueurA.spriteAvance == 3:
+                    self.joueurA.state = State.avance3R
+                    return 'gestion'
+                if self.joueurA.spriteAvance == 4:
+                    self.joueurA.state = State.avance4R
+                    return 'gestion'
+                self.joueurA.state = State.avanceR
+                self.joueurA.reftemps = self.temps
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.devantR, self.temps)
+
+        # saute, attaque cou
+        if self.joueurA.levier == Levier.haut:
+            self.joueurA.protegeD = False
+            self.joueurA.protegeH = False
+            self.joueurA.occupe_state(
+                State.saute if self.sense == 'normal' else State.sauteR,
+                self.temps)
+            return 'gestion'
+
+        # assis, attaque genou
+        if self.sense == 'normal':
+            if self.joueurA.levier == 'bas':
+                if self.joueurA.assis:
+                    self.joueurA.state = State.assis2
+                    return 'gestion'
+                self.joueurA.occupe_state(State.assis, self.temps)
+                return 'gestion'
+        if self.sense == 'inverse':
+            if self.joueurA.levier == 'bas':
+                if self.joueurA.assis:
+                    self.joueurA.state = State.assis2R
+                    return 'gestion'
+                self.joueurA.occupe_state(State.assisR, self.temps)
+                return 'gestion'
+        # roulade AV, coup de pied
+        if self.sense == 'normal':
+            if self.joueurA.levier == Levier.basD:
+                self.joueurA.occupe_state(State.rouladeAV, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.coupdepied, self.temps)
+        if self.sense == 'inverse':
+            if self.joueurA.levier == Levier.basD:
+                self.joueurA.occupe_state(State.rouladeAVR, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.coupdepiedR, self.temps)
+        # roulade AR, coup sur front
+        if self.sense == 'normal':
+            if self.joueurA.levier == Levier.basG:
+                self.joueurA.occupe_state(State.rouladeAR, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.front, self.temps)
+        if self.sense == 'inverse':
+            if self.joueurA.levier == Levier.basG:
+                self.joueurA.occupe_state(State.rouladeARR, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.frontR, self.temps)
+
+        # protection haute, araignee
+        if self.sense == 'normal':
+            if self.joueurA.levier == Levier.hautG:
+                if self.joueurA.protegeH:
+                    self.joueurA.state = State.protegeH
+                    return 'gestion'
+                self.joueurA.occupe_state(State.protegeH1, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.araignee, self.temps)
+
+        if self.sense == 'inverse':
+            if self.joueurA.levier == Levier.hautG:
+                if self.joueurA.protegeH:
+                    self.joueurA.state = State.protegeHR
+                    return 'gestion'
+                self.joueurA.occupe_state(State.protegeHR1, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.araigneeR, self.temps)
+
+        # protection devant, coup de tete
+        if self.sense == 'normal':
+            if self.joueurA.levier == Levier.hautD:
+                if self.joueurA.protegeD:
+                    self.joueurA.state = State.protegeD
+                    return 'gestion'
+                self.joueurA.occupe_state(State.protegeD1, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.coupdetete, self.temps)
+        if self.sense == 'inverse':
+            if self.joueurA.levier == Levier.hautD:
+                if self.joueurA.protegeD:
+                    self.joueurA.state = State.protegeDR
+                    return 'gestion'
+                self.joueurA.occupe_state(State.protegeDR1, self.temps)
+                if self.joueurA.attaque and not Game.Demo:
+                    self.joueurA.occupe_state(State.coupdeteteR, self.temps)
         return 'gestion'
 
     def _gestion(self):
+        # ********************************************
+        # *************GESTION DES ETATS**************
+        # ********************************************
+        if self.joueurA.state in (State.attente, State.attenteR):
+            self.joueurA.reset_xX()
+            if self.temps > self.joueurA.reftemps + 50:
+                self.joueurA.occupe = False
+                self.joueurA.attente = 1
+                self.joueurA.state = State.debout
+            elif self.temps > self.joueurA.reftemps + 37:
+                self.joueurA.set_anim_frame('attente', 4)
+            elif self.temps > self.joueurA.reftemps + 30:
+                self.joueurA.set_anim_frame('attente', 3)
+            elif self.temps > self.joueurA.reftemps + 23:
+                self.joueurA.set_anim_frame('attente', 2)
+            elif self.temps > self.joueurA.reftemps + 15:
+                self.joueurA.set_anim_frame('attente', 1)
+            elif self.temps > self.joueurA.reftemps + 8:
+                pass  # don't play 0-pre_action sound twice
+            elif self.temps > self.joueurA.reftemps + 7:
+                self.joueurA.set_anim_frame('attente', 0)
+            return 'joueur2'
+
+        if self.joueurA.state in (State.debout, State.deboutR):
+            self.joueurA.set_anim_frame('debout', 0)
+            self.joueurA.decapite = True
+            self.joueurA.sang = False
+            self.joueurA.xAtt = self.joueurA.x_loc() + (0 if self.joueurA.rtl else 4)
+            self.joueurA.yAtt = 14
+            self.joueurA.yF = 15
+            self.joueurA.yT = 16
+            self.joueurA.yM = 18
+            self.joueurA.yG = 20
+            self.joueurA.reset_xX()
+            if Game.Demo and self.joueurA.state == State.debout:
+                if self.temps > self.joueurA.reftemps + 20:
+                    self.joueurA.occupe = False
+
+        # avance
+        if self.joueurA.state == State.avance:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.devant, self.temps)
+                return 'gestion'
+            self.joueurA.set_anim_frame('avance', 0)  # marche1
+            self.joueurA.spriteAvance = 1
+        if self.joueurA.state == State.avance1:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.devant, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 9:
+                self.joueurA.set_anim_frame('avance', 1)  # marche2
+                self.joueurA.spriteAvance = 2
+        if self.joueurA.state == State.avance2:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.devant, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 18:
+                self.joueurA.set_anim_frame('avance', 2)  # marche3
+                self.joueurA.spriteAvance = 3
+        if self.joueurA.state == State.avance3:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.devant, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 27:
+                self.joueurA.set_anim_frame('avance', 3)  # debout
+                self.joueurA.spriteAvance = 4
+        if self.joueurA.state == State.avance4:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.devant, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 36:
+                self.joueurA.set_anim_frame('avance', 4)  # debout
+                self.joueurA.spriteAvance = 0
+
+        # recule
+        if self.joueurA.state == State.recule:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.decapite, self.temps)
+                return 'gestion'
+            self.joueurA.set_anim_frame('recule', 0)  # marche1
+            self.joueurA.spriteRecule = 1
+        if self.joueurA.state == State.recule1:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.decapite, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 9:
+                self.joueurA.set_anim_frame('recule', 1)  # marche2
+                self.joueurA.spriteRecule = 2
+        if self.joueurA.state == State.recule2:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.decapite, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 18:
+                self.joueurA.set_anim_frame('recule', 2)  # marche3
+                self.joueurA.spriteRecule = 3
+        if self.joueurA.state == State.recule3:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.decapite, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 27:
+                self.joueurA.set_anim_frame('recule', 3)  # debout
+                self.joueurA.spriteRecule = 4
+        if self.joueurA.state == State.recule4:
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            if self.joueurA.attaque and not Game.Demo and not self.entree:
+                self.joueurA.occupe_state(State.decapite, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 36:
+                self.joueurA.set_anim_frame('recule', 4)  # debout
+                self.joueurA.spriteRecule = 0
         return None
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
         passed = current_time - self.timer
-        if passed < 50:
+        if passed < 10:
             return
         self.timer = current_time
 
