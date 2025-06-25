@@ -299,7 +299,8 @@ class AnimatedSprite(DirtySprite):
         pass
 
     def on_post_action(self, anim, action):
-        pass
+        if action == 'stop':
+            self.is_stopped = True
 
     def prev_frame(self):
         self.frameNum -= 1
@@ -382,7 +383,7 @@ def serpent_anims():
             Frame('stage/serpent4.gif', dx=-3 * SCALE, dy=-1 * SCALE),
             Frame('stage/serpent3.gif'),
             Frame('stage/serpent2.gif'),
-            Frame('stage/serpent1.gif', duration=100000),
+            Frame('stage/serpent1.gif', post_action='stop'),
         ]
     }
 
@@ -458,6 +459,8 @@ class State(enum.Enum):
     assisR = enum.auto()
     assis2 = enum.auto()
     assis2R = enum.auto()
+    clingD = enum.auto()
+    clingH = enum.auto()
     cou = enum.auto()
     coupdepied = enum.auto()
     coupdepiedR = enum.auto()
@@ -470,6 +473,7 @@ class State(enum.Enum):
     devant = enum.auto()
     devantR = enum.auto()
     finderoulade = enum.auto()
+    finderouladeR = enum.auto()
     front = enum.auto()
     frontR = enum.auto()
     genou = enum.auto()
@@ -500,7 +504,13 @@ class State(enum.Enum):
     rouladeARR = enum.auto()
     saute = enum.auto()
     sauteR = enum.auto()
+    tombe = enum.auto()
+    tombeR = enum.auto()
+    touche = enum.auto()
+    toucheR = enum.auto()
     #
+    fini = enum.auto()
+    marianna = enum.auto()
     mortSORCIER = enum.auto()
     sorcierFINI = enum.auto()
 
@@ -549,6 +559,12 @@ class Barbarian(AnimatedSprite):
         self.protegeH = False
         self.spriteAvance = 0
         self.spriteRecule = 0
+        self.decapite = False
+        self.pressedUp = False
+        self.pressedDown = False
+        self.pressedLeft = False
+        self.pressedRight = False
+        self.pressedFire = False
 
     def reset_xX(self):
         self.xF = self.x_loc() + (0 if self.rtl else 4)
@@ -586,6 +602,16 @@ class Barbarian(AnimatedSprite):
             self.clavierY -= 1
 
     def clavier(self):
+        if self.pressedUp:
+            self.inc_clavier_y()
+        if self.pressedDown:
+            self.dec_clavier_y()
+        if self.pressedLeft:
+            self.dec_clavier_x()
+        if self.pressedRight:
+            self.inc_clavier_x()
+        self.attaque = self.pressedFire
+
         if self.clavierX <= 6 and self.clavierY <= 6:
             self.levier = Levier.hautD if self.rtl else Levier.hautG
         if self.clavierX >= 8 and self.clavierY <= 6:

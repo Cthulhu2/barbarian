@@ -26,8 +26,6 @@ class BarbarianMain(object):
         self.opts = opts
         self.scene = scenes.Logo(opts, on_load=self.show_menu)
         self.running = True
-        self.scoreA = 0
-        self.scoreB = 0
 
     def menu(self):
         return scenes.Menu(self.opts,
@@ -82,8 +80,6 @@ class BarbarianMain(object):
         gc.collect()
 
     def cancel_battle(self):
-        self.scoreA = 0
-        self.scoreB = 0
         self.show_menu()
 
     def next_stage(self):
@@ -119,13 +115,15 @@ class BarbarianMain(object):
 
     def show_opts_ver(self):
         self.scene = scenes.Version(self.opts,
-                                    on_display=self.show_opts_display)
+                                    on_display=self.show_opts_display,
+                                    on_back=self.show_menu)
         gc.collect()
 
     def show_opts_display(self):
         self.scene = scenes.Display(self.opts,
                                     on_fullscreen=self.on_fullscreen,
-                                    on_window=self.on_window)
+                                    on_window=self.on_window,
+                                    on_back=self.show_opts_ver)
         gc.collect()
 
     def show_ctrl_keys(self):

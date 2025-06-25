@@ -300,6 +300,14 @@ class Battle(EmptyScene):
                 back.blit(logo, (59 * SCALE, 16 * SCALE))
         # noinspection PyTypeChecker
         self.clear(None, back)
+        if self.opts.debug:
+            self.jAstate = Txt(8, 'AS: ', Theme.DEBUG, (loc_to_pix(10), 0))
+            self.jAlevier = Txt(8, 'AL: ', Theme.DEBUG,
+                                (loc_to_pix(10), self.jAstate.rect.bottom))
+            self.jBstate = Txt(8, 'BS: ', Theme.DEBUG, (loc_to_pix(25), 0))
+            self.jBlevier = Txt(8, 'BL: ', Theme.DEBUG,
+                                (loc_to_pix(25), self.jBstate.rect.bottom))
+            self.add(self.jAstate, self.jAlevier, self.jBstate, self.jBlevier)
         self.add(
             StaticSprite((0, 104 * SCALE),
                          f'stage/{Game.Decor}ARBREG.gif'),
@@ -346,6 +354,7 @@ class Battle(EmptyScene):
         self.temps = 0
         self.tempsfini = False
         self.sense = 'normal'  # inverse
+        self.gnome = False
 
     def finish(self):
         if self.opts.sound:
@@ -376,53 +385,32 @@ class Battle(EmptyScene):
             return
 
         # TODO: Joystick events
-        if evt.type == KEYDOWN:
+        keyState = (True if evt.type == KEYDOWN else
+                    False if evt.type == KEYUP else
+                    None)
+        if keyState is not None:
             # Joueur A
-            if evt.key == K_UP:
-                self.joueurA.inc_clavier_y()
-            elif evt.key == K_DOWN:
-                self.joueurA.dec_clavier_y()
-            elif evt.key == K_LEFT:
-                self.joueurA.dec_clavier_x()
-            elif evt.key == K_RIGHT:
-                self.joueurA.inc_clavier_x()
-            elif evt.key == K_RSHIFT:
-                self.joueurA.attaque = True
+            if evt.key in (K_UP, K_KP_8):
+                self.joueurA.pressedUp = keyState
+            elif evt.key in (K_DOWN, K_KP_2):
+                self.joueurA.pressedDown = keyState
+            elif evt.key in (K_LEFT, K_KP_4):
+                self.joueurA.pressedLeft = keyState
+            elif evt.key in (K_RIGHT, K_KP_6):
+                self.joueurA.pressedRight = keyState
+            elif evt.key == (K_RSHIFT, K_KP_0):
+                self.joueurA.pressedFire = keyState
             # Joueur B
             elif evt.key == K_i:
-                self.joueurB.inc_clavier_y()
+                self.joueurB.pressedUp = keyState
             elif evt.key == K_j:
-                self.joueurB.dec_clavier_y()
+                self.joueurB.pressedLeft = keyState
             elif evt.key == K_k:
-                self.joueurB.dec_clavier_x()
+                self.joueurB.pressedDown = keyState
             elif evt.key == K_l:
-                self.joueurB.inc_clavier_x()
+                self.joueurB.pressedRight = keyState
             elif evt.key == K_SPACE:
-                self.joueurB.attaque = True
-
-        if evt.type == KEYUP:
-            # Joueur A
-            if evt.key == K_UP:
-                self.joueurA.dec_clavier_y()
-            elif evt.key == K_DOWN:
-                self.joueurA.inc_clavier_y()
-            elif evt.key == K_LEFT:
-                self.joueurA.inc_clavier_x()
-            elif evt.key == K_RIGHT:
-                self.joueurA.dec_clavier_x()
-            elif evt.key == K_RSHIFT:
-                self.joueurA.attaque = False
-            # Joueur B
-            elif evt.key == K_i:
-                self.joueurB.dec_clavier_y()
-            elif evt.key == K_j:
-                self.joueurB.inc_clavier_y()
-            elif evt.key == K_k:
-                self.joueurB.inc_clavier_x()
-            elif evt.key == K_l:
-                self.joueurB.dec_clavier_x()
-            elif evt.key == K_SPACE:
-                self.joueurB.attaque = False
+                self.joueurB.pressedFire = keyState
 
     def _debut(self):
         self.temps += 1
@@ -492,15 +480,36 @@ class Battle(EmptyScene):
             elif ((self.sense == 'normal' and jax < 2 and jbx >= 37)
                   or (self.sense == 'inverse' and jbx < 2 and jax >= 37)):
                 Game.Chronometre = 60
+                # SLEEP 1
                 self.next_stage()
                 return None
+        if self.joueurB.sortie:
+            if not self.tempsfini:
+                if jax >= 37 and jbx >= 37:
+                    # SLEEP 1
+                    if Game.Partie == 'solo':  # ********** partie solo finie
+                        if Game.Demo:
+                            self.finish()
+                            return None
+                        Game.IA = 0
+                        Game.ScoreA = 0
+                        Game.ScoreB = 0
+                        Game.Decor = 'foret'
+                        self.finish()
+                        return None
+                    if Game.Partie == 'vs':
+                        self.next_stage()
+                        return None
+            return 'clavierB'
+        if self.gnome:
+            return 'gnome'
         return 'degats'
 
     def _degats(self):
         # degats sur joueurA
         if Game.Sorcier:
             if self.joueurA.x_loc() < 29:
-                if self.joueurB.xT < self.joueurB.xAtt <= self.joueurB.xT + 2:
+                if self.joueurA.xT < self.joueurB.xAtt <= self.joueurA.xT + 2:
                     if self.joueurB.yAtt == self.joueurA.yT:
                         self.gnome = False
                         if self.jeu == 'perdu':
@@ -541,8 +550,11 @@ class Battle(EmptyScene):
         return 'clavier'
 
     def _clavier(self):
-        self.joueurA.clavier()
-        self.joueurB.clavier()
+        self.joueurA.clavierX = 7
+        self.joueurA.clavierY = 7
+        self.joueurA.levier = Levier.neutre
+        if not Game.Demo:
+            self.joueurA.clavier()
 
         if Game.Demo:
             distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
@@ -722,27 +734,19 @@ class Battle(EmptyScene):
         # pour se relever
         self.joueurA.assis = False
         if self.joueurA.state == State.assis2:
-            self.joueurA.state = State.releve
-            self.joueurA.occupe = True
-            self.joueurA.reftemps = self.temps
+            self.joueurA.occupe_state(State.releve, self.temps)
             return 'gestion'
         if self.joueurA.state == State.assis2R:
-            self.joueurA.state = State.releveR
-            self.joueurA.occupe = True
-            self.joueurA.reftemps = self.temps
+            self.joueurA.occupe_state(State.releveR, self.temps)
             return 'gestion'
         # attente des 5 secondes
         if self.sense == 'normal':
             if self.joueurA.attente > 250:
-                self.joueurA.state = State.attente
-                self.joueurA.occupe = True
-                self.joueurA.reftemps = self.temps
+                self.joueurA.occupe_state(State.attente, self.temps)
                 return 'gestion'
         if self.sense == 'inverse':
             if self.joueurA.attente > 250:
-                self.joueurA.state = State.attenteR
-                self.joueurA.occupe = True
-                self.joueurA.reftemps = self.temps
+                self.joueurA.occupe_state(State.attenteR, self.temps)
                 return 'gestion'
         # etat debout
         if self.sense == 'normal':
@@ -1051,7 +1055,878 @@ class Battle(EmptyScene):
             if self.temps > self.joueurA.reftemps + 36:
                 self.joueurA.set_anim_frame('recule', 4)  # debout
                 self.joueurA.spriteRecule = 0
-        return None
+        return 'joueur2'  # 'finderoulade'
+
+    def _joueur2(self):
+        # debut joueur 2
+        if Game.Sorcier:
+            self.joueurB.sang = False
+            if self.joueurA.x_loc() <= self.joueurB.x_loc() + 4:
+                self.joueurB.occupe_state(State.marianna, self.temps)
+                self.joueurA.occupe_state(State.fini, self.temps)
+                # spriteB$ = "marianna": spriteA$ = "vainqueur3R"
+                self.joueurB.x = loc_to_pix(13)
+                self.joueurA.x = loc_to_pix(20)
+                self.jeu = 'gagne'
+                return None  # 'debut'
+            if self.joueurB.occupe:
+                return 'gestionB'
+            self.joueurB.sang = False
+            return 'clavierB'
+
+        # ************degats sur joueurB************
+        if self.sense == 'normal':
+            if self.joueurB.x_loc() > self.joueurA.x_loc():
+                if (self.joueurA.xAtt >= self.joueurB.xF
+                        and self.joueurA.yAtt == self.joueurB.yF):
+                    if self.joueurB.state == State.protegeH:
+                        self.joueurB.state = State.clingH
+                        return 'gestionB'
+                    self.joueurB.state = State.tombe
+                    self.joueurB.infoDegatF += 1
+                    return 'gestionB'
+
+                if (self.joueurA.xAtt >= self.joueurB.xT
+                        and self.joueurA.yAtt == self.joueurB.yT):
+                    if self.joueurA.state == State.coupdetete:
+                        self.joueurB.state = State.tombe
+                        return 'gestionB'
+                    self.joueurB.state = State.touche
+                    Game.ScoreA += 250
+                    self.joueurB.infoDegatT += 1
+                    return 'gestionB'
+
+                if (self.joueurA.xAtt >= self.joueurB.xM
+                        and self.joueurA.yAtt == self.joueurB.yM):
+                    if self.joueurB.state == State.protegeD:
+                        self.joueurB.state = State.clingD
+                        return 'gestionB'
+                    self.joueurB.state = State.touche
+                    Game.ScoreA += 250
+                    return 'gestionB'
+
+                if (self.joueurA.xAtt >= self.joueurB.xG
+                        and self.joueurA.yAtt == self.joueurB.yG):
+                    if self.joueurA.state in (State.araignee, State.rouladeAV,
+                                              State.protegeD):
+                        self.joueurB.state = State.tombe
+                        return 'gestionB'
+                    if self.joueurA.state == State.coupdepied:
+                        self.joueurB.state = State.tombe
+                        self.joueurB.infoDegatG += 1
+                        return 'gestionB'
+                    self.joueurB.state = State.touche
+                    Game.ScoreA += 100
+                    self.joueurB.infoDegatG += 1
+                    return 'gestionB'
+
+        if self.sense == 'inverse':
+            if self.joueurB.x_loc() < self.joueurA.x_loc():
+                if (self.joueurA.xAtt <= self.joueurB.xF
+                        and self.joueurA.yAtt == self.joueurB.yF):
+                    if self.joueurB.state == State.protegeHR:
+                        self.joueurB.state = State.clingH
+                        return 'gestionB'
+                    self.joueurB.state = State.tombeR
+                    self.joueurB.infoDegatF += 1
+                    return 'gestionB'
+
+                if (self.joueurA.xAtt <= self.joueurB.xT
+                        and self.joueurA.yAtt == self.joueurB.yT):
+                    if self.joueurA.state == State.coupdeteteR:
+                        self.joueurB.state = State.tombeR
+                        return 'gestionB'
+                    self.joueurB.state = State.toucheR
+                    Game.ScoreA += 250
+                    self.joueurB.infoDegatT += 1
+                    return 'gestionB'
+
+                if (self.joueurA.xAtt <= self.joueurB.xM
+                        and self.joueurA.yAtt == self.joueurB.yM):
+                    if self.joueurB.state == State.protegeDR:
+                        self.joueurB.state = State.clingD
+                        return 'gestionB'
+                    self.joueurB.state = State.toucheR
+                    Game.ScoreA += 250
+                    return 'gestionB'
+
+                if (self.joueurA.xAtt <= self.joueurB.xG
+                        and self.joueurA.yAtt == self.joueurB.yG):
+                    if self.joueurA.state == State.araigneeR:
+                        self.joueurB.state = State.tombeR
+                        return 'gestionB'
+                    if self.joueurA.state == State.rouladeAVR:
+                        self.joueurB.state = State.tombeR
+                        return 'gestionB'
+                    if self.joueurB.state == State.protegeDR:
+                        self.joueurB.state = State.clingD
+                        return 'gestionB'
+                    if self.joueurA.state == State.coupdepiedR:
+                        self.joueurB.state = State.tombeR
+                        self.joueurB.infoDegatG += 1
+                        return 'gestionB'
+                    self.joueurB.state = State.toucheR
+                    Game.ScoreA += 100
+                    self.joueurB.infoDegatG += 1
+                    return 'gestionB'
+
+        if self.joueurB.occupe:
+            return 'gestionB'
+        self.joueurB.sang = False
+        return 'clavierB'
+
+    def _clavierB(self):
+        self.joueurB.clavierX = 7
+        self.joueurB.clavierY = 7
+        self.joueurB.levier = Levier.neutre
+        if Game.Partie == 'vs':
+            self.joueurB.clavier()
+        if self.joueurB.sortie:
+            if self.tempsfini:
+                if self.sense == 'inverse':
+                    self.joueurB.levier = 'gauche'
+                    return 'actionB'
+            self.sense = 'normal'
+            self.joueurB.levier = 'droite'
+            return 'actionB'
+        # *****************************************
+        # ******* Intelligence Artificielle *******
+        # *****************************************
+        if (self.joueurA.state in (State.finderoulade, State.finderouladeR)
+                or self.joueurB.state in (State.finderoulade, State.finderouladeR)):
+            return 'gestionB'
+
+        if Game.Partie == 'solo':
+            # ***************************IA de 1,2,3,6
+            if Game.IA in (0, 1, 2, 3, 6):
+                if self.sense == 'normal':
+                    distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+                    if distance >= 15:
+                        # quand trop loin
+                        self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                        return 'gestionB'
+                    if Game.IA == 6:
+                        if distance < 15:
+                            if self.joueurA.state == State.decapite:
+                                self.joueurB.occupe_state(State.genou, self.temps)
+                                return 'gestionB'
+                    if Game.IA == 3:
+                        if distance < 15:
+                            if self.joueurB.infoDegatT > 2:
+                                if self.joueurA.state == State.decapite:
+                                    self.joueurB.state = State.assis2
+                                    return 'gestionB'
+                            if self.joueurA.state == State.decapite:
+                                self.joueurB.state = State.protegeD
+                                self.joueurB.reftempsB = self.temps
+                                return 'gestionB'
+                    if distance == 12 and self.joueurA.state == State.debout:
+                        self.joueurB.occupe_state(State.decapite, self.temps)
+                        return 'gestionB'
+                    if 9 < distance < 15:  # pour se rapprocher
+                        if self.joueurA.levier == Levier.gauche:
+                            self.joueurB.state = State.debout
+                            return 'gestionB'
+                        self.joueurB.levier = Levier.gauche
+                        return 'actionB'
+                    if distance == 9:
+                        if self.joueurA.attente > 100:
+                            self.joueurB.levier = Levier.gauche
+                            return 'actionB'
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.devant, self.temps)
+                            return 'gestionB'
+                        if self.joueurA.occupe:
+                            self.joueurB.levier = Levier.gauche
+                            return 'actionB'
+                    if 6 < distance < 9:  # distance de combat 1
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.rouladeAV:
+                            self.joueurB.occupe_state(State.saute, self.temps)
+                            return 'gestionB'
+                        # pour se rapprocher
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            return 'gestionB'
+                        if self.joueurA.levier == Levier.gauche:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            return 'gestionB'
+                        # pour eviter les degats repetitifs
+                        if Game.IA > 1:
+                            if self.joueurB.infoDegatG > 4:
+                                if self.joueurA.state in (State.assis2, State.genou):
+                                    self.joueurB.occupe_state(State.genou, self.temps)
+                                    return 'gestionB'
+                            if self.joueurB.infoDegatG > 2:
+                                if self.joueurA.state in (State.assis2, State.rouladeAV):
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                            if self.joueurB.infoDegatT > 2:
+                                if self.joueurA.state == State.cou:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                            if self.joueurB.infoDegatF > 2:
+                                if self.joueurA.state == State.front:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                        # pour alterner les attaques
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.coupdepied, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.assis2, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 5:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 6:
+                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.infoCoup = 0
+                            return 'actionB'
+                    if distance <= 6:
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.saute:
+                            self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                            return 'gestionB'
+                        if Game.IA == 3:
+                            if self.joueurA.state == State.devant:
+                                self.joueurB.state = State.protegeD
+                                self.joueurB.reftempsB = self.temps
+                                return 'gestionB'
+                        if Game.IA == 2:
+                            if self.joueurA.state == State.genou:
+                                self.joueurB.occupe_state(State.saute, self.temps)
+                                return 'gestionB'
+                        if Game.IA > 1:
+                            if self.joueurB.infoDegatG > 4:
+                                if self.joueurA.state in (State.assis2, State.genou):
+                                    self.joueurB.occupe_state(State.coupdepied, self.temps)
+                                    return 'gestionB'
+                                if Game.IA > 2:
+                                    if self.joueurA.state == State.araignee:
+                                        self.joueurB.occupe_state(State.araignee, self.temps)
+                                        return 'gestionB'
+                            if self.joueurB.infoDegatG > 2:
+                                if self.joueurA.state == State.coupdepied:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                                if self.joueurA.state in (State.assis2, State.genou):
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.coupdepied, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.coupdetete, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.assis2, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 5:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 6:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 7:
+                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.infoCoup = 0
+                            return 'actionB'
+                # if sens$ = 'inverse': ...
+            if Game.IA in (4, 5, 7):
+                if self.sense == 'normal':
+                    distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+                    if distance >= 15:  # quand trop loin
+                        self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                        return 'gestionB'
+                    if distance < 15:
+                        if Game.IA == 7:
+                            if self.joueurA.state == State.decapite:
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                    if distance == 12 and self.joueurA.state == State.debout:
+                        self.joueurB.occupe_state(State.decapite, self.temps)
+                        return 'gestionB'
+                    if 9 < distance < 15:  # pour se rapprocher
+                        if self.joueurA.levier == Levier.gauche:
+                            self.joueurB.state = State.debout
+                            return 'gestionB'
+                        self.joueurB.levier = Levier.gauche
+                        return 'actionB'
+                    if distance == 9:
+                        if self.joueurA.attente > 100:
+                            self.joueurB.occupe_state(State.decapite, self.temps)
+                            return 'gestionB'
+                        if Game.Demo:
+                            if self.joueurA.attente > 25:
+                                self.joueurB.occupe_state(State.decapite, self.temps)
+                                return 'gestionB'
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            return 'gestionB'
+                        if Game.IA < 7:
+                            if self.joueurA.occupe:
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                        if Game.IA == 7:
+                            if self.joueurA.occupe:
+                                self.joueurB.levier = Levier.gauche
+                                return 'actionB'
+                    if 6 < distance < 9:  # distance de combat 1
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.rouladeAV:
+                            self.joueurB.occupe_state(State.saute, self.temps)
+                            return 'gestionB'
+                        # pour se rapprocher
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            return 'gestionB'
+                        if self.joueurA.levier == Levier.gauche:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            return 'gestionB'
+                        # plus l'IA est forte, plus il y des des coups imposs avant infocoupB ou infodegat
+                        if Game.IA == 5:
+                            if self.joueurA.state == State.front:
+                                self.joueurB.state = State.protegeH
+                                self.joueurB.reftemps = self.temps
+                                return 'gestionB'
+                        # pour eviter les degats repetitifs
+                        if self.joueurB.infoDegatG > 4:
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.araignee, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatG > 2:
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatT > 2:
+                            if self.joueurA.state == State.cou:
+                                self.joueurB.occupe_state(State.genou, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatF > 2:
+                            if Game.IA < 7:
+                                if self.joueurA.state == State.front:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                        # pour alterner les attaques
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.devant, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.front, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.cou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 5:
+                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.infoCoup = 0
+                            return 'actionB'
+                    if distance <= 6:
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.saute:
+                            self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                            return 'gestionB'
+                        if Game.IA > 4:
+                            if self.joueurA.state == State.devant:
+                                self.joueurB.state = State.protegeD
+                                self.joueurB.reftemps = self.temps
+                                return 'gestionB'
+                        if 4 < Game.IA < 7:
+                            if self.joueurA.state == State.genou:
+                                self.joueurB.occupe_state(State.saute, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatG > 4:
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.araignee, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatG > 2:
+                            if self.joueurA.state == State.coupdepied:
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.coupdepied, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.coupdetete, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 6:
+                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.infoCoup = 0
+                            return 'action'
+                # if sens$ = 'inverse': ...
+        # redirection suivant les touches
+        if self.joueurB.levier in (
+                Levier.hautG, Levier.hautD, Levier.haut,
+                Levier.basG, Levier.basD, Levier.bas,
+                Levier.gauche, Levier.droite):
+            return 'actionB'
+        # actions si aucune touche n'a ete touchee
+        self.joueurB.spriteAvance = 0
+        self.joueurB.spriteRecule = 0
+        self.joueurB.protegeD = False
+        self.joueurB.protegeH = False
+        self.joueurB.attente += 1
+        self.joueurB.levier = Levier.neutre
+        # pour se relever
+        self.joueurB.assis = False
+        if self.joueurB.state == State.assis2:
+            self.joueurB.occupe_state(State.releve, self.temps)
+            return 'gestionB'
+        if self.joueurB.state == State.assis2R:
+            self.joueurB.occupe_state(State.releveR, self.temps)
+            return 'gestionB'
+        #attente des 5 secondes
+        if self.joueurB.attente > 250:
+            self.joueurB.occupe_state(State.attente, self.temps)
+            return 'gestionB'
+        self.joueurB.state = State.debout
+        return 'gestionB'
+
+    def _actionB(self):
+        # *****************************************
+        # *************actions joueur 2************
+        # *****************************************
+        self.joueurB.attente = 1
+        if Game.Partie == 'solo': # ****** IA mode ******
+            # droite,gauche, decapite, devant (normal)  IA
+            if self.sense == 'normal':
+                if self.joueurB.levier == Levier.gauche:
+                    self.joueurB.protegeD = False
+                    if self.joueurB.spriteAvance == 1:
+                        self.joueurB.state = State.avance1
+                        return 'gestionB'
+                    if self.joueurB.spriteAvance == 2:
+                        self.joueurB.state = State.avance2
+                        return 'gestionB'
+                    if self.joueurB.spriteAvance == 3:
+                        self.joueurB.state = State.avance3
+                        return 'gestionB'
+                    if self.joueurB.spriteAvance == 4:
+                        self.joueurB.state = State.avance4
+                        return 'gestionB'
+                    self.joueurB.state = State.avance
+                    self.joueurB.reftemps = self.temps
+
+                if self.joueurB.levier == Levier.droite:
+                    self.joueurB.protegeH = False
+                    if self.joueurB.spriteRecule == 1:
+                        self.joueurB.state = State.recule1
+                        return 'gestionB'
+                    if self.joueurB.spriteRecule == 2:
+                        self.joueurB.state = State.recule2
+                        return 'gestionB'
+                    if self.joueurB.spriteRecule == 3:
+                        self.joueurB.state = State.recule3
+                        return 'gestionB'
+                    if self.joueurB.spriteRecule == 4:
+                        self.joueurB.state = State.recule4
+                        return 'gestionB'
+                    self.joueurB.state = State.recule
+                    self.joueurB.reftemps = self.temps
+            # droite, gauche, decapite, devant (inverse)  ******* IA mode ********
+            if self.sense == 'inverse':
+                if self.joueurB.levier == Levier.droite:
+                    self.joueurB.protegeD = False
+                    if self.joueurB.spriteAvance == 1:
+                        self.joueurB.state = State.avance1R
+                        return 'gestionB'
+                    if self.joueurB.spriteAvance == 2:
+                        self.joueurB.state = State.avance2R
+                        return 'gestionB'
+                    if self.joueurB.spriteAvance == 3:
+                        self.joueurB.state = State.avance3R
+                        return 'gestionB'
+                    if self.joueurB.spriteAvance == 4:
+                        self.joueurB.state = State.avance4R
+                        return 'gestionB'
+                    self.joueurB.state = State.avanceR
+                    self.joueurB.reftemps = self.temps
+
+                if self.joueurB.levier == Levier.gauche:
+                    self.joueurB.protegeH = False
+                    if self.joueurB.spriteRecule == 1:
+                        self.joueurB.state = State.recule1R
+                        return 'gestionB'
+                    if self.joueurB.spriteRecule == 2:
+                        self.joueurB.state = State.recule2R
+                        return 'gestionB'
+                    if self.joueurB.spriteRecule == 3:
+                        self.joueurB.state = State.recule3R
+                        return 'gestionB'
+                    if self.joueurB.spriteRecule == 4:
+                        self.joueurB.state = State.recule4R
+                        return 'gestionB'
+                    self.joueurB.state = State.reculeR
+                    self.joueurB.reftemps = self.temps
+
+            return 'gestionB'
+
+        # droite,gauche, decapite, devant (normal)
+        if self.sense == 'normal':
+            if self.joueurB.levier == Levier.gauche:
+                self.joueurB.protegeD = False
+                if self.joueurB.spriteAvance == 1:
+                    self.joueurB.state = State.avance1
+                    return 'gestionB'
+                if self.joueurB.spriteAvance == 2:
+                    self.joueurB.state = State.avance2
+                    return 'gestionB'
+                if self.joueurB.spriteAvance == 3:
+                    self.joueurB.state = State.avance3
+                    return 'gestionB'
+                if self.joueurB.spriteAvance == 4:
+                    self.joueurB.state = State.avance4
+                    return 'gestionB'
+                self.joueurB.state = State.avance
+                self.joueurB.reftemps = self.temps
+                if self.joueurB.attaque and not self.entree:
+                    self.joueurB.occupe_state(State.devant, self.temps)
+
+            if self.joueurB.levier == Levier.droite:
+                self.joueurB.protegeH = False
+                if self.joueurB.spriteRecule == 1:
+                    self.joueurB.state = State.recule1
+                    return 'gestionB'
+                if self.joueurB.spriteRecule == 2:
+                    self.joueurB.state = State.recule2
+                    return 'gestionB'
+                if self.joueurB.spriteRecule == 3:
+                    self.joueurB.state = State.recule3
+                    return 'gestionB'
+                if self.joueurB.spriteRecule == 4:
+                    self.joueurB.state = State.recule4
+                    return 'gestionB'
+                self.joueurB.state = State.recule
+                self.joueurB.reftemps = self.temps
+                if self.joueurB.attaque and not self.joueurB.sortie:
+                    self.joueurB.occupe_state(State.decapite, self.temps)
+
+        # droite, gauche, decapite, devant (inverse)
+        if self.sense == 'inverse':
+            if self.joueurB.levier == Levier.droite:
+                self.joueurB.protegeD = False
+                if self.joueurB.spriteAvance == 1:
+                    self.joueurB.state = State.avance1R
+                    return 'gestionB'
+                if self.joueurB.spriteAvance == 2:
+                    self.joueurB.state = State.avance2R
+                    return 'gestionB'
+                if self.joueurB.spriteAvance == 3:
+                    self.joueurB.state = State.avance3R
+                    return 'gestionB'
+                if self.joueurB.spriteAvance == 4:
+                    self.joueurB.state = State.avance4R
+                    return 'gestionB'
+                self.joueurB.state = State.avanceR
+                self.joueurB.reftemps = self.temps
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.devantR, self.temps)
+
+            if self.joueurB.levier == Levier.gauche:
+                self.joueurB.protegeH = False
+                if self.joueurB.spriteRecule == 1:
+                    self.joueurB.state = State.recule1R
+                    return 'gestionB'
+                if self.joueurB.spriteRecule == 2:
+                    self.joueurB.state = State.recule2R
+                    return 'gestionB'
+                if self.joueurB.spriteRecule == 3:
+                    self.joueurB.state = State.recule3R
+                    return 'gestionB'
+                if self.joueurB.spriteRecule == 4:
+                    self.joueurB.state = State.recule4R
+                    return 'gestionB'
+                self.joueurB.state = State.reculeR
+                self.joueurB.reftemps = self.temps
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.decapiteR, self.temps)
+        # saute, attaque cou
+        if self.sense == 'normal':
+            if self.joueurB.levier == Levier.haut:
+                self.joueurB.protegeD = False
+                self.joueurB.protegeH = False
+                self.joueurB.occupe_state(State.saute, self.temps)
+                return 'gestionB'
+        if self.sense == 'inverse':
+            if self.joueurB.levier == Levier.haut:
+                self.joueurB.protegeD = False
+                self.joueurB.protegeH = False
+                self.joueurB.occupe_state(State.sauteR, self.temps)
+                return 'gestionB'
+
+        # assis, attaque genou
+        if self.sense == 'normal':
+            if self.joueurB.levier == Levier.bas:
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.genou, self.temps)
+                    return 'gestionB'
+                if self.joueurB.assis:
+                    self.joueurB.state = State.assis2
+                    return 'gestionB'
+                self.joueurB.occupe_state(State.assis, self.temps)
+                return 'gestionB'
+        if self.sense == 'inverse' :
+            if self.joueurB.levier == Levier.bas:
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.genouR, self.temps)
+                    return 'gestionB'
+                if self.joueurB.assis:
+                    self.joueurB.state = State.assis2R
+                    return 'gestionB'
+                self.joueurB.occupe_state(State.assisR, self.temps)
+                return 'gestionB'
+
+        # roulade AV, coup de pied
+        if self.sense == 'normal':
+            if self.joueurB.levier == Levier.basG:
+                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.coupdepied, self.temps)
+        if self.sense == 'inverse':
+            if self.joueurB.levier == Levier.basD:
+                self.joueurB.occupe_state(State.rouladeAVR, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.coupdepiedR, self.temps)
+
+        # roulade AR, coup sur front
+        if self.sense == 'normal':
+            if self.joueurB.levier == Levier.basD:
+                self.joueurB.occupe_state(State.rouladeAR, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.front, self.temps)
+        if self.sense == 'inverse':
+            if self.joueurB.levier == Levier.basG:
+                self.joueurB.occupe_state(State.rouladeARR, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.frontR, self.temps)
+
+        # protection Haute, araignee
+        if self.sense == 'normal':
+            if self.joueurB.levier == Levier.hautD:
+                if self.joueurB.protegeH:
+                    self.joueurB.state = State.protegeH
+                    return 'gestionB'
+                self.joueurB.occupe_state(State.protegeH1, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.araignee, self.temps)
+
+        if self.sense == 'inverse':
+            if self.joueurB.levier == Levier.hautG:
+                if self.joueurB.protegeH:
+                    self.joueurB.state = State.protegeHR
+                    return 'gestionB'
+                self.joueurB.occupe_state(State.protegeHR1, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.araigneeR, self.temps)
+
+        # protection devant, coup de tete
+        if self.sense == 'normal':
+            if self.joueurB.levier == Levier.hautG:
+                if self.joueurB.protegeD:
+                    self.joueurB.state = State.protegeD
+                    return 'gestionB'
+                self.joueurB.occupe_state(State.protegeD1, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.coupdetete, self.temps)
+        if self.sense == 'inverse':
+            if self.joueurB.levier == Levier.hautD:
+                if self.joueurB.protegeD:
+                    self.joueurB.state = State.protegeDR
+                    return 'gestionB'
+                self.joueurB.occupe_state(State.protegeDR1, self.temps)
+                if self.joueurB.attaque:
+                    self.joueurB.occupe_state(State.coupdeteteR, self.temps)
+        return 'gestionB'
+
+    def _gestionB(self):
+        # ***********************************
+        # *********gestion joueur 2**********
+        # ***********************************
+        if self.joueurB.state == State.debout:
+            self.joueurB.set_anim_frame('debout', 0)
+            self.joueurB.decapite = True
+            self.joueurB.sang = False
+            self.joueurB.xAtt = self.joueurB.x_loc() + (0 if self.joueurB.rtl else 4)
+            self.joueurB.yAtt = 14
+            self.joueurB.yF = 15
+            self.joueurB.yT = 16
+            self.joueurB.yM = 18
+            self.joueurB.yG = 20
+            self.joueurB.reset_xX()
+            if Game.Partie == 'solo':
+                if self.temps > self.joueurB.reftemps + 20:
+                    self.joueurB.occupe = False
+
+        if self.joueurB.state in (State.attente, State.attenteR):
+            self.joueurB.reset_xX()
+            if self.temps > self.joueurB.reftemps + 50:
+                self.joueurB.occupe = False
+                self.joueurB.attente = 1
+                self.joueurB.state = State.debout
+            elif self.temps > self.joueurB.reftemps + 37:
+                self.joueurB.set_anim_frame('attente', 4)
+            elif self.temps > self.joueurB.reftemps + 30:
+                self.joueurB.set_anim_frame('attente', 3)
+            elif self.temps > self.joueurB.reftemps + 23:
+                self.joueurB.set_anim_frame('attente', 2)
+            elif self.temps > self.joueurB.reftemps + 15:
+                self.joueurB.set_anim_frame('attente', 1)
+            elif self.temps > self.joueurB.reftemps + 8:
+                pass  # don't play 0-pre_action sound twice
+            elif self.temps > self.joueurB.reftemps + 7:
+                self.joueurB.set_anim_frame('attente', 0)
+            return 'collision'
+
+        # avance
+        if self.joueurB.state == State.avance:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.devant, self.temps)
+                return 'gestionB'
+            self.joueurB.set_anim_frame('avance', 0)  # marche1
+            self.joueurB.spriteAvance = 1
+        if self.joueurB.state == State.avance1:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.devant, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 9:
+                self.joueurB.set_anim_frame('avance', 1)  # marche2
+                self.joueurB.spriteAvance = 2
+        if self.joueurB.state == State.avance2:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.devant, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 18:
+                self.joueurB.set_anim_frame('avance', 2)  # marche3
+                self.joueurB.spriteAvance = 3
+        if self.joueurB.state == State.avance3:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.devant, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 27:
+                self.joueurB.set_anim_frame('avance', 3)  # debout
+                self.joueurB.spriteAvance = 4
+        if self.joueurB.state == State.avance4:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.devant, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 36:
+                self.joueurB.set_anim_frame('avance', 4)  # debout
+                self.joueurB.spriteAvance = 0
+
+        # recule
+        if self.joueurB.state == State.recule:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.decapite, self.temps)
+                return 'gestionB'
+            self.joueurB.set_anim_frame('recule', 0)  # marche1
+            self.joueurB.spriteRecule = 1
+        if self.joueurB.state == State.recule1:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.decapite, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 9:
+                self.joueurB.set_anim_frame('recule', 1)  # marche2
+                self.joueurB.spriteRecule = 2
+        if self.joueurB.state == State.recule2:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.decapite, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 18:
+                self.joueurB.set_anim_frame('recule', 2)  # marche3
+                self.joueurB.spriteRecule = 3
+        if self.joueurB.state == State.recule3:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.decapite, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 27:
+                self.joueurB.set_anim_frame('recule', 3)  # debout
+                self.joueurB.spriteRecule = 4
+        if self.joueurB.state == State.recule4:
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + 4
+            if self.joueurB.attaque and not Game.Demo and not self.entree:
+                self.joueurB.occupe_state(State.decapite, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 36:
+                self.joueurB.set_anim_frame('recule', 4)  # debout
+                self.joueurB.spriteRecule = 0
+        return 'finderouladeBR'
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
@@ -1064,24 +1939,36 @@ class Battle(EmptyScene):
         while goto:
             if goto == 'debut':
                 goto = self._debut()
-            if goto == 'degats':
+            elif goto == 'degats':
                 goto = self._degats()
-            if goto == 'clavier':
+            elif goto == 'clavier':
                 goto = self._clavier()
-            if goto == 'action':
+            elif goto == 'action':
                 goto = self._action()
-            if goto == 'gestion':
+            elif goto == 'gestion':
                 goto = self._gestion()
+            elif goto == 'joueur2':
+                goto = self._joueur2()
+            elif goto == 'clavierB':
+                goto = self._clavierB()
+            elif goto == 'actionB':
+                goto = self._actionB()
+            elif goto == 'gestionB':
+                goto = self._gestionB()
             else:
                 goto = None
-
-        # gestion:
+        if self.opts.debug:
+            self.jAstate.msg = f'AS: {self.joueurA.state}'
+            self.jAlevier.msg = f'AL: {self.joueurA.levier}'
+            self.jBstate.msg = f'BS: {self.joueurB.state}'
+            self.jBlevier.msg = f'BL: {self.joueurB.levier}'
 
 
 class Version(_MenuBackScene):
-    def __init__(self, opts, *, on_display):
+    def __init__(self, opts, *, on_display, on_back):
         super(Version, self).__init__(opts, 'menu/version.png')
         self.on_display = on_display
+        self.on_back = on_back
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -1092,13 +1979,16 @@ class Version(_MenuBackScene):
         elif evt.key == K_2:
             Game.Country = 'USA'
             self.on_display()
+        elif evt.key == K_ESCAPE:
+            self.on_back()
 
 
 class Display(_MenuBackScene):
-    def __init__(self, opts, *, on_fullscreen, on_window):
+    def __init__(self, opts, *, on_fullscreen, on_window, on_back):
         super(Display, self).__init__(opts, 'menu/display.png')
         self.on_fullscreen = on_fullscreen
         self.on_window = on_window
+        self.on_back = on_back
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -1107,6 +1997,8 @@ class Display(_MenuBackScene):
             self.on_fullscreen()
         elif evt.key == K_2:
             self.on_window()
+        elif evt.key == K_ESCAPE:
+            self.on_back()
 
 
 class SelectStage(_MenuBackScene):
