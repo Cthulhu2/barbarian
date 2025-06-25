@@ -11,10 +11,10 @@ from pygame.surface import Surface
 from pygame.time import get_ticks
 from pygame.transform import scale, rotate, flip
 
-from settings import IMG_PATH, SCALE, FONT, SND_PATH
+from settings import IMG_PATH, SCALE, FONT, SND_PATH, Theme
 
 snd_cache: Dict[int, Sound] = {}
-img_cache: Dict[str, Surface] = {}
+img_cache: Dict[int, Surface] = {}
 
 
 def get_snd(name) -> Sound:
@@ -59,7 +59,7 @@ def get_img(name, w=0, h=0, angle=0, xflip=False, fill=None, blend_flags=0,
     return img
 
 
-def pix_to_loc(x: int) -> int:
+def px2loc(x: int) -> int:
     """
     Convert scaled pixel to character location X 40x25 (320x200 mode, 8x8 font).
     :param x: 0..959
@@ -68,7 +68,7 @@ def pix_to_loc(x: int) -> int:
     return int(((x / SCALE) / 8) + 1)
 
 
-def loc_to_pix(x: int) -> int:
+def loc2px(x: int) -> int:
     """
     Convert character location X 40x25 (320x200 mode, 8x8 font) to scaled pixel.
     :param x: 1..40
@@ -84,7 +84,7 @@ def loc(x: int, y: int) -> Tuple[int, int]:
     :param y: 1..25
     :return:
     """
-    return loc_to_pix(x), loc_to_pix(y)
+    return loc2px(x), loc2px(y)
 
 
 class Txt(DirtySprite):
@@ -108,6 +108,10 @@ class Txt(DirtySprite):
         self._color = color
         self._cached = cached
         self.image, self.rect = self._update_image()
+
+    @staticmethod
+    def Debug(x, y, msg='') -> 'Txt':
+        return Txt(8, msg, Theme.DEBUG, (x, y), cached=False)
 
     @property
     def msg(self):
@@ -535,10 +539,10 @@ class Barbarian(AnimatedSprite):
         self.yT = 16  # tete
         self.yM = 18  # corps
         self.yG = 20  # genou
-        self.xF = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
-        self.xT = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
-        self.xM = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
-        self.xG = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
+        self.xF = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xT = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xM = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xG = px2loc(self.x) if rtl else px2loc(self.x) + 4
         #
         self.reftemps = 0
         self.sang = False
@@ -573,7 +577,7 @@ class Barbarian(AnimatedSprite):
         self.xG = self.x_loc() + (0 if self.rtl else 4)
 
     def x_loc(self):
-        return pix_to_loc(self.x)
+        return px2loc(self.x)
 
     def turn_around(self, rtl):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
@@ -656,10 +660,10 @@ class Sorcier(AnimatedSprite):
         self.yT = 16  # tete
         self.yM = 18  # corps
         self.yG = 20  # genou
-        self.xF = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
-        self.xT = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
-        self.xM = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
-        self.xG = pix_to_loc(self.x) if rtl else pix_to_loc(self.x) + 4
+        self.xF = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xT = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xM = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xG = px2loc(self.x) if rtl else px2loc(self.x) + 4
         #
         self.reftemps = 0
         self.sang = False
@@ -673,7 +677,7 @@ class Sorcier(AnimatedSprite):
         self.bonus = False
 
     def x_loc(self):
-        return pix_to_loc(self.x)
+        return px2loc(self.x)
 
     def clavier(self):
         pass

@@ -7,7 +7,7 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE
 from sprites import (
     get_img, get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    serpent_anims, rtl_anims, loc_to_pix, loc, State, Levier, Sorcier
+    serpent_anims, rtl_anims, loc2px, loc, State, Levier, Sorcier
 )
 
 
@@ -34,20 +34,6 @@ class EmptyScene(LayeredDirty):
         self.clear(None, back)
         self.timer = get_ticks()
         self.opts = opts
-
-        if self.opts.debug:
-            self.cpu = Txt(8, 'CPU: ', Theme.DEBUG, (0, 0))
-            # 'Resident Set Size', this is the non-swapped
-            #   physical memory a process has used.
-            self.mem_rss = Txt(8, 'Mem RSS: ', Theme.DEBUG,
-                               (0, self.cpu.rect.bottom))
-            # 'Virtual Memory Size', this is the total amount of
-            #   virtual memory used by the process.
-            self.mem_vms = Txt(8, 'Mem VMS: ', Theme.DEBUG,
-                               (0, self.mem_rss.rect.bottom))
-            self.fps = Txt(8, 'FPS: ', Theme.DEBUG,
-                           (0, self.mem_vms.rect.bottom))
-            self.add(self.cpu, self.mem_rss, self.mem_vms, self.fps, layer=99)
 
     def process_event(self, evt):
         pass
@@ -301,12 +287,10 @@ class Battle(EmptyScene):
         # noinspection PyTypeChecker
         self.clear(None, back)
         if self.opts.debug:
-            self.jAstate = Txt(8, 'AS: ', Theme.DEBUG, (loc_to_pix(10), 0))
-            self.jAlevier = Txt(8, 'AL: ', Theme.DEBUG,
-                                (loc_to_pix(10), self.jAstate.rect.bottom))
-            self.jBstate = Txt(8, 'BS: ', Theme.DEBUG, (loc_to_pix(25), 0))
-            self.jBlevier = Txt(8, 'BL: ', Theme.DEBUG,
-                                (loc_to_pix(25), self.jBstate.rect.bottom))
+            self.jAstate = Txt.Debug(loc2px(10), 0)
+            self.jBstate = Txt.Debug(loc2px(25), 0)
+            self.jAlevier = Txt.Debug(loc2px(10), self.jAstate.rect.bottom)
+            self.jBlevier = Txt.Debug(loc2px(25), self.jBstate.rect.bottom)
             self.add(self.jAstate, self.jAlevier, self.jBstate, self.jBlevier)
         self.add(
             StaticSprite((0, 104 * SCALE),
@@ -315,10 +299,10 @@ class Battle(EmptyScene):
                          f'stage/{Game.Decor}ARBRED.gif'),
             layer=2)
 
-        self.joueurA = Barbarian(loc_to_pix(1), loc_to_pix(14),
+        self.joueurA = Barbarian(loc2px(1), loc2px(14),
                                  'spritesA',
                                  rtl=Game.Rtl)
-        self.joueurB = Barbarian(loc_to_pix(36), loc_to_pix(14),
+        self.joueurB = Barbarian(loc2px(36), loc2px(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)
         sz = 8 * SCALE
@@ -445,9 +429,9 @@ class Battle(EmptyScene):
                 self.serpentA.select_anim('bite')
                 self.serpentB.select_anim('bite')
             if jax >= 13:
-                self.joueurA.x = loc_to_pix(13)
+                self.joueurA.x = loc2px(13)
             if jbx <= 22:
-                self.joueurB.x = loc_to_pix(22)
+                self.joueurB.x = loc2px(22)
             if jax >= 13 or jbx <= 22:
                 self.joueurA.set_anim_frame('debout', 0)
                 self.joueurB.set_anim_frame('debout', 0)
@@ -466,11 +450,11 @@ class Battle(EmptyScene):
                         else:
                             Game.Sorcier = True
                             self.sense = 'inverse'
-                            self.joueurB = Sorcier(loc_to_pix(8),
-                                                   loc_to_pix(15))
+                            self.joueurB = Sorcier(loc2px(8),
+                                                   loc2px(15))
                             self.add(self.joueurB)
                             self.joueurA.state = State.debout
-                            self.joueurA.x = loc_to_pix(36)
+                            self.joueurA.x = loc2px(36)
                             self.entree = False
                             self.joueurA.sortie = False
                             self.entreesorcier = True
@@ -1065,8 +1049,8 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.marianna, self.temps)
                 self.joueurA.occupe_state(State.fini, self.temps)
                 # spriteB$ = "marianna": spriteA$ = "vainqueur3R"
-                self.joueurB.x = loc_to_pix(13)
-                self.joueurA.x = loc_to_pix(20)
+                self.joueurB.x = loc2px(13)
+                self.joueurA.x = loc2px(20)
                 self.jeu = 'gagne'
                 return None  # 'debut'
             if self.joueurB.occupe:
@@ -2030,13 +2014,12 @@ class ControlsKeys(_MenuBackScene):
     def __init__(self, opts, *, on_next):
         super(ControlsKeys, self).__init__(opts, 'menu/titre2.png')
         self.on_next = on_next
-        self.add(StaticSprite((0, 0), 'menu/playerA.png',
-                              color=(255, 255, 255)))
-        self.add(StaticSprite((280 * SCALE, 0), 'menu/playerB.png',
-                              color=(255, 255, 255)))
-
         sz = 8 * SCALE
-        self.add(
+        self.add([
+            StaticSprite((0, 0), 'menu/playerA.png',
+                         color=(255, 255, 255)),
+            StaticSprite((280 * SCALE, 0), 'menu/playerB.png',
+                         color=(255, 255, 255)),
             Txt(sz, 'CONTROLS KEYS', Theme.OPTS_TITLE, loc(14, 11)),
 
             Txt(sz, ' PLAYER A      ', Theme.OPTS_TXT, loc(2, 11)),
@@ -2057,7 +2040,7 @@ class ControlsKeys(_MenuBackScene):
 
             Txt(sz, 'ABORT GAME...........ESC', Theme.OPTS_TXT, loc(9, 21)),
             Txt(sz, 'GOTO MENU..........ENTER', Theme.OPTS_TXT, loc(9, 23)),
-        )
+        ])
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -2070,10 +2053,9 @@ class ControlsMoves(EmptyScene):
     def __init__(self, opts, *, on_next):
         super(ControlsMoves, self).__init__(opts)
         self.on_next = on_next
-        self.add(StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls1.gif'))
-
         sz = 8 * SCALE
-        self.add(
+        self.add([
+            StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls1.gif'),
             Txt(sz, 'MOVING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
 
             Txt(sz, 'jump', Theme.OPTS_TXT, loc(19, 5)),
@@ -2090,7 +2072,7 @@ class ControlsMoves(EmptyScene):
             Txt(sz, 'roll', Theme.OPTS_TXT, loc(27, 18)),
             Txt(sz, 'front', Theme.OPTS_TXT, loc(27, 19)),
             Txt(sz, 'crouch', Theme.OPTS_TXT, loc(18, 21)),
-        )
+        ])
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -2103,10 +2085,9 @@ class ControlsFight(EmptyScene):
     def __init__(self, opts, *, on_next):
         super(ControlsFight, self).__init__(opts)
         self.on_next = on_next
-        self.add(StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls2.gif'))
-
         sz = 8 * SCALE
-        self.add(
+        self.add([
+            StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls2.gif'),
             Txt(sz, 'FIGHTING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
             Txt(sz, '(with attack key)', Theme.OPTS_TITLE, loc(13, 3)),
 
@@ -2124,7 +2105,7 @@ class ControlsFight(EmptyScene):
             Txt(sz, 'chop', Theme.OPTS_TXT, loc(11, 19)),
             Txt(sz, 'kick ', Theme.OPTS_TXT, loc(27, 19)),
             Txt(sz, 'leg chop', Theme.OPTS_TXT, loc(17, 21)),
-        )
+        ])
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -2137,11 +2118,10 @@ class Credits(EmptyScene):
     def __init__(self, opts, *, on_back):
         super(Credits, self).__init__(opts)
         self.on_back = on_back
-        self.add(StaticSprite((0, 0), 'menu/team.png'))
-
         sz = 8 * SCALE
         col = Theme.OPTS_TXT
-        self.add(
+        self.add([
+            StaticSprite((0, 0), 'menu/team.png'),
             Txt(sz, '     BARBARIAN      ', col, loc(21, 2)),
             Txt(sz, 'the ultimate warrior', col, loc(21, 3)),
             Txt(sz, '                    ', col, loc(21, 4)),
@@ -2165,7 +2145,7 @@ class Credits(EmptyScene):
             Txt(sz, '   RICHARD JOSEPH   ', col, loc(21, 22)),
             Txt(sz, '                    ', col, loc(21, 23)),
             Txt(sz, 'FL clone http://barbarian.1987.free.fr', col, loc(2, 25)),
-        )
+        ])
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -2180,7 +2160,7 @@ class History(EmptyScene):
         self.on_back = on_back
         sz = 8 * SCALE
         col = Theme.OPTS_TXT
-        self.add(
+        self.add([
             Txt(sz, 'The evil sorcerer Drax desires        ', col, loc(2, 2)),
             Txt(sz, 'Princess Marianna and has sworn       ', col, loc(2, 3)),
             Txt(sz, 'to wreak an unspeakable doom on the   ', col, loc(2, 4)),
@@ -2203,7 +2183,7 @@ class History(EmptyScene):
             Txt(sz, 'and free the princess ?               ', col, loc(2, 21)),
             #
             Txt(sz, 'Only you can say ...                  ', col, loc(2, 23)),
-        )
+        ])
 
     def process_event(self, evt):
         if evt.type != KEYUP:
