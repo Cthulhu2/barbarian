@@ -39,7 +39,7 @@ class BarbarianMain(object):
             #   virtual memory used by the process.
             self.mem_vms = Txt.Debug(0, self.mem_rss.rect.bottom)
             self.fps = Txt.Debug(0, self.mem_vms.rect.bottom)
-        self.scene = scenes.Logo(opts, on_load=self.show_menu)
+        self.show_logo()
 
     @property
     def scene(self) -> scenes.EmptyScene:
@@ -71,6 +71,9 @@ class BarbarianMain(object):
 
     def quit(self):
         self.running = False
+
+    def show_logo(self):
+        self.scene = scenes.Logo(self.opts, on_load=self.show_menu)
 
     def show_menu(self):
         self.scene = self.menu()
@@ -171,11 +174,11 @@ class BarbarianMain(object):
 
     def on_fullscreen(self):
         # TODO: Toggle fullscreen with multi-display
-        self.scene = self.menu()
+        self.show_logo()
 
     def on_window(self):
         # TODO: Toggle fullscreen with multi-display
-        self.scene = self.menu()
+        self.show_logo()
 
     def main(self):
         cpu_timer = 0

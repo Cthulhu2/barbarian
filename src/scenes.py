@@ -45,6 +45,7 @@ class Logo(EmptyScene):
         self.usaLogo = False
         self.titre = False
         self.load = False
+        self.skip = False
         self.on_load = on_load
 
     def show_usa_logo(self):
@@ -199,17 +200,28 @@ class Logo(EmptyScene):
         if Game.Country == 'USA':
             if passed < 4000:
                 self.show_usa_logo()
-            elif 4000 < passed < 8000:
+                if self.skip:
+                    self.skip = False
+                    self.timer = current_time - 4000
+            elif 4000 <= passed < 8000:
                 self.show_titre()
                 self.do_load()
+                if self.skip:
+                    self.timer = current_time - 8000
             else:
                 self.on_load()
         else:
             if passed < 4000:
                 self.show_titre()
                 self.do_load()
+                if self.skip:
+                    self.timer = current_time - 4000
             else:
                 self.on_load()
+
+    def process_event(self, evt):
+        if evt.type == KEYUP:
+            self.skip = True
 
 
 class _MenuBackScene(EmptyScene):
