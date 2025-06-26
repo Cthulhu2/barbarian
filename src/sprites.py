@@ -586,8 +586,6 @@ class Barbarian(AnimatedSprite):
         self.infoDegatT = 0
         self.bonus = False
         self.assis = False
-        self.avance = 0
-        self.recule = 0
         self.protegeD = False
         self.protegeH = False
         self.spriteAvance = 0

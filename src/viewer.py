@@ -171,11 +171,7 @@ if __name__ == '__main__':
     (options, args) = option_parser().parse_args()
     options.sound = False
     main = BarbarianMain(options)
-
-    def on_quit():
-        main.running = False
-
-    main.scene = AnimationViewerScene(options, on_quit=on_quit)
+    main.scene = AnimationViewerScene(options, on_quit=main.quit)
     display.set_caption('Barbarian - Animation viewer')
     main.main()
     sys.exit(0)

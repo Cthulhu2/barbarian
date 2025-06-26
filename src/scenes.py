@@ -596,53 +596,37 @@ class Battle(EmptyScene):
                         return 'gestion'
                 if self.joueurA.infoDegatG > 2:
                     if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.state = State.rouladeAV
-                        self.joueurA.reftemps = self.temps
-                        self.joueurA.occupe = True
+                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
                         return 'gestion'
                 if self.joueurA.infoDegatT > 2:
                     if self.joueurB.state == State.cou:
-                        self.joueurA.state = State.genou
-                        self.joueurA.reftemps = self.temps
-                        self.joueurA.occupe = True
+                        self.joueurA.occupe_state(State.genou, self.temps)
                         return 'gestion'
                 if self.joueurA.infoDegatF > 2:
                     if self.joueurB.state == State.front:
-                        self.joueurA.state = State.rouladeAV
-                        self.joueurA.reftemps = self.temps
-                        self.joueurA.occupe = True
+                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
                         return 'gestion'
 
                 # pour alterner les attaques
                 if self.joueurA.infoCoup == 0:
-                    self.joueurA.state = State.devant
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.devant, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 1:
-                    self.joueurA.state = State.front
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.front, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 2:
-                    self.joueurA.state = State.araignee
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.araignee, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 3:
-                    self.joueurA.state = State.araignee
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.araignee, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 4:
-                    self.joueurA.state = State.cou
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.cou, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
@@ -657,51 +641,35 @@ class Battle(EmptyScene):
 
                 if self.joueurA.infoDegatG > 4:
                     if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.state = State.genou
-                        self.joueurA.reftemps = self.temps
-                        self.joueurA.occupe = True
+                        self.joueurA.occupe_state(State.genou, self.temps)
                         return 'gestion'
                 if self.joueurA.infoDegatG > 2:
                     if self.joueurB.state == State.coupdepied:
-                        self.joueurA.state = State.rouladeAV
-                        self.joueurA.reftemps = self.temps
-                        self.joueurA.occupe = True
+                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
                         return 'gestion'
                     if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.state = State.rouladeAV
-                        self.joueurA.reftemps = self.temps
-                        self.joueurA.occupe = True
+                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
                         return 'gestion'
 
                 if self.joueurA.infoCoup == 0:
-                    self.joueurA.state = State.coupdepied
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.coupdepied, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 1:
-                    self.joueurA.state = State.coupdetete
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.coupdetete, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 2:
-                    self.joueurA.state = State.araignee
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.araignee, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 3:
-                    self.joueurA.state = State.genou
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.genou, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 4:
-                    self.joueurA.state = State.genou
                     self.joueurA.infoCoup += 1
-                    self.joueurA.reftemps = self.temps
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.genou, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
@@ -713,18 +681,14 @@ class Battle(EmptyScene):
                 return None
 
         # redirection suivant les touches
-        if self.joueurA.levier in (
-                Levier.hautG, Levier.hautD, Levier.haut,
-                Levier.basG, Levier.basD, Levier.bas,
-                Levier.gauche, Levier.droite):
+        if self.joueurA.levier != Levier.neutre:
             return 'action'
 
-        self.joueurA.avance = 0
-        self.joueurA.recule = 0
+        self.joueurA.spriteAvance = 0
+        self.joueurA.spriteRecule = 0
         self.joueurA.protegeD = False
         self.joueurA.protegeH = False
         self.joueurA.attente += 1
-        self.joueurA.levier = Levier.neutre
         # pour se relever
         self.joueurA.assis = False
         if self.joueurA.state == State.assis2:
@@ -1509,10 +1473,7 @@ class Battle(EmptyScene):
                             return 'action'
                 # if sens$ = 'inverse': ...
         # redirection suivant les touches
-        if self.joueurB.levier in (
-                Levier.hautG, Levier.hautD, Levier.haut,
-                Levier.basG, Levier.basD, Levier.bas,
-                Levier.gauche, Levier.droite):
+        if self.joueurB.levier != Levier.neutre:
             return 'actionB'
         # actions si aucune touche n'a ete touchee
         self.joueurB.spriteAvance = 0
@@ -1520,7 +1481,6 @@ class Battle(EmptyScene):
         self.joueurB.protegeD = False
         self.joueurB.protegeH = False
         self.joueurB.attente += 1
-        self.joueurB.levier = Levier.neutre
         # pour se relever
         self.joueurB.assis = False
         if self.joueurB.state == State.assis2:
@@ -1541,7 +1501,7 @@ class Battle(EmptyScene):
         # *************actions joueur 2************
         # *****************************************
         self.joueurB.attente = 1
-        if Game.Partie == 'solo': # ****** IA mode ******
+        if Game.Partie == 'solo':  # ****** IA mode ******
             # droite,gauche, decapite, devant (normal)  IA
             if self.sense == 'normal':
                 if self.joueurB.levier == Levier.gauche:
@@ -1719,7 +1679,7 @@ class Battle(EmptyScene):
                     return 'gestionB'
                 self.joueurB.occupe_state(State.assis, self.temps)
                 return 'gestionB'
-        if self.sense == 'inverse' :
+        if self.sense == 'inverse':
             if self.joueurB.levier == Levier.bas:
                 if self.joueurB.attaque:
                     self.joueurB.occupe_state(State.genouR, self.temps)
