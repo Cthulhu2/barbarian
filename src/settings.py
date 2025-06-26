@@ -18,3 +18,13 @@ class Theme:
     OPTS_TXT = (255, 255, 255)  # white
     BACK = (0, 0, 0)  # black
     TXT = (0, 0, 0)  # black
+    #
+    VIEWER_BACK = (55, 55, 55)  # dark gray
+    VIEWER_TEXT = (225, 225, 225)  # light gray
+    VIEWER_TEXT_SELECTED = (78, 255, 87)  # green
+    #
+    YELLOW = (241, 255, 0)
+    BLUE = (80, 255, 239)
+    PURPLE = (203, 0, 255)
+    RED = (237, 28, 36)
+    BLACK = (0, 0, 0)

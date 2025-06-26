@@ -96,9 +96,9 @@ class Txt(DirtySprite):
                  msg: str,
                  color: Tuple[int, int, int],
                  loc: Tuple[int, int],
+                 *groups,
                  fnt: str = FONT,
-                 cached: bool = True,
-                 *groups):
+                 cached: bool = True):
         super(Txt, self).__init__(*groups)
         self._x = loc[0]
         self._y = loc[1]
@@ -210,7 +210,7 @@ class Frame(object):
 
 class AnimatedSprite(DirtySprite):
     def __init__(self, top_left: Tuple[int, int], animations, *groups):
-        super(AnimatedSprite, self).__init__(*groups)
+        super().__init__(*groups)
         self.anims = animations
         self.animTimer = get_ticks()
         self._speed = 1.0
@@ -398,7 +398,7 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/debout.gif'),
         ],
         'attente': [
-            Frame(f'{subdir}/attente1.gif', pre_action='attente1'),
+            Frame(f'{subdir}/attente1.gif'),
             Frame(f'{subdir}/attente2.gif'),
             Frame(f'{subdir}/attente3.gif'),
             Frame(f'{subdir}/attente2.gif'),
@@ -417,6 +417,35 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/marche1.gif', mv=(-8 * SCALE, 0)),
             Frame(f'{subdir}/debout.gif', mv=(-8 * SCALE, 0)),
             Frame(f'{subdir}/debout.gif'),
+        ],
+    }
+
+
+def barb_anims_rtl(subdir: str):
+    return {
+        'debout': [
+            Frame(f'{subdir}/debout.gif', xflip=True),
+        ],
+        'attente': [
+            Frame(f'{subdir}/attente1.gif', xflip=True),
+            Frame(f'{subdir}/attente2.gif', xflip=True, dx=-24),
+            Frame(f'{subdir}/attente3.gif', xflip=True, dx=-24),
+            Frame(f'{subdir}/attente2.gif', xflip=True, dx=-24),
+            Frame(f'{subdir}/attente1.gif', xflip=True),
+        ],
+        'avance': [
+            Frame(f'{subdir}/marche1.gif', xflip=True, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', xflip=True, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche3.gif', xflip=True, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif', xflip=True, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif', xflip=True),
+        ],
+        'recule': [
+            Frame(f'{subdir}/marche3.gif', xflip=True, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', xflip=True, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', xflip=True, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif', xflip=True, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif', xflip=True),
         ],
     }
 
@@ -521,13 +550,13 @@ class State(enum.Enum):
 
 class Barbarian(AnimatedSprite):
     def __init__(self, x, y, subdir: str, rtl=False, anim='debout'):
-        super(Barbarian, self).__init__(
+        super().__init__(
             (x, y),
-            rtl_anims(barb_anims(subdir)) if rtl else barb_anims(subdir))
+            barb_anims_rtl(subdir) if rtl else barb_anims(subdir))
         self.rtl = rtl
         self.select_anim(anim)
         self.ltr_anims = self.anims
-        self.rtl_anims = rtl_anims(self.anims)
+        self.rtl_anims = barb_anims(subdir) if rtl else barb_anims_rtl(subdir)
         #
         self.clavierX = 7
         self.clavierY = 7
@@ -634,15 +663,10 @@ class Barbarian(AnimatedSprite):
         if self.clavierX == 7 and self.clavierY <= 6:
             self.levier = Levier.haut
 
-    def on_pre_action(self, anim, action):
-        if anim == 'attente':
-            if action == 'attente1':
-                get_snd('attente.ogg').play()
-
 
 class Sorcier(AnimatedSprite):
     def __init__(self, x, y, rtl=False, anim='idle'):
-        super(Sorcier, self).__init__(
+        super().__init__(
             (x, y),
             rtl_anims(sorcier_anims()) if rtl else sorcier_anims())
         self.rtl = rtl

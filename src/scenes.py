@@ -319,15 +319,14 @@ class Battle(EmptyScene):
                                  rtl=not Game.Rtl)
         sz = 8 * SCALE
         if Game.Partie == 'solo' and not Game.Demo:
-            self.add(Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25)))
+            Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
         elif Game.Partie == 'vs':
-            self.add(Txt(sz, 'TWO PLAYER', Theme.TXT, loc(16, 25)))
+            Txt(sz, 'TWO PLAYER', Theme.TXT, loc(16, 25), self)
         elif Game.Demo:
-            self.add(Txt(sz, 'DEMONSTRATION', Theme.TXT, loc(14, 25)))
+            Txt(sz, 'DEMONSTRATION', Theme.TXT, loc(14, 25), self)
 
-        self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8))
-        self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8))
-        self.add(self.txtScoreA, self.txtScoreB)
+        self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8), self)
+        self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8), self)
 
         if Game.Partie == 'vs':
             self.txtChronometre = Txt(sz, f'{Game.Chronometre:02}',
@@ -335,15 +334,14 @@ class Battle(EmptyScene):
             self.add(self.txtChronometre)
 
         elif Game.Partie == 'solo':
-            self.add(Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8)))
+            Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8), self)
         self.add(self.joueurA, self.joueurB)
         self.joueurA.select_anim('avance')
         self.joueurB.select_anim('avance')
         self.serpentA = AnimatedSprite((11 * SCALE, 22 * SCALE),
-                                       serpent_anims())
+                                       serpent_anims(), self)
         self.serpentB = AnimatedSprite((275 * SCALE, 22 * SCALE),
-                                       rtl_anims(serpent_anims()))
-        self.add(self.serpentA, self.serpentB)
+                                       rtl_anims(serpent_anims()), self)
         self.entree = True
         self.entreesorcier = False
         self.lancerintro = True
@@ -943,6 +941,8 @@ class Battle(EmptyScene):
                 pass  # don't play 0-pre_action sound twice
             elif self.temps > self.joueurA.reftemps + 7:
                 self.joueurA.set_anim_frame('attente', 0)
+                if self.opts.sound:
+                    get_snd('attente.ogg').play()
             return 'joueur2'
 
         if self.joueurA.state in (State.debout, State.deboutR):
@@ -1829,6 +1829,8 @@ class Battle(EmptyScene):
                 pass  # don't play 0-pre_action sound twice
             elif self.temps > self.joueurB.reftemps + 7:
                 self.joueurB.set_anim_frame('attente', 0)
+                if self.opts.sound:
+                    get_snd('attente.ogg').play()
             return 'collision'
 
         # avance
