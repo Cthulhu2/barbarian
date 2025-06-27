@@ -435,18 +435,22 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/attente1.gif', tick=50),
         ],
         'avance': [
-            Frame(f'{subdir}/marche1.gif', mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche3.gif', mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif', mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif'),
+            # @formatter:off
+            Frame(f'{subdir}/marche1.gif', tick=9,  mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', tick=17, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche3.gif', tick=27, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  tick=36, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  tick=37),
+            # @formatter:on
         ],
         'recule': [
-            Frame(f'{subdir}/marche3.gif', mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche1.gif', mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif', mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif'),
+            # @formatter:off
+            Frame(f'{subdir}/marche3.gif', tick=9,  mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', tick=18, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', tick=26, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  tick=36, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  tick=37),
+            # @formatter:on
         ],
     }
 
@@ -464,18 +468,22 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/attente1.gif', xflip=True, tick=50),
         ],
         'avance': [
-            Frame(f'{subdir}/marche1.gif', xflip=True, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', xflip=True, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche3.gif', xflip=True, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif', xflip=True, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif', xflip=True),
+            # @formatter:off
+            Frame(f'{subdir}/marche1.gif', xflip=True, tick=9,  mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', xflip=True, tick=17, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche3.gif', xflip=True, tick=27, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=37),
+            # @formatter:on
         ],
         'recule': [
-            Frame(f'{subdir}/marche3.gif', xflip=True, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', xflip=True, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche1.gif', xflip=True, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif', xflip=True, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif', xflip=True),
+            # @formatter:off
+            Frame(f'{subdir}/marche3.gif', xflip=True, tick=9,  mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', xflip=True, tick=18, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', xflip=True, tick=26, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=37),
+            # @formatter:on
         ],
     }
 
@@ -507,17 +515,7 @@ class State(enum.Enum):
     araignee = enum.auto()
     araigneeR = enum.auto()
     attente = enum.auto()
-    attenteR = enum.auto()
     avance = enum.auto()
-    avanceR = enum.auto()
-    avance1 = enum.auto()
-    avance1R = enum.auto()
-    avance2 = enum.auto()
-    avance2R = enum.auto()
-    avance3 = enum.auto()
-    avance3R = enum.auto()
-    avance4 = enum.auto()
-    avance4R = enum.auto()
     assis = enum.auto()
     assisR = enum.auto()
     assis2 = enum.auto()
@@ -549,15 +547,6 @@ class State(enum.Enum):
     protegeH1 = enum.auto()
     protegeHR1 = enum.auto()
     recule = enum.auto()
-    reculeR = enum.auto()
-    recule1 = enum.auto()
-    recule1R = enum.auto()
-    recule2 = enum.auto()
-    recule2R = enum.auto()
-    recule3 = enum.auto()
-    recule3R = enum.auto()
-    recule4 = enum.auto()
-    recule4R = enum.auto()
     releve = enum.auto()
     releveR = enum.auto()
     roulade = enum.auto()
