@@ -11,8 +11,8 @@ from psutil import Process
 from pygame import display, event, mixer, init, time, image
 
 import scenes
-from settings import SCREEN_SIZE, IMG_PATH
-from sprites import Txt
+from settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
+from sprites import Txt, loc2px
 
 
 class BarbarianMain(object):
@@ -39,6 +39,7 @@ class BarbarianMain(object):
             #   virtual memory used by the process.
             self.mem_vms = Txt.Debug(0, self.mem_rss.rect.bottom)
             self.fps = Txt.Debug(0, self.mem_vms.rect.bottom)
+            self.lblSlowmo = Txt.Debug(loc2px(18), 10)
         self.show_logo()
 
     @property
@@ -55,6 +56,7 @@ class BarbarianMain(object):
         self._scene = scene
         if self.opts.debug:
             self.scene.add(self.cpu, self.mem_rss, self.mem_vms, self.fps,
+                           self.lblSlowmo,
                            layer=99)
         gc.collect()
 
@@ -185,6 +187,7 @@ class BarbarianMain(object):
         mem_timer = 0
         pid = getpid()
         pu = Process(pid)
+        slowmo = False
 
         clock = time.Clock()
 
@@ -192,6 +195,12 @@ class BarbarianMain(object):
             for evt in event.get():
                 if evt.type == pygame.QUIT:
                     self.quit()
+                if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKSPACE:
+                    slowmo = True
+                    self.lblSlowmo.msg = 'SlowMo'
+                if evt.type == pygame.KEYUP and evt.key == pygame.K_BACKSPACE:
+                    slowmo = False
+                    self.lblSlowmo.msg = ''
                 self.scene.process_event(evt)
 
             current_time = time.get_ticks()
@@ -213,7 +222,10 @@ class BarbarianMain(object):
 
             dirty = self._scene.draw(self.screen)
             display.update(dirty)
-            clock.tick(60)
+            if slowmo:
+                clock.tick(1)
+            else:
+                clock.tick(FRAME_RATE)
 
         if self.opts.sound:
             pygame.mixer.stop()

@@ -24,11 +24,11 @@ DIRECTIONS = {False: 'LTR', True: 'RTL'}
 
 
 def txt(msg, size, *groups):
-    return Txt(12, msg, Theme.VIEWER_TEXT, size, groups)
+    return Txt(12, msg, Theme.VIEWER_TXT, size, groups)
 
 
 def txt_selected(msg, size, *groups):
-    return Txt(12, msg, Theme.VIEWER_TEXT_SELECTED, size, groups)
+    return Txt(12, msg, Theme.VIEWER_TXT_SELECTED, size, groups)
 
 
 class AnimationViewerScene(EmptyScene):
@@ -75,7 +75,7 @@ class AnimationViewerScene(EmptyScene):
             ix += 1
         #
         cur_ix = self.anims.index(self.target.anim)
-        txt_list[cur_ix].color = Theme.VIEWER_TEXT_SELECTED
+        txt_list[cur_ix].color = Theme.VIEWER_TXT_SELECTED
         return txt_list
 
     def create_barbarian(self, x, y, rtl=False, anim='debout'):
@@ -118,15 +118,15 @@ class AnimationViewerScene(EmptyScene):
 
             elif evt.key in ANIM_KEYS:
                 ix = ANIM_KEYS.index(evt.key)
-                self.select_anim(ix)
+                self.animate(ix)
 
             elif evt.key == K_UP:
                 ix = self.anims.index(self.target.anim) - 1
-                self.select_anim(ix)
+                self.animate(ix)
 
             elif evt.key == K_DOWN:
                 ix = self.anims.index(self.target.anim) + 1
-                self.select_anim(ix)
+                self.animate(ix)
 
             elif evt.key == K_m:
                 self.canMove = not self.canMove
@@ -153,18 +153,18 @@ class AnimationViewerScene(EmptyScene):
             elif evt.key == K_ESCAPE:
                 self.on_quit()
 
-    def select_anim(self, ix):
+    def animate(self, ix: int):
         if ix < 0:
-            self.select_anim(len(self.anims) - 1)
+            self.animate(len(self.anims) - 1)
         elif ix >= len(self.anims):
-            self.select_anim(0)
+            self.animate(0)
         else:
             anim = self.anims[ix]
             if self.target.anim != anim:
                 prev_ix = self.anims.index(self.target.anim)
-                self.animsTxtList[prev_ix].color = Theme.VIEWER_TEXT
-                self.target.select_anim(anim)
-                self.animsTxtList[ix].color = Theme.VIEWER_TEXT_SELECTED
+                self.animsTxtList[prev_ix].color = Theme.VIEWER_TXT
+                self.target.animate(anim)
+                self.animsTxtList[ix].color = Theme.VIEWER_TXT_SELECTED
 
 
 if __name__ == '__main__':

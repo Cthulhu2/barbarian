@@ -173,13 +173,18 @@ class Frame(object):
     __slots__ = ('rect', 'duration', 'image', 'move_base', 'name',
                  'dx', 'dy', 'w', 'h', 'angle',
                  'xflip', 'fill', 'blend_flags',
-                 'pre_action', 'post_action')
+                 'pre_action', 'post_action', 'tick', 'is_tickable')
 
     def __init__(self, name, dx=0, dy=0, w=0, h=0,
                  duration=125, angle=0, xflip=False,
                  fill=None, blend_flags=None, mv=None,
-                 pre_action=None, post_action=None):
+                 pre_action=None, post_action=None, tick=-1):
+        """
+        `tick` end tick. A next tick will apply a next frame.
+        """
         self.duration = duration
+        self.tick = tick
+        self.is_tickable = (tick >= 0)
         self.image = get_img(name, w, h, angle, xflip,
                              fill, blend_flags)
         self.rect = self.image.get_rect().move(dx, dy)
@@ -213,6 +218,7 @@ class AnimatedSprite(DirtySprite):
         super().__init__(*groups)
         self.anims = animations
         self.animTimer = get_ticks()
+        self.animTick = 0
         self._speed = 1.0
         self._is_stopped = False
 
@@ -220,7 +226,8 @@ class AnimatedSprite(DirtySprite):
         self.frames = self.anims[self.anim]
         self.frameNum = 0
         self.frame = self.frames[self.frameNum]
-        self.frame_duration = self.frame.duration / self._speed
+        self.frame_duration = self.frame.duration
+        self.frame_tick = self.frame.tick
 
         self.image = self.frame.image
         self.rect = Rect(0, 0, 0, 0)
@@ -253,6 +260,7 @@ class AnimatedSprite(DirtySprite):
     def speed(self, speed: float):
         self._speed = round(min(3.0, max(0.0, speed)), 3)
         self.frame_duration = self._calc_duration(self.frame.duration)
+        self.frame_tick = self._calc_frame_tick(self.frame.tick)
 
     @property
     def is_stopped(self):
@@ -262,12 +270,13 @@ class AnimatedSprite(DirtySprite):
     def is_stopped(self, stopped: bool):
         self._is_stopped = stopped
 
-    def select_anim(self, anim: str):
+    def animate(self, anim: str, tick=0):
         if anim in self.anims:
             self.is_stopped = False
             self.anim = anim
             self.frames = self.anims[anim]
             self.animTimer = get_ticks()
+            self.animTick = tick
             self.frameNum = -1
             self.frame = None
             self.next_frame()
@@ -287,17 +296,30 @@ class AnimatedSprite(DirtySprite):
 
     def update(self, current_time, *args):
         if self.visible and not self.is_stopped and self.speed > 0:
-            passed = current_time - self.animTimer
-            while passed > self.frame_duration:
-                passed -= self.frame_duration
-                self.animTimer = current_time
-                self.next_frame()
+            self.animTick += 1
+            if not self.frame.is_tickable:
+                passed = current_time - self.animTimer
+                while passed > self.frame_duration:
+                    # TODO: Rewind mixed frame types
+                    passed -= self.frame_duration
+                    self.animTimer = current_time
+                    self.next_frame()
+            else:
+                while self.animTick > self.frame_tick:
+                    self.animTimer = current_time
+                    self.next_frame()
 
     def _calc_duration(self, duration):
-        if self.speed > 0:
-            return duration / self.speed
-        else:
+        if self.speed == 0 or self.speed == 1:
             return duration
+        else:
+            return duration / self.speed
+
+    def _calc_frame_tick(self, tick):
+        if self.speed == 0 or self.speed == 1:
+            return tick
+        else:
+            return tick / self.speed
 
     def on_pre_action(self, anim, action):
         pass
@@ -320,7 +342,11 @@ class AnimatedSprite(DirtySprite):
                                              -self.frame.move_base[1])
                 self.move(dx, dy)
             self.frame = prev
-            self.frame_duration = self._calc_duration(self.frame.duration)
+            if self.frame.is_tickable:
+                self.frame_tick = self._calc_frame_tick(self.frame.tick)
+            else:
+                self.frame_duration = self._calc_duration(self.frame.duration)
+
             self.image = self.frame.image
 
             self._update_rect()
@@ -332,6 +358,7 @@ class AnimatedSprite(DirtySprite):
         self.frameNum += 1
         if self.frameNum == len(self.frames):
             self.frameNum = 0
+            self.animTick = 0
         next_ = self.frames[self.frameNum]
         if self.frame != next_:
             if self.frame and self.frame.post_action:
@@ -342,7 +369,10 @@ class AnimatedSprite(DirtySprite):
                     return
 
             self.frame = next_
-            self.frame_duration = self._calc_duration(self.frame.duration)
+            if self.frame.is_tickable:
+                self.frame_tick = self._calc_frame_tick(self.frame.tick)
+            else:
+                self.frame_duration = self._calc_duration(self.frame.duration)
             self.image = self.frame.image
             if self.frame.move_base:
                 dx, dy = self.available_move(self.frame.move_base[0],
@@ -398,11 +428,11 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/debout.gif'),
         ],
         'attente': [
-            Frame(f'{subdir}/attente1.gif'),
-            Frame(f'{subdir}/attente2.gif'),
-            Frame(f'{subdir}/attente3.gif'),
-            Frame(f'{subdir}/attente2.gif'),
-            Frame(f'{subdir}/attente1.gif'),
+            Frame(f'{subdir}/attente1.gif', tick=15),
+            Frame(f'{subdir}/attente2.gif', tick=23),
+            Frame(f'{subdir}/attente3.gif', tick=30),
+            Frame(f'{subdir}/attente2.gif', tick=37),
+            Frame(f'{subdir}/attente1.gif', tick=50),
         ],
         'avance': [
             Frame(f'{subdir}/marche1.gif', mv=(8 * SCALE, 0)),
@@ -427,11 +457,11 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/debout.gif', xflip=True),
         ],
         'attente': [
-            Frame(f'{subdir}/attente1.gif', xflip=True),
-            Frame(f'{subdir}/attente2.gif', xflip=True, dx=-24),
-            Frame(f'{subdir}/attente3.gif', xflip=True, dx=-24),
-            Frame(f'{subdir}/attente2.gif', xflip=True, dx=-24),
-            Frame(f'{subdir}/attente1.gif', xflip=True),
+            Frame(f'{subdir}/attente1.gif', xflip=True, tick=15),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-24),
+            Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-24),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-24),
+            Frame(f'{subdir}/attente1.gif', xflip=True, tick=50),
         ],
         'avance': [
             Frame(f'{subdir}/marche1.gif', xflip=True, mv=(-8 * SCALE, 0)),
@@ -554,7 +584,7 @@ class Barbarian(AnimatedSprite):
             (x, y),
             barb_anims_rtl(subdir) if rtl else barb_anims(subdir))
         self.rtl = rtl
-        self.select_anim(anim)
+        self.animate(anim)
         self.ltr_anims = self.anims
         self.rtl_anims = barb_anims(subdir) if rtl else barb_anims_rtl(subdir)
         #
@@ -608,7 +638,7 @@ class Barbarian(AnimatedSprite):
 
     def turn_around(self, rtl):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
-        self.select_anim(self.anim)
+        self.animate(self.anim)
         self.rtl = rtl
 
     def occupe_state(self, state: State, temps: int):
@@ -668,7 +698,7 @@ class Sorcier(AnimatedSprite):
             (x, y),
             rtl_anims(sorcier_anims()) if rtl else sorcier_anims())
         self.rtl = rtl
-        self.select_anim(anim)
+        self.animate(anim)
         self.ltr_anims = self.anims
         self.rtl_anims = rtl_anims(self.anims)
         #

@@ -4,7 +4,7 @@ from pygame.locals import *
 from pygame.sprite import LayeredDirty
 from pygame.time import get_ticks
 
-from settings import Theme, SCREEN_SIZE, SCALE
+from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE
 from sprites import (
     get_img, get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
     serpent_anims, rtl_anims, loc2px, loc, State, Levier, Sorcier
@@ -303,7 +303,12 @@ class Battle(EmptyScene):
             self.jBstate = Txt.Debug(loc2px(25), 0)
             self.jAlevier = Txt.Debug(loc2px(10), self.jAstate.rect.bottom)
             self.jBlevier = Txt.Debug(loc2px(25), self.jBstate.rect.bottom)
-            self.add(self.jAstate, self.jAlevier, self.jBstate, self.jBlevier)
+            self.jAtemps = Txt.Debug(loc2px(10), self.jAlevier.rect.bottom)
+            self.jBtemps = Txt.Debug(loc2px(25), self.jBlevier.rect.bottom)
+            self.debugTemps = Txt.Debug(loc2px(18), 0)
+            self.add(self.jAstate, self.jAlevier, self.jAtemps,
+                     self.jBstate, self.jBlevier, self.jBtemps,
+                     self.debugTemps)
         self.add(
             StaticSprite((0, 104 * SCALE),
                          f'stage/{Game.Decor}ARBREG.gif'),
@@ -336,8 +341,8 @@ class Battle(EmptyScene):
         elif Game.Partie == 'solo':
             Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8), self)
         self.add(self.joueurA, self.joueurB)
-        self.joueurA.select_anim('avance')
-        self.joueurB.select_anim('avance')
+        self.joueurA.animate('avance')
+        self.joueurB.animate('avance')
         self.serpentA = AnimatedSprite((11 * SCALE, 22 * SCALE),
                                        serpent_anims(), self)
         self.serpentB = AnimatedSprite((275 * SCALE, 22 * SCALE),
@@ -407,7 +412,6 @@ class Battle(EmptyScene):
                 self.joueurB.pressedFire = keyState
 
     def _debut(self):
-        self.temps += 1
         jax = self.joueurA.x_loc()
         jbx = self.joueurB.x_loc()
         if self.joueurA.bonus:
@@ -436,8 +440,8 @@ class Battle(EmptyScene):
 
         if self.entree:
             if self.serpentA.anim == 'idle' and jax >= 3:
-                self.serpentA.select_anim('bite')
-                self.serpentB.select_anim('bite')
+                self.serpentA.animate('bite')
+                self.serpentB.animate('bite')
             if jax >= 13:
                 self.joueurA.x = loc2px(13)
             if jbx <= 22:
@@ -553,46 +557,39 @@ class Battle(EmptyScene):
         if Game.Demo:
             distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
             if distance >= 15:  # quand trop loin
-                self.joueurA.select_anim('roulade')
-                self.joueurA.occupe = True
+                self.joueurA.occupe_state(State.rouladeAV, self.temps)
                 return 'gestion'
             if distance == 12 and self.joueurB.anim == 'debout':
-                self.joueurA.select_anim('decapite')
-                self.joueurA.occupe = True
+                self.joueurA.occupe_state(State.decapite, self.temps)
                 return 'gestion'
 
             if distance == 9:
                 if self.joueurB.attente > 100:
-                    self.joueurA.state = State.decapite
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.decapite, self.temps)
                     return 'gestion'
-                if self.joueurB.state == State.roulade:
-                    self.joueurA.state = State.genou
-                    self.joueurA.occupe = True
+                if self.joueurB.state == State.rouladeAR:
+                    self.joueurA.occupe_state(State.genou, self.temps)
                     return 'gestion'
                 if self.joueurB.occupe:
-                    self.joueurA.state = State.roulade
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.rouladeAV, self.temps)
                     return 'gestion'
 
             if 6 < distance < 9:  # distance de combat 1
                 # pour se rapprocher
-                if self.joueurB.state == State.roulade:
-                    self.joueurA.state = State.genou
-                    self.joueurA.occupe = True
+                if self.joueurB.state == State.rouladeAR:
+                    self.joueurA.occupe_state(State.genou, self.temps)
                     return 'gestion'
                 if self.joueurB.levier == Levier.gauche:
-                    self.joueurA.state = State.araignee
-                    self.joueurA.occupe = True
+                    self.joueurA.occupe_state(State.araignee, self.temps)
                     return 'gestion'
                 if self.joueurB.state == State.front:
                     self.joueurA.state = State.protegeH
+                    self.joueurA.reftemps = self.temps
                     return 'gestion'
                 # pour eviter les degats repetitifs
                 if self.joueurA.infoDegatG > 4:
                     if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.state = State.genou
-                        self.joueurA.occupe = True
+                        self.joueurA.occupe_state(State.genou, self.temps)
                         return 'gestion'
                 if self.joueurA.infoDegatG > 2:
                     if self.joueurB.state in (State.assis2, State.genou):
@@ -698,14 +695,9 @@ class Battle(EmptyScene):
             self.joueurA.occupe_state(State.releveR, self.temps)
             return 'gestion'
         # attente des 5 secondes
-        if self.sense == 'normal':
-            if self.joueurA.attente > 250:
-                self.joueurA.occupe_state(State.attente, self.temps)
-                return 'gestion'
-        if self.sense == 'inverse':
-            if self.joueurA.attente > 250:
-                self.joueurA.occupe_state(State.attenteR, self.temps)
-                return 'gestion'
+        if self.joueurA.attente > FRAME_RATE * 5:
+            self.joueurA.occupe_state(State.attente, self.temps)
+            return 'gestion'
         # etat debout
         if self.sense == 'normal':
             self.joueurA.state = State.debout
@@ -893,18 +885,8 @@ class Battle(EmptyScene):
                 self.joueurA.occupe = False
                 self.joueurA.attente = 1
                 self.joueurA.state = State.debout
-            elif self.temps > self.joueurA.reftemps + 37:
-                self.joueurA.set_anim_frame('attente', 4)
-            elif self.temps > self.joueurA.reftemps + 30:
-                self.joueurA.set_anim_frame('attente', 3)
-            elif self.temps > self.joueurA.reftemps + 23:
-                self.joueurA.set_anim_frame('attente', 2)
-            elif self.temps > self.joueurA.reftemps + 15:
-                self.joueurA.set_anim_frame('attente', 1)
-            elif self.temps > self.joueurA.reftemps + 8:
-                pass  # don't play 0-pre_action sound twice
-            elif self.temps > self.joueurA.reftemps + 7:
-                self.joueurA.set_anim_frame('attente', 0)
+            elif self.temps == self.joueurA.reftemps + 8:
+                self.joueurA.animate('attente', 8)
                 if self.opts.sound:
                     get_snd('attente.ogg').play()
             return 'joueur2'
@@ -1489,8 +1471,8 @@ class Battle(EmptyScene):
         if self.joueurB.state == State.assis2R:
             self.joueurB.occupe_state(State.releveR, self.temps)
             return 'gestionB'
-        #attente des 5 secondes
-        if self.joueurB.attente > 250:
+        # attente des 5 secondes
+        if self.joueurB.attente > FRAME_RATE * 5:
             self.joueurB.occupe_state(State.attente, self.temps)
             return 'gestionB'
         self.joueurB.state = State.debout
@@ -1777,18 +1759,8 @@ class Battle(EmptyScene):
                 self.joueurB.occupe = False
                 self.joueurB.attente = 1
                 self.joueurB.state = State.debout
-            elif self.temps > self.joueurB.reftemps + 37:
-                self.joueurB.set_anim_frame('attente', 4)
-            elif self.temps > self.joueurB.reftemps + 30:
-                self.joueurB.set_anim_frame('attente', 3)
-            elif self.temps > self.joueurB.reftemps + 23:
-                self.joueurB.set_anim_frame('attente', 2)
-            elif self.temps > self.joueurB.reftemps + 15:
-                self.joueurB.set_anim_frame('attente', 1)
-            elif self.temps > self.joueurB.reftemps + 8:
-                pass  # don't play 0-pre_action sound twice
-            elif self.temps > self.joueurB.reftemps + 7:
-                self.joueurB.set_anim_frame('attente', 0)
+            elif self.temps == self.joueurB.reftemps + 8:
+                self.joueurB.animate('attente', 8)
                 if self.opts.sound:
                     get_snd('attente.ogg').play()
             return 'collision'
@@ -1888,11 +1860,7 @@ class Battle(EmptyScene):
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
-        passed = current_time - self.timer
-        if passed < 10:
-            return
-        self.timer = current_time
-
+        self.temps += 1
         goto = 'debut'
         while goto:
             if goto == 'debut':
@@ -1918,8 +1886,11 @@ class Battle(EmptyScene):
         if self.opts.debug:
             self.jAstate.msg = f'AS: {self.joueurA.state}'
             self.jAlevier.msg = f'AL: {self.joueurA.levier}'
+            self.jAtemps.msg = f'AT: {self.joueurA.reftemps}'
             self.jBstate.msg = f'BS: {self.joueurB.state}'
             self.jBlevier.msg = f'BL: {self.joueurB.levier}'
+            self.jBtemps.msg = f'BT: {self.joueurB.reftemps}'
+            self.debugTemps.msg = f'T: {self.temps}'
 
 
 class Version(_MenuBackScene):
