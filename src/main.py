@@ -223,7 +223,7 @@ class BarbarianMain(object):
             dirty = self._scene.draw(self.screen)
             display.update(dirty)
             if slowmo:
-                clock.tick(1)
+                clock.tick(4)
             else:
                 clock.tick(FRAME_RATE)
 

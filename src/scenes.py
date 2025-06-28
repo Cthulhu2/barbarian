@@ -319,7 +319,7 @@ class Battle(EmptyScene):
             self.jAT = area(Theme.RED, 'T')
             self.jAM = area(Theme.GREEN, 'M')
             self.jAG = area(Theme.PURPLE, 'G')
-            self.jBAtt = area(Theme.RED, 'A')
+            self.jBAtt = area(Theme.RED, 'A', border_width=5)
             self.jBF = area(Theme.YELLOW, 'F')
             self.jBT = area(Theme.RED, 'T')
             self.jBM = area(Theme.GREEN, 'M')
@@ -977,104 +977,93 @@ class Battle(EmptyScene):
             if self.joueurA.attaque:
                 self.joueurA.occupe_state(State.genou, self.temps)
 
+        # rouladeAV
         if self.joueurA.state == State.rouladeAV:
-            self.joueurA.xF = self.joueurA.x_loc()
-            self.joueurA.xT = self.joueurA.x_loc()
-            self.joueurA.xM = self.joueurA.x_loc()
-            self.joueurA.xG = self.joueurA.x_loc()
+            rtl = self.joueurA.rtl
+            self.joueurA.xF = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.yG = 20
             self.joueurA.yAtt = self.joueurA.yG
-            self.joueurA.xAtt = self.joueurA.x_loc()
+            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.yT = self.joueurA.yG
             if self.joueurA.attaque:
                 self.joueurA.yT = 16
                 self.joueurA.occupe_state(State.coupdepied, self.temps)
                 return 'gestion'
-            if self.temps > self.joueurA.reftemps + 38:
-                self.joueurA.sprite = "debout"
-                self.joueurA.xT = self.joueurA.x_loc() + 4
-                self.joueurA.xM = self.joueurA.x_loc() + 4
+            elif self.temps > self.joueurA.reftemps + 33:
+                self.joueurA.xT = self.joueurA.x_loc() + (0 if rtl else 4)
+                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
                 self.joueurA.yT = 16
                 self.joueurA.occupe = False
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
                 self.joueurA.state = State.finderoulade
-                return 'finderoulade'
-
-            if self.temps > self.joueurA.reftemps + 33:
-                self.joueurA.sprite = "debout"
+                # return 'finderoulade'  # vvv
+            elif self.temps == self.joueurA.reftemps + 17:
+                self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
                 return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 31:
+            elif self.temps == self.joueurA.reftemps + 14:
+                self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
                 return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 30:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade6"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 29:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 28:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade5"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 26:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 25:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade5"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 23:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 22:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade4"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 20:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 19:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade4"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 17:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 16:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.xAtt = self.joueurA.x_loc() + 5
-                self.joueurA.sprite = "roulade3"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 14:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 13:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.xAtt = self.joueurA.x_loc() + 5
-                self.joueurA.sprite = "roulade3"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 11:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 10:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade2"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 8:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 7:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade2"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 5:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 4:
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade1"
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 2:
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 1:
+            elif self.temps == self.joueurA.reftemps + 2:
                 if self.opts.sound:
                     get_snd('roule.ogg').play()
-                self.joueurA.x = loc2px(self.joueurA.x_loc() + 1)
-                self.joueurA.sprite = "roulade1"
+                if self.joueurA.anim != 'rouladeAV':
+                    self.joueurA.animate('rouladeAV', 2)
+                return 'joueur2'
+            else:
                 return 'joueur2'
 
-        return 'joueur2'  # 'finderoulade'
+        if self.joueurA.state == State.finderoulade:
+            rtl = self.joueurA.rtl
+            jax = self.joueurA.x_loc()
+            jbx = self.joueurB.x_loc()
+            if (not rtl and jax > jbx - 1) or (rtl and jax < jbx + 1):
+                self.joueurA.occupe_state(State.retourne, self.temps)
+                self.joueurB.occupe_state(State.retourne, self.temps)
+                self.joueurA.yAtt = 14
+                self.joueurB.yAtt = 14
+                return 'affichage'
+            if (not rtl and jax < jbx) or (rtl and jax > jbx):
+                self.joueurA.state = State.debout
+                self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
+                self.joueurA.yAtt = 17
+                self.joueurA.reset_xX()
+                self.joueurA.yF = 15
+                self.joueurA.yT = 16
+                self.joueurA.yM = 18
+                self.joueurA.yG = 20
+                return 'joueur2'
+
+        # rouladeAR
+        if self.joueurA.state == State.rouladeAR:
+            rtl = self.joueurA.rtl
+            self.joueurA.xF = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.yG = 20
+            self.joueurA.yAtt = self.joueurA.yG
+            self.joueurA.xAtt = self.joueurA.x_loc() + (0 if rtl else 4)
+            if self.joueurA.attaque:
+                self.joueurA.occupe_state(State.front, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 33:
+                self.joueurA.xT = self.joueurA.x_loc() + (0 if rtl else 4)
+                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
+                self.joueurA.occupe = False
+                self.joueurA.state = State.debout
+                return 'colision'
+            elif self.temps > self.joueurA.reftemps + 2:
+                return 'colision'
+            elif self.temps == self.joueurA.reftemps + 2:
+                if self.opts.sound:
+                    get_snd('roule.ogg').play()
+                if self.joueurA.anim != 'rouladeAR':
+                    self.joueurA.animate('rouladeAR', 2)
+                return 'joueur2'
+
+        return 'joueur2'
 
     def _joueur2(self):
         # debut joueur 2
@@ -1795,6 +1784,7 @@ class Battle(EmptyScene):
                 self.joueurB.xG = self.joueurB.x_loc() + (3 if rtl else 1)
             if self.joueurB.anim != 'saute':
                 self.joueurB.animate('saute')
+
         # assis
         if self.joueurB.state == State.assis:
             rtl = self.joueurB.rtl
@@ -1844,7 +1834,93 @@ class Battle(EmptyScene):
             if self.joueurB.attaque:
                 self.joueurB.occupe_state(State.genou, self.temps)
 
-        return 'finderouladeBR'
+        # rouladeAV
+        if self.joueurB.state == State.rouladeAV:
+            rtl = self.joueurB.rtl
+            self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yG = 20
+            self.joueurB.yAtt = self.joueurB.yG
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yT = self.joueurB.yG
+            if self.joueurB.attaque:
+                self.joueurB.yT = 16
+                self.joueurB.occupe_state(State.coupdepied, self.temps)
+                return 'colision'
+            elif self.temps > self.joueurB.reftemps + 33:
+                self.joueurB.xT = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.yT = 16
+                self.joueurB.occupe = False
+                self.joueurB.state = State.finderoulade
+                # return 'finderouladeB'  # vvv
+            elif self.temps == self.joueurB.reftemps + 17:
+                self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
+                return 'colision'
+            elif self.temps == self.joueurB.reftemps + 14:
+                self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
+                return 'colision'
+            elif self.temps == self.joueurB.reftemps + 2:
+                if self.opts.sound:
+                    get_snd('roule.ogg').play()
+                if self.joueurB.anim != 'rouladeAV':
+                    self.joueurB.animate('rouladeAV', 2)
+                return 'colision'
+            else:
+                return 'colision'
+
+        if self.joueurB.state == State.finderoulade:
+            rtl = self.joueurB.rtl
+            jax = self.joueurA.x_loc()
+            jbx = self.joueurB.x_loc()
+            if (not rtl and jbx > jax - 1) or (rtl and jbx < jax + 1):
+                self.joueurA.occupe_state(State.retourne, self.temps)
+                self.joueurB.occupe_state(State.retourne, self.temps)
+                self.joueurB.yAtt = 14
+                self.joueurB.yAtt = 14
+                return 'affichage'
+            if (not rtl and jbx < jax) or (rtl and jbx > jax):
+                self.joueurB.state = State.debout
+                self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+                self.joueurB.yAtt = 17
+                self.joueurB.reset_xX()
+                self.joueurB.yF = 15
+                self.joueurB.yT = 16
+                self.joueurB.yM = 18
+                self.joueurB.yG = 20
+                return 'colision'
+
+        # rouladeAR
+        if self.joueurB.state == State.rouladeAR:
+            rtl = self.joueurB.rtl
+            self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yG = 20
+            self.joueurB.yAtt = self.joueurB.yG
+            self.joueurB.xAtt = self.joueurB.x_loc() + (0 if rtl else 4)
+            if self.joueurB.attaque:
+                self.joueurB.occupe_state(State.front, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 33:
+                self.joueurB.xT = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.occupe = False
+                self.joueurB.state = State.debout
+                return 'colision'
+            elif self.temps > self.joueurB.reftemps + 2:
+                return 'colision'
+            elif self.temps == self.joueurB.reftemps + 2:
+                if self.opts.sound:
+                    get_snd('roule.ogg').play()
+                if self.joueurB.anim != 'rouladeAR':
+                    self.joueurB.animate('rouladeAR', 2)
+                return 'colision'
+
+        return None  # 'finderouladeBR'
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)

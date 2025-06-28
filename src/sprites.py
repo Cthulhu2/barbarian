@@ -534,6 +534,36 @@ def barb_anims(subdir: str):
         'releve': [
             Frame(f'{subdir}/assis1.gif'),
         ],
+        'rouladeAV': [
+            # @formatter:off
+            Frame(f'{subdir}/roulade1.gif',             tick=4,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=7,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=10, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=13, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=22, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=25, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(CHAR_W * SCALE, 0)),  # noqa
+            # @formatter:off
+        ],
+        'rouladeAR': [
+            # @formatter:off
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=2,                         ),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=5,  mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=11, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=14, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=17, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=20, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=23, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=26, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=29, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            # @formatter:off
+        ],
     }
 
 
@@ -582,6 +612,36 @@ def barb_anims_rtl(subdir: str):
         'releve': [
             Frame(f'{subdir}/assis1.gif', xflip=True),
         ],
+        'rouladeAV': [
+            # @formatter:off
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=4,  mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=7,  mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=10, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=13, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=22, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=25, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            # @formatter:off
+        ],
+        'rouladeAR': [
+            # @formatter:off
+            Frame(f'{subdir}/roulade1.gif',             tick=2,                        ),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=5,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=11, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=14, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=17, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=20, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=23, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=26, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=29, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(CHAR_W * SCALE, 0)),  # noqa
+            # @formatter:off
+        ],
     }
 
 
@@ -629,6 +689,7 @@ class State(enum.Enum):
     devantR = enum.auto()
     finderoulade = enum.auto()
     finderouladeR = enum.auto()
+    retourne = enum.auto()
     front = enum.auto()
     frontR = enum.auto()
     genou = enum.auto()
@@ -642,7 +703,6 @@ class State(enum.Enum):
     protegeHR1 = enum.auto()
     recule = enum.auto()
     releve = enum.auto()
-    roulade = enum.auto()
     rouladeAV = enum.auto()
     rouladeAVR = enum.auto()
     rouladeAR = enum.auto()
@@ -753,13 +813,13 @@ class Barbarian(AnimatedSprite):
         self.attaque = self.pressedFire
 
         if self.clavierX <= 6 and self.clavierY <= 6:
-            self.levier = Levier.hautD if self.rtl else Levier.hautG
+            self.levier = Levier.hautG
         if self.clavierX >= 8 and self.clavierY <= 6:
-            self.levier = Levier.hautG if self.rtl else Levier.hautD
+            self.levier = Levier.hautD
         if self.clavierX <= 6 and self.clavierY >= 8:
-            self.levier = Levier.basD if self.rtl else Levier.basG
+            self.levier = Levier.basG
         if self.clavierX >= 8 and self.clavierY >= 8:
-            self.levier = Levier.basG if self.rtl else Levier.basD
+            self.levier = Levier.basD
 
         if self.clavierX <= 6 and self.clavierY == 7:
             self.levier = Levier.gauche

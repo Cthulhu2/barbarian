@@ -96,10 +96,12 @@ class AnimationViewerScene(EmptyScene):
         if not self.canMove:
             return 0, dy
         center_x = self.target.rect.center[0]
-        if center_x + dx < 60:
-            return -(center_x - 60), dy
-        elif center_x + dx > 740:
-            return 740 - center_x, dy
+        left = self.target.rect.width / 2
+        right = SCREEN_SIZE[0] - self.target.rect.width / 2
+        if center_x + dx < left:
+            return -(center_x - left), dy
+        elif center_x + dx > right:
+            return right - center_x, dy
         else:
             return dx, dy
 
