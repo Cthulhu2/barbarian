@@ -11,7 +11,7 @@ from pygame.surface import Surface
 from pygame.time import get_ticks
 from pygame.transform import scale, rotate, flip
 
-from settings import IMG_PATH, SCALE, FONT, SND_PATH, Theme
+from settings import IMG_PATH, SCALE, FONT, SND_PATH, Theme, CHAR_W
 
 snd_cache: Dict[int, Sound] = {}
 img_cache: Dict[int, Surface] = {}
@@ -65,7 +65,7 @@ def px2loc(x: int) -> int:
     :param x: 0..959
     :return: 1..40
     """
-    return int(((x / SCALE) / 8) + 1)
+    return int(((x / SCALE) / CHAR_W) + 1)
 
 
 def loc2px(x: int) -> int:
@@ -74,7 +74,7 @@ def loc2px(x: int) -> int:
     :param x: 1..40
     :return:
     """
-    return (x - 1) * 8 * SCALE
+    return (x - 1) * CHAR_W * SCALE
 
 
 def loc(x: int, y: int) -> Tuple[int, int]:
@@ -436,21 +436,36 @@ def barb_anims(subdir: str):
         ],
         'avance': [
             # @formatter:off
-            Frame(f'{subdir}/marche1.gif', tick=9,  mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', tick=17, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche3.gif', tick=27, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif',  tick=36, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', tick=9,  mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', tick=17, mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche3.gif', tick=27, mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  tick=36, mv=(CHAR_W * SCALE, 0)),
             Frame(f'{subdir}/debout.gif',  tick=37),
             # @formatter:on
         ],
         'recule': [
             # @formatter:off
-            Frame(f'{subdir}/marche3.gif', tick=9,  mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', tick=18, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche1.gif', tick=26, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif',  tick=36, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche3.gif', tick=9,  mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', tick=18, mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', tick=26, mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  tick=36, mv=(-CHAR_W * SCALE, 0)),
             Frame(f'{subdir}/debout.gif',  tick=37),
             # @formatter:on
+        ],
+        'saute': [
+            # @formatter:off
+            Frame(f'{subdir}/saut1.gif',  tick=13),
+            Frame(f'{subdir}/saut2.gif',  tick=30),
+            Frame(f'{subdir}/saut1.gif',  tick=40),
+            Frame(f'{subdir}/debout.gif', tick=46),
+            # @formatter:on
+        ],
+        'assis': [
+            Frame(f'{subdir}/assis1.gif'),
+            Frame(f'{subdir}/assis2.gif'),
+        ],
+        'releve': [
+            Frame(f'{subdir}/assis1.gif'),
         ],
     }
 
@@ -462,28 +477,43 @@ def barb_anims_rtl(subdir: str):
         ],
         'attente': [
             Frame(f'{subdir}/attente1.gif', xflip=True, tick=15),
-            Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-24),
-            Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-24),
-            Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-24),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-CHAR_W * SCALE),
             Frame(f'{subdir}/attente1.gif', xflip=True, tick=50),
         ],
         'avance': [
             # @formatter:off
-            Frame(f'{subdir}/marche1.gif', xflip=True, tick=9,  mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', xflip=True, tick=17, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/marche3.gif', xflip=True, tick=27, mv=(-8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(-8 * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', xflip=True, tick=9,  mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', xflip=True, tick=17, mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche3.gif', xflip=True, tick=27, mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(-CHAR_W * SCALE, 0)),
             Frame(f'{subdir}/debout.gif',  xflip=True, tick=37),
             # @formatter:on
         ],
         'recule': [
             # @formatter:off
-            Frame(f'{subdir}/marche3.gif', xflip=True, tick=9,  mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche2.gif', xflip=True, tick=18, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/marche1.gif', xflip=True, tick=26, mv=(8 * SCALE, 0)),
-            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(8 * SCALE, 0)),
+            Frame(f'{subdir}/marche3.gif', xflip=True, tick=9,  mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche2.gif', xflip=True, tick=18, mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/marche1.gif', xflip=True, tick=26, mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(CHAR_W * SCALE, 0)),
             Frame(f'{subdir}/debout.gif',  xflip=True, tick=37),
             # @formatter:on
+        ],
+        'saute': [
+            # @formatter:off
+            Frame(f'{subdir}/saut1.gif',  xflip=True, tick=13, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/saut2.gif',  xflip=True, tick=30, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/saut1.gif',  xflip=True, tick=40, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=46),
+            # @formatter:on
+        ],
+        'assis': [
+            Frame(f'{subdir}/assis1.gif', xflip=True),
+            Frame(f'{subdir}/assis2.gif', xflip=True),
+        ],
+        'releve': [
+            Frame(f'{subdir}/assis1.gif', xflip=True),
         ],
     }
 
@@ -517,9 +547,7 @@ class State(enum.Enum):
     attente = enum.auto()
     avance = enum.auto()
     assis = enum.auto()
-    assisR = enum.auto()
     assis2 = enum.auto()
-    assis2R = enum.auto()
     clingD = enum.auto()
     clingH = enum.auto()
     cou = enum.auto()
@@ -528,7 +556,6 @@ class State(enum.Enum):
     coupdetete = enum.auto()
     coupdeteteR = enum.auto()
     debout = enum.auto()
-    deboutR = enum.auto()
     decapite = enum.auto()
     decapiteR = enum.auto()
     devant = enum.auto()
@@ -548,14 +575,12 @@ class State(enum.Enum):
     protegeHR1 = enum.auto()
     recule = enum.auto()
     releve = enum.auto()
-    releveR = enum.auto()
     roulade = enum.auto()
     rouladeAV = enum.auto()
     rouladeAVR = enum.auto()
     rouladeAR = enum.auto()
     rouladeARR = enum.auto()
     saute = enum.auto()
-    sauteR = enum.auto()
     tombe = enum.auto()
     tombeR = enum.auto()
     touche = enum.auto()
@@ -607,8 +632,7 @@ class Barbarian(AnimatedSprite):
         self.assis = False
         self.protegeD = False
         self.protegeH = False
-        self.spriteAvance = 0
-        self.spriteRecule = 0
+        self.sprite = ''
         self.decapite = False
         self.pressedUp = False
         self.pressedDown = False
@@ -653,9 +677,9 @@ class Barbarian(AnimatedSprite):
 
     def clavier(self):
         if self.pressedUp:
-            self.inc_clavier_y()
-        if self.pressedDown:
             self.dec_clavier_y()
+        if self.pressedDown:
+            self.inc_clavier_y()
         if self.pressedLeft:
             self.dec_clavier_x()
         if self.pressedRight:

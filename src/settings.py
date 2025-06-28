@@ -8,6 +8,8 @@ SND_PATH = os.path.abspath(BASE_PATH + '/../resources/snd') + '/'
 
 SCALE = 3
 SCREEN_SIZE = (320 * SCALE, 200 * SCALE)
+CHAR_W = 320 / 40  # 8
+CHAR_H = 200 / 25  # 8
 FRAME_RATE = 60
 
 FONT = FONT_PATH + 'PressStart2P-Regular.ttf'
@@ -23,6 +25,7 @@ class Theme:
     VIEWER_BACK = (55, 55, 55)  # dark gray
     VIEWER_TXT = (225, 225, 225)  # light gray
     VIEWER_TXT_SELECTED = (78, 255, 87)  # green
+    VIEWER_BORDER = (204, 0, 0)  # red
     #
     YELLOW = (241, 255, 0)
     BLUE = (80, 255, 239)
