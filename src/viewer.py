@@ -3,18 +3,16 @@
 import gc
 import importlib
 import sys
-from typing import Any, Tuple
+from typing import Any
 
 from pygame import key, Surface, display
 from pygame.locals import *
-from pygame.sprite import DirtySprite, AbstractGroup, Group
-from pygame.transform import scale
 
 import sprites
 from main import BarbarianMain, option_parser
 from scenes import EmptyScene
 from settings import SCREEN_SIZE, Theme
-from sprites import Barbarian, Txt, img_cache
+from sprites import Barbarian, Rectangle, Txt, img_cache
 
 BACKGROUND = Surface(SCREEN_SIZE)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
@@ -33,66 +31,6 @@ def txt(msg, size, *groups):
 
 def txt_selected(msg, size, *groups):
     return Txt(12, msg, Theme.VIEWER_TXT_SELECTED, size, groups)
-
-
-class Rectangle(Group):
-    def __init__(self,
-                 x, y, w, h,
-                 color: Tuple[int, int, int],
-                 *groups: AbstractGroup):
-        super().__init__(*groups)
-        self.border_width = 1
-        self.img = Surface((self.border_width, self.border_width))
-        self.img.fill(color, self.img.get_rect())
-        self.left = DirtySprite(self)
-        self.left.image = self.img
-        self.left.rect = Rect(x, y, self.border_width, h)
-        self.left.visible = True
-        #
-        self.right = DirtySprite(self)
-        self.right.image = self.img
-        self.right.rect = Rect(x + w - self.border_width, y,
-                               self.border_width, h)
-        #
-        self.top = DirtySprite(self)
-        self.top.image = self.img
-        self.top.rect = Rect(x, y, w, self.border_width)
-        #
-        self.bottom = DirtySprite(self)
-        self.bottom.image = self.img
-        self.bottom.rect = Rect(x, y + h - self.border_width,
-                                w, self.border_width)
-
-    def apply(self, r: Rect):
-        if self.left.rect.topleft != r.topleft or self.left.rect.h != r.h:
-            self.left.rect.topleft = (r.x, r.y)
-            if self.left.rect.h != r.h:
-                self.left.rect.h = r.h
-                self.left.image = scale(self.img, self.left.rect.size)
-            self.left.dirty = 1
-
-        x = r.x + r.w - self.border_width
-        if self.right.rect.topleft != (x, r.y) or self.right.rect.h != r.h:
-            self.right.rect.topleft = (x, r.y)
-            if self.right.rect.h != r.h:
-                self.right.rect.h = r.h
-                self.right.image = scale(self.img, self.right.rect.size)
-            self.right.dirty = 1
-
-        if self.top.rect.topleft != (r.x, r.y) or self.top.rect.w != r.w:
-            self.top.rect.topleft = (r.x, r.y)
-            if self.top.rect.w != r.w:
-                self.top.rect.w = r.w
-                self.top.image = scale(self.img, self.top.rect.size)
-            self.top.dirty = 1
-
-        y = r.y + r.h - self.border_width
-        if self.bottom.rect.topleft != (r.x, y) or self.bottom.rect.w != r.w:
-            self.bottom.rect.topleft = (r.x, y)
-            if self.bottom.rect.w != r.w:
-                self.bottom.rect.w = r.w
-                self.bottom.image = scale(self.img, self.bottom.rect.size)
-            self.bottom.dirty = 1
 
 
 class AnimationViewerScene(EmptyScene):

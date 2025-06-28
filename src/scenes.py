@@ -4,10 +4,10 @@ from pygame.locals import *
 from pygame.sprite import LayeredDirty
 from pygame.time import get_ticks
 
-from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE
+from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
     get_img, get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    serpent_anims, rtl_anims, loc2px, loc, State, Levier, Sorcier
+    serpent_anims, rtl_anims, loc2px, loc, State, Levier, Sorcier, Rectangle
 )
 
 
@@ -273,6 +273,10 @@ class Menu(_MenuBackScene):
             self.on_quit()
 
 
+def area(color, lbl, border_width=2):
+    return Rectangle(0, 0, CHAR_W * SCALE, CHAR_H * SCALE, color, border_width, lbl)
+
+
 class Battle(EmptyScene):
     def __init__(self, opts, *,
                  on_esc,
@@ -298,6 +302,7 @@ class Battle(EmptyScene):
                 back.blit(logo, (59 * SCALE, 16 * SCALE))
         # noinspection PyTypeChecker
         self.clear(None, back)
+        self.debugAttArea = False
         if self.opts.debug:
             self.jAstate = Txt.Debug(loc2px(10), 0)
             self.jBstate = Txt.Debug(loc2px(25), 0)
@@ -309,6 +314,16 @@ class Battle(EmptyScene):
             self.add(self.jAstate, self.jAlevier, self.jAtemps,
                      self.jBstate, self.jBlevier, self.jBtemps,
                      self.debugTemps)
+            self.jAAtt = area(Theme.RED, 'A', border_width=5)
+            self.jAF = area(Theme.YELLOW, 'F')
+            self.jAT = area(Theme.RED, 'T')
+            self.jAM = area(Theme.GREEN, 'M')
+            self.jAG = area(Theme.PURPLE, 'G')
+            self.jBAtt = area(Theme.RED, 'A')
+            self.jBF = area(Theme.YELLOW, 'F')
+            self.jBT = area(Theme.RED, 'T')
+            self.jBM = area(Theme.GREEN, 'M')
+            self.jBG = area(Theme.PURPLE, 'G')
         self.add(
             StaticSprite((0, 104 * SCALE),
                          f'stage/{Game.Decor}ARBREG.gif'),
@@ -322,7 +337,7 @@ class Battle(EmptyScene):
         self.joueurB = Barbarian(loc2px(36), loc2px(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)
-        sz = 8 * SCALE
+        sz = int(CHAR_H * SCALE)
         if Game.Partie == 'solo' and not Game.Demo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
         elif Game.Partie == 'vs':
@@ -379,6 +394,17 @@ class Battle(EmptyScene):
             Game.IA = 0
             self.on_esc()
             return
+        if evt.type == KEYUP and evt.key == K_F12 and self.opts.debug:
+            self.debugAttArea = not self.debugAttArea
+            if self.debugAttArea:
+                self.add(
+                    self.jAAtt, self.jAF, self.jAT, self.jAM, self.jAG,
+                    self.jBAtt, self.jBF, self.jBT, self.jBM, self.jBG,
+                    layer=99)
+            else:
+                self.remove(
+                    self.jAAtt, self.jAF, self.jAT, self.jAM, self.jAG,
+                    self.jBAtt, self.jBF, self.jBT, self.jBM, self.jBG)
 
         if Game.Demo:
             return
@@ -1738,7 +1764,7 @@ class Battle(EmptyScene):
         # saute
         if self.joueurB.state == State.saute:
             rtl = self.joueurB.rtl
-            self.joueurB.xAtt = self.joueurB.x_loc() + (0 if rtl else 4)
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.reset_xX()
             self.joueurB.decapite = False
             self.joueurB.yG = self.joueurB.yM
@@ -1752,26 +1778,26 @@ class Battle(EmptyScene):
                 self.joueurB.state = State.debout
                 return 'colision'
             if self.temps > self.joueurB.reftemps + 40:
-                self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
-                self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
+                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
                 return 'colision'
             if self.temps > self.joueurB.reftemps + 30:
-                self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
-                self.joueurB.xG = self.joueurB.x_loc() + (1 if rtl else 1)
+                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.xG = self.joueurB.x_loc() + (3 if rtl else 3)
                 self.joueurB.decapite = True
                 return 'colision'
             if self.temps > self.joueurB.reftemps + 13:
-                self.joueurB.xM = self.joueurB.x_loc() + (1 if rtl else 3)
-                self.joueurB.xG = self.joueurB.x_loc() + (1 if rtl else 3)
+                self.joueurB.xM = self.joueurB.x_loc() + (3 if rtl else 1)
+                self.joueurB.xG = self.joueurB.x_loc() + (3 if rtl else 1)
                 return 'colision'
             if self.temps > self.joueurB.reftemps + 2:
-                self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
-                self.joueurB.xG = self.joueurB.x_loc() + (1 if rtl else 3)
+                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.xG = self.joueurB.x_loc() + (3 if rtl else 1)
             if self.joueurB.anim != 'saute':
                 self.joueurB.animate('saute')
         # assis
         if self.joueurB.state == State.assis:
-            rtl = self.joueurA.rtl
+            rtl = self.joueurB.rtl
             self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
@@ -1853,6 +1879,17 @@ class Battle(EmptyScene):
             self.jBlevier.msg = f'BL: {self.joueurB.levier}'
             self.jBtemps.msg = f'BT: {self.joueurB.reftemps}'
             self.debugTemps.msg = f'T: {self.temps}'
+            if self.debugAttArea:
+                self.jAAtt.move_to(loc2px(self.joueurA.xAtt), loc2px(self.joueurA.yAtt))
+                self.jAF.move_to(loc2px(self.joueurA.xF), loc2px(self.joueurA.yF))
+                self.jAT.move_to(loc2px(self.joueurA.xT), loc2px(self.joueurA.yT))
+                self.jAM.move_to(loc2px(self.joueurA.xM), loc2px(self.joueurA.yM))
+                self.jAG.move_to(loc2px(self.joueurA.xG), loc2px(self.joueurA.yG))
+                self.jBAtt.move_to(loc2px(self.joueurB.xAtt), loc2px(self.joueurB.yAtt))
+                self.jBF.move_to(loc2px(self.joueurB.xF), loc2px(self.joueurB.yF))
+                self.jBT.move_to(loc2px(self.joueurB.xT), loc2px(self.joueurB.yT))
+                self.jBM.move_to(loc2px(self.joueurB.xM), loc2px(self.joueurB.yM))
+                self.jBG.move_to(loc2px(self.joueurB.xG), loc2px(self.joueurB.yG))
 
 
 class Version(_MenuBackScene):

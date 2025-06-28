@@ -6,7 +6,7 @@ from typing import Tuple, Dict
 from pygame import image, Rect
 from pygame.font import Font
 from pygame.mixer import Sound
-from pygame.sprite import DirtySprite, AbstractGroup
+from pygame.sprite import DirtySprite, AbstractGroup, Group
 from pygame.surface import Surface
 from pygame.time import get_ticks
 from pygame.transform import scale, rotate, flip
@@ -85,6 +85,73 @@ def loc(x: int, y: int) -> Tuple[int, int]:
     :return:
     """
     return loc2px(x), loc2px(y)
+
+
+class Rectangle(Group):
+    def __init__(self,
+                 x, y, w, h,
+                 color: Tuple[int, int, int],
+                 border_width=1,
+                 lbl='',
+                 *groups: AbstractGroup):
+        super().__init__(*groups)
+        self.border_width = border_width
+        self.img = Surface((self.border_width, self.border_width))
+        self.img.fill(color, self.img.get_rect())
+        #
+        self.left = DirtySprite(self)
+        self.left.rect = Rect(0, 0, self.border_width, 0)
+        #
+        self.right = DirtySprite(self)
+        self.right.rect = Rect(0, 0, self.border_width, 0)
+        #
+        self.top = DirtySprite(self)
+        self.top.rect = Rect(0, 0, 0, self.border_width)
+        #
+        self.bottom = DirtySprite(self)
+        self.bottom.rect = Rect(0, 0, 0, self.border_width)
+        self.rect = Rect(x, y, w, h)
+        #
+        self.lbl = Txt(int(h) - self.border_width * 2 - 1, lbl, color, (0, 0), self)
+        self.apply(self.rect)
+
+    def apply(self, r: Rect):
+        self.rect = r
+        if self.left.rect.topleft != r.topleft or self.left.rect.h != r.h:
+            self.lbl.rect.topleft = (r.x + self.border_width + 1,
+                                     r.y + self.border_width + 1)
+            self.lbl.dirty = 1
+            self.left.rect.topleft = (r.x, r.y)
+            if self.left.rect.h != r.h:
+                self.left.rect.h = r.h
+                self.left.image = scale(self.img, self.left.rect.size)
+            self.left.dirty = 1
+
+        x = r.x + r.w - self.border_width
+        if self.right.rect.topleft != (x, r.y) or self.right.rect.h != r.h:
+            self.right.rect.topleft = (x, r.y)
+            if self.right.rect.h != r.h:
+                self.right.rect.h = r.h
+                self.right.image = scale(self.img, self.right.rect.size)
+            self.right.dirty = 1
+
+        if self.top.rect.topleft != (r.x, r.y) or self.top.rect.w != r.w:
+            self.top.rect.topleft = (r.x, r.y)
+            if self.top.rect.w != r.w:
+                self.top.rect.w = r.w
+                self.top.image = scale(self.img, self.top.rect.size)
+            self.top.dirty = 1
+
+        y = r.y + r.h - self.border_width
+        if self.bottom.rect.topleft != (r.x, y) or self.bottom.rect.w != r.w:
+            self.bottom.rect.topleft = (r.x, y)
+            if self.bottom.rect.w != r.w:
+                self.bottom.rect.w = r.w
+                self.bottom.image = scale(self.img, self.bottom.rect.size)
+            self.bottom.dirty = 1
+
+    def move_to(self, x, y):
+        self.apply(self.rect.move_to(x=x, y=y))
 
 
 class Txt(DirtySprite):
@@ -594,13 +661,12 @@ class State(enum.Enum):
 
 class Barbarian(AnimatedSprite):
     def __init__(self, x, y, subdir: str, rtl=False, anim='debout'):
-        super().__init__(
-            (x, y),
-            barb_anims_rtl(subdir) if rtl else barb_anims(subdir))
+        super().__init__((x, y), barb_anims(subdir))
         self.rtl = rtl
-        self.animate(anim)
         self.ltr_anims = self.anims
-        self.rtl_anims = barb_anims(subdir) if rtl else barb_anims_rtl(subdir)
+        self.rtl_anims = barb_anims_rtl(subdir)
+        self.anims = self.rtl_anims if rtl else self.ltr_anims
+        self.animate(anim)
         #
         self.clavierX = 7
         self.clavierY = 7

@@ -31,4 +31,5 @@ class Theme:
     BLUE = (80, 255, 239)
     PURPLE = (203, 0, 255)
     RED = (237, 28, 36)
+    GREEN = (138, 226, 52)
     BLACK = (0, 0, 0)
