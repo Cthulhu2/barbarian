@@ -847,6 +847,36 @@ class Barbarian(AnimatedSprite):
         if self.clavierX == 7 and self.clavierY <= 6:
             self.levier = Levier.haut
 
+    # region actions
+    def action_droite(self, temps):
+        self.protegeD = False
+        state = State.recule if self.rtl else State.avance
+        attack = State.decapite if self.rtl else State.devant
+        if self.state == state:
+            return
+        self.state = state
+        self.reftemps = temps
+        if self.attaque:
+            self.occupe_state(attack, temps)
+
+    def action_gauche(self, temps):
+        self.protegeH = False
+        state = State.avance if self.rtl else State.recule
+        attack = State.devant if self.rtl else State.decapite
+        if self.state == state:
+            return
+        self.state = state
+        self.reftemps = temps
+        if self.attaque and not self.sortie:
+            self.occupe_state(attack, temps)
+
+    def action_haut(self, temps):
+        self.protegeD = False
+        self.protegeH = False
+        self.occupe_state(State.saute, temps)
+        return
+    # endregion actions
+
     def gestion_attente(self, temps):
         self.reset_xX()
         if temps > self.reftemps + 50:

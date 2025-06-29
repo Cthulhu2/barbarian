@@ -729,49 +729,17 @@ class Battle(EmptyScene):
         # ***************** ACTIONS suivant clavier ***************
         # *********************************************************
 
-        # droite, gauche, decapite, devant (normal)
-        if self.sense == 'normal':
-            if self.joueurA.levier == Levier.droite:
-                self.joueurA.protegeD = False
-                if self.joueurA.state == State.avance:
-                    return 'gestion'
-                self.joueurA.state = State.avance
-                self.joueurA.reftemps = self.temps
-                if self.joueurA.attaque:
-                    self.joueurA.occupe_state(State.devant, self.temps)
-            if self.joueurA.levier == Levier.gauche:
-                self.joueurA.protegeH = False
-                if self.joueurA.state == State.recule:
-                    return 'gestion'
-                self.joueurA.state = State.recule
-                self.joueurA.reftemps = self.temps
-                if self.joueurA.attaque and not self.joueurA.sortie:
-                    self.joueurA.occupe_state(State.decapite, self.temps)
-
-        # droite, gauche, decapite, devant (inverse)
-        if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.droite:
-                self.joueurA.protegeH = False
-                if self.joueurA.state == State.recule:
-                    return 'gestion'
-                self.joueurA.state = State.recule
-                self.joueurA.reftemps = self.temps
-                if self.joueurA.attaque:
-                    self.joueurA.occupe_state(State.decapiteR, self.temps)
-            if self.joueurA.levier == Levier.gauche:
-                self.joueurA.protegeD = False
-                if self.joueurA.state == State.avance:
-                    return 'gestion'
-                self.joueurA.state = State.avance
-                self.joueurA.reftemps = self.temps
-                if self.joueurA.attaque:
-                    self.joueurA.occupe_state(State.devantR, self.temps)
+        # droite, gauche, decapite, devant
+        if self.joueurA.levier == Levier.droite:
+            self.joueurA.action_droite(self.temps)
+            return 'gestion'
+        if self.joueurA.levier == Levier.gauche:
+            self.joueurA.action_gauche(self.temps)
+            return 'gestion'
 
         # saute, attaque cou
         if self.joueurA.levier == Levier.haut:
-            self.joueurA.protegeD = False
-            self.joueurA.protegeH = False
-            self.joueurA.occupe_state(State.saute, self.temps)
+            self.joueurA.action_haut(self.temps)
             return 'gestion'
 
         # assis, attaque genou
@@ -779,6 +747,7 @@ class Battle(EmptyScene):
             if self.joueurA.assis:
                 self.joueurA.state = State.assis2
                 return 'gestion'
+            # attaque ???
             self.joueurA.occupe_state(State.assis, self.temps)
             return 'gestion'
 
@@ -1235,10 +1204,10 @@ class Battle(EmptyScene):
         if self.joueurB.sortie:
             if self.tempsfini:
                 if self.sense == 'inverse':
-                    self.joueurB.levier = 'gauche'
+                    self.joueurB.levier = Levier.gauche
                     return 'actionB'
             self.sense = 'normal'
-            self.joueurB.levier = 'droite'
+            self.joueurB.levier = Levier.droite
             return 'actionB'
         # *****************************************
         # ******* Intelligence Artificielle *******
@@ -1623,50 +1592,17 @@ class Battle(EmptyScene):
 
             return 'gestionB'
 
-        # droite,gauche, decapite, devant (normal)
-        if self.sense == 'normal':
-            if self.joueurB.levier == Levier.gauche:
-                self.joueurB.protegeD = False
-                if self.joueurB.state == State.avance:
-                    return 'gestionB'
-                self.joueurB.state = State.avance
-                self.joueurB.reftemps = self.temps
-                if self.joueurB.attaque and not self.entree:
-                    self.joueurB.occupe_state(State.devant, self.temps)
+        # droite, gauche, decapite, devant
+        if self.joueurB.levier == Levier.droite:
+            self.joueurB.action_droite(self.temps)
+            return 'gestionB'
+        if self.joueurB.levier == Levier.gauche:
+            self.joueurB.action_gauche(self.temps)
+            return 'gestionB'
 
-            if self.joueurB.levier == Levier.droite:
-                self.joueurB.protegeH = False
-                if self.joueurB.state == State.recule:
-                    return 'gestionB'
-                self.joueurB.state = State.recule
-                self.joueurB.reftemps = self.temps
-                if self.joueurB.attaque and not self.joueurB.sortie:
-                    self.joueurB.occupe_state(State.decapite, self.temps)
-
-        # droite, gauche, decapite, devant (inverse)
-        if self.sense == 'inverse':
-            if self.joueurB.levier == Levier.droite:
-                self.joueurB.protegeD = False
-                if self.joueurB.state == State.avance:
-                    return 'gestionB'
-                self.joueurB.state = State.avance
-                self.joueurB.reftemps = self.temps
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.devantR, self.temps)
-
-            if self.joueurB.levier == Levier.gauche:
-                self.joueurB.protegeH = False
-                if self.joueurB.state == State.recule:
-                    return 'gestionB'
-                self.joueurB.state = State.recule
-                self.joueurB.reftemps = self.temps
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.decapiteR, self.temps)
         # saute, attaque cou
         if self.joueurB.levier == Levier.haut:
-            self.joueurB.protegeD = False
-            self.joueurB.protegeH = False
-            self.joueurB.occupe_state(State.saute, self.temps)
+            self.joueurB.action_haut(self.temps)
             return 'gestionB'
 
         # assis, attaque genou
