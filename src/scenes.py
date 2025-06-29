@@ -1040,14 +1040,7 @@ class Battle(EmptyScene):
                 return 'joueur2'
 
         if self.joueurA.state == State.protegeH:
-            rtl = self.joueurA.rtl
-            self.joueurA.reset_xX()
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = 20
-            self.joueurA.set_anim_frame('protegeH', 1)
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.araignee, self.temps)
-                return 'gestion'
+            self.joueurA.gestion_protegeH(self.temps)
 
         # protegeD
         if self.joueurA.state == State.protegeD1:
@@ -1071,14 +1064,7 @@ class Battle(EmptyScene):
                     get_snd('protege.ogg').play()
 
         if self.joueurA.state == State.protegeD:
-            rtl = self.joueurA.rtl
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = 20
-            self.joueurA.reset_xX()
-            self.joueurA.decapite = False
-            self.joueurA.set_anim_frame('protegeD', 1)
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.coupdetete, self.temps)
+            self.joueurA.gestion_protegeD(self.temps)
 
         # cou
         if self.joueurA.state == State.cou:  # ****attention au temps sinon il saute
@@ -1086,6 +1072,11 @@ class Battle(EmptyScene):
                                      self.soncling, self.songrogne)
             return 'joueur2'
 
+        # devant
+        if self.joueurA.state == State.devant:
+            self.joueurA.gestion_devant(self.temps, self.joueurB,
+                                        self.soncling, self.songrogne)
+            return 'joueur2'
         return 'joueur2'
 
     def _joueur2(self):
@@ -1914,14 +1905,7 @@ class Battle(EmptyScene):
                 return 'colision'
 
         if self.joueurB.state == State.protegeH:
-            rtl = self.joueurB.rtl
-            self.joueurB.reset_xX()
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = 20
-            self.joueurB.set_anim_frame('protegeH', 1)
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.araignee, self.temps)
-                return 'gestionB'
+            self.joueurB.gestion_protegeH(self.temps)
 
         # protegeD
         if self.joueurB.state == State.protegeD1:
@@ -1945,20 +1929,18 @@ class Battle(EmptyScene):
                     get_snd('protege.ogg').play()
 
         if self.joueurB.state == State.protegeD:
-            rtl = self.joueurB.rtl
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = 20
-            self.joueurB.reset_xX()
-            self.joueurB.decapite = False
-            self.joueurB.set_anim_frame('protegeD', 1)
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.coupdetete, self.temps)
-                return 'gestionB'
+            self.joueurB.gestion_protegeD(self.temps)
 
         # cou
         if self.joueurB.state == State.cou:  # ****attention au temps sinon il saute
             self.joueurB.gestion_cou(self.temps, self.joueurA,
                                      self.soncling, self.songrogne)
+            return 'colision'
+
+        # devant
+        if self.joueurB.state == State.devant:
+            self.joueurB.gestion_devant(self.temps, self.joueurA,
+                                        self.soncling, self.songrogne)
             return 'colision'
 
         return 'colision'

@@ -581,6 +581,14 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/cou3.gif',     tick=46),
             # @formatter:on
         ],
+        'devant': [
+            # @formatter:off
+            Frame(f'{subdir}/devant1.gif', tick=10),
+            Frame(f'{subdir}/devant2.gif', tick=20),
+            Frame(f'{subdir}/devant3.gif', tick=30),
+            Frame(f'{subdir}/devant2.gif', tick=46),
+            # @formatter:on
+        ],
     }
 
 
@@ -674,6 +682,14 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/protegeH.gif', xflip=True, tick=15, dx=-CHAR_W * SCALE    ),  # noqa
             Frame(f'{subdir}/cou2.gif',     xflip=True, tick=30, dx=-CHAR_W * SCALE    ),  # noqa
             Frame(f'{subdir}/cou3.gif',     xflip=True, tick=46, dx=-4 * CHAR_W * SCALE),  # noqa
+            # @formatter:on
+        ],
+        'devant': [
+            # @formatter:off
+            Frame(f'{subdir}/devant1.gif', xflip=True, tick=10),
+            Frame(f'{subdir}/devant2.gif', xflip=True, tick=20),
+            Frame(f'{subdir}/devant3.gif', xflip=True, tick=30, dx=-3 * CHAR_W * SCALE),
+            Frame(f'{subdir}/devant2.gif', xflip=True, tick=46),
             # @formatter:on
         ],
     }
@@ -889,6 +905,7 @@ class Barbarian(AnimatedSprite):
         self.protegeH = False
         self.occupe_state(State.saute, temps)
         return
+
     # endregion actions
 
     def gestion_attente(self, temps):
@@ -901,6 +918,23 @@ class Barbarian(AnimatedSprite):
             self.animate('attente', 8)
             if self.opts.sound:
                 get_snd('attente.ogg').play()
+
+    def gestion_protegeH(self, temps):
+        self.reset_xX()
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yG = 20
+        self.set_anim_frame('protegeH', 1)
+        if self.attaque:
+            self.occupe_state(State.araignee, temps)
+
+    def gestion_protegeD(self, temps):
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yG = 20
+        self.reset_xX()
+        self.decapite = False
+        self.set_anim_frame('protegeD', 1)
+        if self.attaque:
+            self.occupe_state(State.coupdetete, temps)
 
     def gestion_cou(self, temps, opponent: 'Barbarian',
                     soncling: iter, songrogne: iter):
@@ -916,12 +950,12 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps + 31:
             if opponent.state == State.cou:
                 distance = abs(self.x_loc() - opponent.x_loc())
-                if distance < 12:
+                if distance < 12 and (15 < temps - opponent.reftemps <= 30):
                     if (son := next(soncling)) and self.opts.sound:
                         get_snd(son).play()
-                return
-            self.xT = self.x_loc() + (4 if self.rtl else 0)
-            self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+            else:
+                self.xT = self.x_loc() + (4 if self.rtl else 0)
+                self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
 
         elif temps == self.reftemps + 16:
             if self.opts.sound:
@@ -932,6 +966,39 @@ class Barbarian(AnimatedSprite):
             if (son := next(songrogne)) and self.opts.sound:
                 get_snd(son).play()
             self.animate('cou', 4)
+
+    def gestion_devant(self, temps, opponent: 'Barbarian',
+                       soncling: iter, songrogne: iter):
+
+        self.reset_xX()
+        self.yG = 20
+        if temps > self.reftemps + 45:
+            self.occupe = False
+            self.state = State.debout
+
+        elif temps > self.reftemps + 21:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+
+        elif temps == self.reftemps + 21:
+            if (opponent.state == State.devant
+                    and (20 < temps - opponent.reftemps <= 30)):
+                distance = abs(self.x_loc() - opponent.x_loc())
+                if distance < 10:
+                    if (son := next(soncling)) and self.opts.sound:
+                        get_snd(son).play()
+            else:
+                self.xM = self.x_loc() + (4 if self.rtl else 0)
+                self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
+
+        elif temps == self.reftemps + 11:
+            if (son := next(songrogne)) and self.opts.sound:
+                get_snd(son).play()
+            if self.opts.sound:
+                get_snd('epee.ogg').play()
+            self.yAtt = self.yM
+
+        elif temps == self.reftemps:
+            self.animate('devant')
 
     def gestion_debout(self):
         self.set_anim_frame('debout', 0)
