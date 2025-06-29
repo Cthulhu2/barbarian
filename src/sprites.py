@@ -547,7 +547,7 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(CHAR_W * SCALE, 0)),  # noqa
-            # @formatter:off
+            # @formatter:on
         ],
         'rouladeAR': [
             # @formatter:off
@@ -562,7 +562,17 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/roulade2.gif',             tick=26, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=29, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            # @formatter:on
+        ],
+        'protegeH': [
             # @formatter:off
+            Frame(f'{subdir}/marche1.gif',  tick=5, mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/protegeH.gif', tick=9),
+            # @formatter:on
+        ],
+        'protegeD': [
+            Frame(f'{subdir}/protegeH.gif', tick=5),
+            Frame(f'{subdir}/protegeD.gif', tick=9),
         ],
     }
 
@@ -625,7 +635,7 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W * SCALE, 0)),  # noqa
-            # @formatter:off
+            # @formatter:on
         ],
         'rouladeAR': [
             # @formatter:off
@@ -640,7 +650,17 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/roulade2.gif', xflip=True, tick=26, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=29, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(CHAR_W * SCALE, 0)),  # noqa
+            # @formatter:on
+        ],
+        'protegeH': [
             # @formatter:off
+            Frame(f'{subdir}/marche1.gif',  xflip=True, tick=5, mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=9, dx=-CHAR_W * SCALE),
+            # @formatter:on
+        ],
+        'protegeD': [
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=5, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/protegeD.gif', xflip=True, tick=9, dx=-CHAR_W * SCALE),
         ],
     }
 
@@ -693,14 +713,10 @@ class State(enum.Enum):
     front = enum.auto()
     frontR = enum.auto()
     genou = enum.auto()
-    protegeD = enum.auto()
-    protegeDR = enum.auto()
     protegeD1 = enum.auto()
-    protegeDR1 = enum.auto()
-    protegeH = enum.auto()
-    protegeHR = enum.auto()
+    protegeD = enum.auto()
     protegeH1 = enum.auto()
-    protegeHR1 = enum.auto()
+    protegeH = enum.auto()
     recule = enum.auto()
     releve = enum.auto()
     rouladeAV = enum.auto()

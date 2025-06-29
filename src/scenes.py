@@ -815,11 +815,11 @@ class Battle(EmptyScene):
                 if self.joueurA.attaque and not Game.Demo:
                     self.joueurA.occupe_state(State.araignee, self.temps)
         if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.hautG:
+            if self.joueurA.levier == Levier.hautG:  # hautD ???
                 if self.joueurA.protegeH:
-                    self.joueurA.state = State.protegeHR
+                    self.joueurA.state = State.protegeH
                     return 'gestion'
-                self.joueurA.occupe_state(State.protegeHR1, self.temps)
+                self.joueurA.occupe_state(State.protegeH1, self.temps)
                 if self.joueurA.attaque and not Game.Demo:
                     self.joueurA.occupe_state(State.araigneeR, self.temps)
 
@@ -833,11 +833,11 @@ class Battle(EmptyScene):
                 if self.joueurA.attaque and not Game.Demo:
                     self.joueurA.occupe_state(State.coupdetete, self.temps)
         if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.hautD:
+            if self.joueurA.levier == Levier.hautD:  # hautG ???
                 if self.joueurA.protegeD:
-                    self.joueurA.state = State.protegeDR
+                    self.joueurA.state = State.protegeD
                     return 'gestion'
-                self.joueurA.occupe_state(State.protegeDR1, self.temps)
+                self.joueurA.occupe_state(State.protegeD1, self.temps)
                 if self.joueurA.attaque and not Game.Demo:
                     self.joueurA.occupe_state(State.coupdeteteR, self.temps)
         return 'gestion'
@@ -1008,8 +1008,7 @@ class Battle(EmptyScene):
             elif self.temps == self.joueurA.reftemps + 2:
                 if self.opts.sound:
                     get_snd('roule.ogg').play()
-                if self.joueurA.anim != 'rouladeAV':
-                    self.joueurA.animate('rouladeAV', 2)
+                self.joueurA.animate('rouladeAV', 2)
                 return 'joueur2'
             else:
                 return 'joueur2'
@@ -1053,15 +1052,77 @@ class Battle(EmptyScene):
                 self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
                 self.joueurA.occupe = False
                 self.joueurA.state = State.debout
-                return 'colision'
-            elif self.temps > self.joueurA.reftemps + 2:
-                return 'colision'
+                return 'joueur2'
             elif self.temps == self.joueurA.reftemps + 2:
                 if self.opts.sound:
                     get_snd('roule.ogg').play()
-                if self.joueurA.anim != 'rouladeAR':
-                    self.joueurA.animate('rouladeAR', 2)
+                self.joueurA.animate('rouladeAR', 2)
                 return 'joueur2'
+            else:
+                return 'joueur2'
+
+        # protegeH
+        if self.joueurA.state == State.protegeH1:
+            rtl = self.joueurA.rtl
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.yG = 20
+            if self.joueurA.attaque:
+                self.joueurA.occupe_state(State.araignee, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 5:
+                self.joueurA.protegeH = True
+                self.joueurA.state = State.protegeH
+                self.joueurA.occupe = False
+                return 'joueur2'
+            if self.temps > self.joueurA.reftemps + 2:
+                return 'joueur2'
+            if self.temps == self.joueurA.reftemps + 2:
+                if self.opts.sound:
+                    get_snd('protege.ogg').play()
+                if self.joueurA.anim != 'protegeH':
+                    self.joueurA.animate('protegeH', 2)
+                return 'joueur2'
+
+        if self.joueurA.state == State.protegeH:
+            rtl = self.joueurA.rtl
+            self.joueurA.reset_xX()
+            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.yG = 20
+            self.joueurA.set_anim_frame('protegeH', 1)
+            if self.joueurA.attaque:
+                self.joueurA.occupe_state(State.araignee, self.temps)
+                return 'gestion'
+
+        if self.joueurA.state == State.protegeD1:
+            rtl = self.joueurA.rtl
+            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.yG = 20
+            self.joueurA.reset_xX()
+            self.joueurA.decapite = False
+            self.joueurA.set_anim_frame('protegeD', 0)
+            if self.joueurA.attaque:
+                self.joueurA.occupe_state(State.coupdetete, self.temps)
+                return 'gestion'
+            if self.temps > self.joueurA.reftemps + 5:
+                self.joueurA.state = State.protegeD
+                self.joueurA.protegeD = True
+                self.joueurA.occupe = False
+            if self.temps > self.joueurA.reftemps + 2:
+                return 'joueur2'
+            if self.temps > self.joueurA.reftemps + 1:
+                if self.opts.sound:
+                    get_snd('protege.ogg').play()
+
+        if self.joueurA.state == State.protegeD:
+            rtl = self.joueurA.rtl
+            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.yG = 20
+            self.joueurA.reset_xX()
+            self.joueurA.decapite = False
+            self.joueurA.set_anim_frame('protegeD', 1)
+            if self.joueurA.attaque:
+                self.joueurA.occupe_state(State.coupdetete, self.temps)
 
         return 'joueur2'
 
@@ -1132,7 +1193,7 @@ class Battle(EmptyScene):
             if self.joueurB.x_loc() < self.joueurA.x_loc():
                 if (self.joueurA.xAtt <= self.joueurB.xF
                         and self.joueurA.yAtt == self.joueurB.yF):
-                    if self.joueurB.state == State.protegeHR:
+                    if self.joueurB.state == State.protegeH:
                         self.joueurB.state = State.clingH
                         return 'gestionB'
                     self.joueurB.state = State.tombeR
@@ -1151,7 +1212,7 @@ class Battle(EmptyScene):
 
                 if (self.joueurA.xAtt <= self.joueurB.xM
                         and self.joueurA.yAtt == self.joueurB.yM):
-                    if self.joueurB.state == State.protegeDR:
+                    if self.joueurB.state == State.protegeD:
                         self.joueurB.state = State.clingD
                         return 'gestionB'
                     self.joueurB.state = State.toucheR
@@ -1166,7 +1227,7 @@ class Battle(EmptyScene):
                     if self.joueurA.state == State.rouladeAVR:
                         self.joueurB.state = State.tombeR
                         return 'gestionB'
-                    if self.joueurB.state == State.protegeDR:
+                    if self.joueurB.state == State.protegeD:
                         self.joueurB.state = State.clingD
                         return 'gestionB'
                     if self.joueurA.state == State.coupdepiedR:
@@ -1674,11 +1735,11 @@ class Battle(EmptyScene):
         if self.sense == 'inverse':
             if self.joueurB.levier == Levier.hautG:
                 if self.joueurB.protegeH:
-                    self.joueurB.state = State.protegeHR
+                    self.joueurB.state = State.protegeH
                     return 'gestionB'
-                self.joueurB.occupe_state(State.protegeHR1, self.temps)
+                self.joueurB.occupe_state(State.protegeH1, self.temps)
                 if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.araigneeR, self.temps)
+                    self.joueurB.occupe_state(State.araignee, self.temps)
 
         # protection devant, coup de tete
         if self.sense == 'normal':
@@ -1692,9 +1753,9 @@ class Battle(EmptyScene):
         if self.sense == 'inverse':
             if self.joueurB.levier == Levier.hautD:
                 if self.joueurB.protegeD:
-                    self.joueurB.state = State.protegeDR
+                    self.joueurB.state = State.protegeD
                     return 'gestionB'
-                self.joueurB.occupe_state(State.protegeDR1, self.temps)
+                self.joueurB.occupe_state(State.protegeD1, self.temps)
                 if self.joueurB.attaque:
                     self.joueurB.occupe_state(State.coupdeteteR, self.temps)
         return 'gestionB'
@@ -1865,8 +1926,7 @@ class Battle(EmptyScene):
             elif self.temps == self.joueurB.reftemps + 2:
                 if self.opts.sound:
                     get_snd('roule.ogg').play()
-                if self.joueurB.anim != 'rouladeAV':
-                    self.joueurB.animate('rouladeAV', 2)
+                self.joueurB.animate('rouladeAV', 2)
                 return 'colision'
             else:
                 return 'colision'
@@ -1911,14 +1971,77 @@ class Battle(EmptyScene):
                 self.joueurB.occupe = False
                 self.joueurB.state = State.debout
                 return 'colision'
-            elif self.temps > self.joueurB.reftemps + 2:
-                return 'colision'
             elif self.temps == self.joueurB.reftemps + 2:
                 if self.opts.sound:
                     get_snd('roule.ogg').play()
-                if self.joueurB.anim != 'rouladeAR':
-                    self.joueurB.animate('rouladeAR', 2)
+                self.joueurB.animate('rouladeAR', 2)
                 return 'colision'
+            else:
+                return 'colision'
+
+        # protegeH
+        if self.joueurB.state == State.protegeH1:
+            rtl = self.joueurB.rtl
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yG = 20
+            if self.joueurB.attaque:
+                self.joueurB.occupe_state(State.araignee, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 5:
+                self.joueurB.protegeH = True
+                self.joueurB.state = State.protegeH
+                self.joueurB.occupe = False
+                return 'colision'
+            if self.temps > self.joueurB.reftemps + 2:
+                return 'colision'
+            if self.temps == self.joueurB.reftemps + 2:
+                if self.opts.sound:
+                    get_snd('protege.ogg').play()
+                self.joueurB.animate('protegeH', 2)
+                return 'colision'
+
+        if self.joueurB.state == State.protegeH:
+            rtl = self.joueurB.rtl
+            self.joueurB.reset_xX()
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yG = 20
+            self.joueurB.set_anim_frame('protegeH', 1)
+            if self.joueurB.attaque:
+                self.joueurB.occupe_state(State.araignee, self.temps)
+                return 'gestion'
+
+        # protegeD
+        if self.joueurB.state == State.protegeD1:
+            rtl = self.joueurB.rtl
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yG = 20
+            self.joueurB.reset_xX()
+            self.joueurB.decapite = False
+            self.joueurB.set_anim_frame('protegeD', 0)
+            if self.joueurB.attaque:
+                self.joueurB.occupe_state(State.coupdetete, self.temps)
+                return 'gestionB'
+            if self.temps > self.joueurB.reftemps + 5:
+                self.joueurB.state = State.protegeD
+                self.joueurB.protegeD = True
+                self.joueurB.occupe = False
+            if self.temps > self.joueurB.reftemps + 2:
+                return 'colision'
+            if self.temps > self.joueurB.reftemps + 1:
+                if self.opts.sound:
+                    get_snd('protege.ogg').play()
+
+        if self.joueurB.state == State.protegeD:
+            rtl = self.joueurB.rtl
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yG = 20
+            self.joueurB.reset_xX()
+            self.joueurB.decapite = False
+            self.joueurB.set_anim_frame('protegeD', 1)
+            if self.joueurB.attaque:
+                self.joueurB.occupe_state(State.coupdetete, self.temps)
+                return 'gestionB'
 
         return None  # 'finderouladeBR'
 
