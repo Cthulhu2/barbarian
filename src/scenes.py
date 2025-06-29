@@ -1077,6 +1077,12 @@ class Battle(EmptyScene):
             self.joueurA.gestion_devant(self.temps, self.joueurB,
                                         self.soncling, self.songrogne)
             return 'joueur2'
+
+        # genou
+        if self.joueurA.state == State.genou:
+            self.joueurA.gestion_genou(self.temps, self.joueurB,
+                                       self.soncling, self.songrogne)
+
         return 'joueur2'
 
     def _joueur2(self):
@@ -1942,6 +1948,11 @@ class Battle(EmptyScene):
             self.joueurB.gestion_devant(self.temps, self.joueurA,
                                         self.soncling, self.songrogne)
             return 'colision'
+
+        # genou
+        if self.joueurB.state == State.genou:
+            self.joueurB.gestion_genou(self.temps, self.joueurA,
+                                       self.soncling, self.songrogne)
 
         return 'colision'
 

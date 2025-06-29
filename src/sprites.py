@@ -17,7 +17,7 @@ snd_cache: Dict[int, Sound] = {}
 img_cache: Dict[int, Surface] = {}
 
 
-def get_snd(name) -> Sound:
+def get_snd(name: str) -> Sound:
     key_ = hash(name)
 
     if key_ in snd_cache:
@@ -115,40 +115,31 @@ class Rectangle(Group):
         self.lbl = Txt(int(h) - self.border_width * 2 - 1, lbl, color, (0, 0), self)
         self.apply(self.rect)
 
+    def _apply(self, sprite: DirtySprite, topleft, size):
+        sprite.rect.topleft = topleft
+        if sprite.rect.size != size:
+            sprite.rect.size = size
+            sprite.image = scale(self.img, size)
+        sprite.dirty = 1
+
     def apply(self, r: Rect):
         self.rect = r
         if self.left.rect.topleft != r.topleft or self.left.rect.h != r.h:
             self.lbl.rect.topleft = (r.x + self.border_width + 1,
                                      r.y + self.border_width + 1)
             self.lbl.dirty = 1
-            self.left.rect.topleft = (r.x, r.y)
-            if self.left.rect.h != r.h:
-                self.left.rect.h = r.h
-                self.left.image = scale(self.img, self.left.rect.size)
-            self.left.dirty = 1
+            self._apply(self.left, (r.x, r.y), (self.border_width, r.h))
 
         x = r.x + r.w - self.border_width
         if self.right.rect.topleft != (x, r.y) or self.right.rect.h != r.h:
-            self.right.rect.topleft = (x, r.y)
-            if self.right.rect.h != r.h:
-                self.right.rect.h = r.h
-                self.right.image = scale(self.img, self.right.rect.size)
-            self.right.dirty = 1
+            self._apply(self.right, (x, r.y), (self.border_width, r.h))
 
         if self.top.rect.topleft != (r.x, r.y) or self.top.rect.w != r.w:
-            self.top.rect.topleft = (r.x, r.y)
-            if self.top.rect.w != r.w:
-                self.top.rect.w = r.w
-                self.top.image = scale(self.img, self.top.rect.size)
-            self.top.dirty = 1
+            self._apply(self.top, (r.x, r.y), (r.w, self.border_width))
 
         y = r.y + r.h - self.border_width
         if self.bottom.rect.topleft != (r.x, y) or self.bottom.rect.w != r.w:
-            self.bottom.rect.topleft = (r.x, y)
-            if self.bottom.rect.w != r.w:
-                self.bottom.rect.w = r.w
-                self.bottom.image = scale(self.img, self.bottom.rect.size)
-            self.bottom.dirty = 1
+            self._apply(self.bottom, (r.x, y), (r.w, self.border_width))
 
     def move_to(self, x, y):
         self.apply(self.rect.move_to(x=x, y=y))
@@ -589,6 +580,14 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/devant2.gif', tick=46),
             # @formatter:on
         ],
+        'genou': [
+            # @formatter:off
+            Frame(f'{subdir}/genou1.gif', tick=10, dx=CHAR_W * SCALE / 4),
+            Frame(f'{subdir}/assis2.gif', tick=20),
+            Frame(f'{subdir}/genou3.gif', tick=30, dx=CHAR_W * SCALE / 4),
+            Frame(f'{subdir}/assis2.gif', tick=46),
+            # @formatter:on
+        ],
     }
 
 
@@ -690,6 +689,15 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/devant2.gif', xflip=True, tick=20),
             Frame(f'{subdir}/devant3.gif', xflip=True, tick=30, dx=-3 * CHAR_W * SCALE),
             Frame(f'{subdir}/devant2.gif', xflip=True, tick=46),
+            # @formatter:on
+        ],
+        'genou': [
+            # @formatter:on
+            Frame(f'{subdir}/genou1.gif', xflip=True, tick=10, dx=-CHAR_W * SCALE / 4),
+            Frame(f'{subdir}/assis2.gif', xflip=True, tick=20),
+            Frame(f'{subdir}/genou3.gif', xflip=True, tick=30, dx=-CHAR_W * SCALE / 4
+                                                                  - 3 * CHAR_W * SCALE),
+            Frame(f'{subdir}/assis2.gif', xflip=True, tick=46),
             # @formatter:on
         ],
     }
@@ -813,6 +821,10 @@ class Barbarian(AnimatedSprite):
         self.pressedRight = False
         self.pressedFire = False
 
+    def snd_play(self, snd: str):
+        if snd and self.opts.sound:
+            get_snd(snd).play()
+
     def reset_xX(self):
         self.xF = self.x_loc() + (0 if self.rtl else 4)
         self.xT = self.x_loc() + (0 if self.rtl else 4)
@@ -916,8 +928,7 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
         elif temps == self.reftemps + 8:
             self.animate('attente', 8)
-            if self.opts.sound:
-                get_snd('attente.ogg').play()
+            self.snd_play('attente.ogg')
 
     def gestion_protegeH(self, temps):
         self.reset_xX()
@@ -950,21 +961,21 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps + 31:
             if opponent.state == State.cou:
                 distance = abs(self.x_loc() - opponent.x_loc())
-                if distance < 12 and (15 < temps - opponent.reftemps <= 30):
-                    if (son := next(soncling)) and self.opts.sound:
-                        get_snd(son).play()
+                if (distance < 12
+                        and (15 < temps - opponent.reftemps <= 30)
+                        # cycle and play cling-sound once (for one player only)
+                        and not self.rtl):
+                    self.snd_play(next(soncling))
             else:
                 self.xT = self.x_loc() + (4 if self.rtl else 0)
                 self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
 
         elif temps == self.reftemps + 16:
-            if self.opts.sound:
-                get_snd('epee.ogg').play()
+            self.snd_play('epee.ogg')
             self.yAtt = self.yT
 
         elif temps == self.reftemps + 4:
-            if (son := next(songrogne)) and self.opts.sound:
-                get_snd(son).play()
+            self.snd_play(next(songrogne))
             self.animate('cou', 4)
 
     def gestion_devant(self, temps, opponent: 'Barbarian',
@@ -983,22 +994,48 @@ class Barbarian(AnimatedSprite):
             if (opponent.state == State.devant
                     and (20 < temps - opponent.reftemps <= 30)):
                 distance = abs(self.x_loc() - opponent.x_loc())
-                if distance < 10:
-                    if (son := next(soncling)) and self.opts.sound:
-                        get_snd(son).play()
+                # cycle and play cling-sound once (for one player only)
+                if distance < 10 and not self.rtl:
+                    self.snd_play(next(soncling))
             else:
                 self.xM = self.x_loc() + (4 if self.rtl else 0)
                 self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 11:
-            if (son := next(songrogne)) and self.opts.sound:
-                get_snd(son).play()
-            if self.opts.sound:
-                get_snd('epee.ogg').play()
+            self.snd_play(next(songrogne))
+            self.snd_play('epee.ogg')
             self.yAtt = self.yM
 
         elif temps == self.reftemps:
             self.animate('devant')
+
+    def gestion_genou(self, temps, opponent: 'Barbarian',
+                      soncling: iter, songrogne: iter):
+        self.xF = self.x_loc() + (4 if self.rtl else 0)
+        self.xT = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.yG = 20
+        if temps > self.reftemps + 45:
+            self.occupe = False
+            self.state = State.assis2
+        elif temps > self.reftemps + 21:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        elif temps > self.reftemps + 20:
+            if opponent.state == State.genou:
+                distance = abs(self.x_loc() - opponent.x_loc())
+                # cycle and play cling-sound once (for one player only)
+                if distance < 12 and not self.rtl:
+                    self.snd_play(next(soncling))
+            else:
+                self.xG = self.x_loc() + (4 if self.rtl else 0)
+                self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+        elif temps == self.reftemps + 11:
+            self.snd_play(next(songrogne))
+            self.snd_play('epee.ogg')
+            self.yAtt = self.yG
+        elif temps == self.reftemps:
+            self.animate('genou')
 
     def gestion_debout(self):
         self.set_anim_frame('debout', 0)

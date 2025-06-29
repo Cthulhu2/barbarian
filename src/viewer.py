@@ -72,6 +72,11 @@ class AnimationViewerScene(EmptyScene):
                                       (int(lbl.rect.right), int(lbl.rect.top)),
                                       self)
         self.borderGroup = Rectangle(0, 0, 200, 200, Theme.VIEWER_BORDER)
+        lbl = txt('Frame: ', (10, lbl.rect.bottom + 5), self)
+        self.frameTxt = txt_selected(
+            f'{self.target.frameNum + 1} / {len(self.target.frames)} ({self.target.frame.name})',
+            (int(lbl.rect.right), int(lbl.rect.top)),
+            self)
         self.clear(None, BACKGROUND)
 
     def create_anims_txt(self, anims):
@@ -187,6 +192,10 @@ class AnimationViewerScene(EmptyScene):
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         super().update(*args, **kwargs)
+        self.frameTxt.msg = (
+            f'{self.target.frameNum + 1} / {len(self.target.frames)}'
+            f' ({self.target.frame.name})'
+        )
         if self.border:
             self.borderGroup.apply(self.target.rect)
 
