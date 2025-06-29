@@ -331,10 +331,10 @@ class Battle(EmptyScene):
                          f'stage/{Game.Decor}ARBRED.gif'),
             layer=2)
 
-        self.joueurA = Barbarian(loc2px(1), loc2px(14),
+        self.joueurA = Barbarian(opts, loc2px(1), loc2px(14),
                                  'spritesA',
                                  rtl=Game.Rtl)
-        self.joueurB = Barbarian(loc2px(36), loc2px(14),
+        self.joueurB = Barbarian(opts, loc2px(36), loc2px(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)
         sz = int(CHAR_H * SCALE)
@@ -847,28 +847,11 @@ class Battle(EmptyScene):
         # *************GESTION DES ETATS**************
         # ********************************************
         if self.joueurA.state == State.attente:
-            self.joueurA.reset_xX()
-            if self.temps > self.joueurA.reftemps + 50:
-                self.joueurA.occupe = False
-                self.joueurA.attente = 1
-                self.joueurA.state = State.debout
-            elif self.temps == self.joueurA.reftemps + 8:
-                self.joueurA.animate('attente', 8)
-                if self.opts.sound:
-                    get_snd('attente.ogg').play()
+            self.joueurA.gestion_attente(self.temps)
             return 'joueur2'
 
         if self.joueurA.state == State.debout:
-            self.joueurA.set_anim_frame('debout', 0)
-            self.joueurA.decapite = True
-            self.joueurA.sang = False
-            self.joueurA.xAtt = self.joueurA.x_loc() + (0 if self.joueurA.rtl else 4)
-            self.joueurA.yAtt = 14
-            self.joueurA.yF = 15
-            self.joueurA.yT = 16
-            self.joueurA.yM = 18
-            self.joueurA.yG = 20
-            self.joueurA.reset_xX()
+            self.joueurA.gestion_debout()
             if Game.Demo and self.joueurA.state == State.debout:
                 if self.temps > self.joueurA.reftemps + 20:
                     self.joueurA.occupe = False
@@ -1080,8 +1063,7 @@ class Battle(EmptyScene):
             if self.temps == self.joueurA.reftemps + 2:
                 if self.opts.sound:
                     get_snd('protege.ogg').play()
-                if self.joueurA.anim != 'protegeH':
-                    self.joueurA.animate('protegeH', 2)
+                self.joueurA.animate('protegeH', 2)
                 return 'joueur2'
 
         if self.joueurA.state == State.protegeH:
@@ -1765,30 +1747,13 @@ class Battle(EmptyScene):
         # *********gestion joueur 2**********
         # ***********************************
         if self.joueurB.state == State.debout:
-            self.joueurB.set_anim_frame('debout', 0)
-            self.joueurB.decapite = True
-            self.joueurB.sang = False
-            self.joueurB.xAtt = self.joueurB.x_loc() + (0 if self.joueurB.rtl else 4)
-            self.joueurB.yAtt = 14
-            self.joueurB.yF = 15
-            self.joueurB.yT = 16
-            self.joueurB.yM = 18
-            self.joueurB.yG = 20
-            self.joueurB.reset_xX()
+            self.joueurB.gestion_debout()
             if Game.Partie == 'solo':
                 if self.temps > self.joueurB.reftemps + 20:
                     self.joueurB.occupe = False
 
         if self.joueurB.state == State.attente:
-            self.joueurB.reset_xX()
-            if self.temps > self.joueurB.reftemps + 50:
-                self.joueurB.occupe = False
-                self.joueurB.attente = 1
-                self.joueurB.state = State.debout
-            elif self.temps == self.joueurB.reftemps + 8:
-                self.joueurB.animate('attente', 8)
-                if self.opts.sound:
-                    get_snd('attente.ogg').play()
+            self.joueurB.gestion_attente(self.temps)
             return 'collision'
 
         # avance

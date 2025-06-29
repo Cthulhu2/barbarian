@@ -736,8 +736,9 @@ class State(enum.Enum):
 
 
 class Barbarian(AnimatedSprite):
-    def __init__(self, x, y, subdir: str, rtl=False, anim='debout'):
+    def __init__(self, opts, x, y, subdir: str, rtl=False, anim='debout'):
         super().__init__((x, y), barb_anims(subdir))
+        self.opts = opts
         self.rtl = rtl
         self.ltr_anims = self.anims
         self.rtl_anims = barb_anims_rtl(subdir)
@@ -845,6 +846,29 @@ class Barbarian(AnimatedSprite):
             self.levier = Levier.bas
         if self.clavierX == 7 and self.clavierY <= 6:
             self.levier = Levier.haut
+
+    def gestion_attente(self, temps):
+        self.reset_xX()
+        if temps > self.reftemps + 50:
+            self.occupe = False
+            self.attente = 1
+            self.state = State.debout
+        elif temps == self.reftemps + 8:
+            self.animate('attente', 8)
+            if self.opts.sound:
+                get_snd('attente.ogg').play()
+
+    def gestion_debout(self):
+        self.set_anim_frame('debout', 0)
+        self.decapite = True
+        self.sang = False
+        self.xAtt = self.x_loc() + (0 if self.rtl else 4)
+        self.yAtt = 14
+        self.yF = 15
+        self.yT = 16
+        self.yM = 18
+        self.yG = 20
+        self.reset_xX()
 
 
 class Sorcier(AnimatedSprite):

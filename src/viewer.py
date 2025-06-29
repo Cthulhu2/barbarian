@@ -88,7 +88,7 @@ class AnimationViewerScene(EmptyScene):
         return txt_list
 
     def create_barbarian(self, x, y, rtl=False, anim='debout'):
-        barb = Barbarian(x, y, 'spritesA', rtl, anim)
+        barb = Barbarian(self.opts, x, y, 'spritesA', rtl, anim)
         barb.available_move = self.available_move
         return barb
 
