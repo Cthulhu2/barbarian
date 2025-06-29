@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from itertools import cycle
+
 from pygame import Surface
 from pygame.locals import *
 from pygame.sprite import LayeredDirty
@@ -369,6 +371,8 @@ class Battle(EmptyScene):
         self.tempsfini = False
         self.sense = 'normal'  # inverse
         self.gnome = False
+        self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
+        self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
 
     def finish(self):
         if self.opts.sound:
@@ -423,7 +427,7 @@ class Battle(EmptyScene):
                 self.joueurA.pressedLeft = keyState
             elif evt.key in (K_RIGHT, K_KP_6):
                 self.joueurA.pressedRight = keyState
-            elif evt.key == (K_RSHIFT, K_KP_0):
+            elif evt.key in (K_RSHIFT, K_KP_0):
                 self.joueurA.pressedFire = keyState
             # Joueur B
             elif evt.key == K_i:
@@ -1045,6 +1049,7 @@ class Battle(EmptyScene):
                 self.joueurA.occupe_state(State.araignee, self.temps)
                 return 'gestion'
 
+        # protegeD
         if self.joueurA.state == State.protegeD1:
             rtl = self.joueurA.rtl
             self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
@@ -1074,6 +1079,12 @@ class Battle(EmptyScene):
             self.joueurA.set_anim_frame('protegeD', 1)
             if self.joueurA.attaque:
                 self.joueurA.occupe_state(State.coupdetete, self.temps)
+
+        # cou
+        if self.joueurA.state == State.cou:  # ****attention au temps sinon il saute
+            self.joueurA.gestion_cou(self.temps, self.joueurB,
+                                     self.soncling, self.songrogne)
+            return 'joueur2'
 
         return 'joueur2'
 
@@ -1910,7 +1921,7 @@ class Battle(EmptyScene):
             self.joueurB.set_anim_frame('protegeH', 1)
             if self.joueurB.attaque:
                 self.joueurB.occupe_state(State.araignee, self.temps)
-                return 'gestion'
+                return 'gestionB'
 
         # protegeD
         if self.joueurB.state == State.protegeD1:
@@ -1944,7 +1955,13 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.coupdetete, self.temps)
                 return 'gestionB'
 
-        return None  # 'finderouladeBR'
+        # cou
+        if self.joueurB.state == State.cou:  # ****attention au temps sinon il saute
+            self.joueurB.gestion_cou(self.temps, self.joueurA,
+                                     self.soncling, self.songrogne)
+            return 'colision'
+
+        return 'colision'
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
