@@ -645,6 +645,34 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=100),
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101),
         ],
+        'vainqueurKO': [
+            # @formatter:off
+            Frame(f'{subdir}/retourne1.gif',  tick=15),
+            Frame(f'{subdir}/retourne2.gif',  tick=23),
+            Frame(f'{subdir}/retourne3.gif',  tick=30),
+            Frame(f'{subdir}/debout.gif',     tick=40),
+            Frame(f'{subdir}/marche3.gif',    tick=40),  # optional frame, see gestion code on tick 35
+            Frame(f'{subdir}/debout.gif',     tick=55),
+            Frame(f'{subdir}/pied1.gif',      tick=70),
+            Frame(f'{subdir}/pied2.gif',      tick=75),
+            Frame(f'{subdir}/pied1.gif',      tick=100),
+            Frame(f'{subdir}/debout.gif',     tick=105),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140),
+            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231),
+            # @formatter:on
+        ],
+        'touche1': [
+            # @formatter:off
+            Frame(f'{subdir}/touche2.gif', tick=1),
+            Frame(f'{subdir}/touche2.gif', tick=5,  mv=(-CHAR_W * SCALE,     0)),  # noqa
+            Frame(f'{subdir}/touche1.gif', tick=10, mv=(-2 * CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/touche2.gif', tick=20, mv=(-CHAR_W * SCALE,     0)),  # noqa
+            Frame(f'{subdir}/debout.gif',  tick=21),
+            # @formatter:on
+        ],
     }
 
 
@@ -818,6 +846,34 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101, dx=-CHAR_W * SCALE),
             # @formatter:on
         ],
+        'vainqueurKO': [
+            # @formatter:off
+            Frame(f'{subdir}/retourne1.gif',  xflip=True, tick=15),
+            Frame(f'{subdir}/retourne2.gif',  xflip=True, tick=23),
+            Frame(f'{subdir}/retourne3.gif',  xflip=True, tick=30),
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=40),
+            Frame(f'{subdir}/marche3.gif',    tick=40),  # optional frame, see gestion code on tick 35
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=55),
+            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=70,  dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/pied2.gif',      xflip=True, tick=75,  dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=100, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=105),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, dx=-CHAR_W * SCALE),
+            # @formatter:oon
+        ],
+        'touche1': [
+            # @formatter:off
+            Frame(f'{subdir}/touche2.gif', xflip=True, tick=1),
+            Frame(f'{subdir}/touche2.gif', xflip=True, tick=5,  mv=(CHAR_W * SCALE,     0)),  # noqa
+            Frame(f'{subdir}/touche1.gif', xflip=True, tick=10, mv=(2 * CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/touche2.gif', xflip=True, tick=20, mv=(CHAR_W * SCALE,     0)),  # noqa
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=21),
+            # @formatter:on
+        ],
     }
 
 
@@ -874,7 +930,11 @@ class State(enum.Enum):
     tombe = enum.auto()
     tombeR = enum.auto()
     touche = enum.auto()
+    touche1 = enum.auto()
     toucheR = enum.auto()
+    #
+    vainqueur = enum.auto()
+    vainqueurKO = enum.auto()
     #
     fini = enum.auto()
     marianna = enum.auto()
@@ -910,6 +970,7 @@ class Barbarian(AnimatedSprite):
         self.reftemps = 0
         self.sang = False
         self.attente = 1
+        self.vie = 12
         self.occupe = False
         self.sortie = False
         self.levier: Levier = Levier.neutre
@@ -1029,6 +1090,7 @@ class Barbarian(AnimatedSprite):
 
     # endregion actions
 
+    # region gestions
     def gestion_attente(self, temps):
         self.reset_xX()
         if temps > self.reftemps + 50:
@@ -1299,6 +1361,54 @@ class Barbarian(AnimatedSprite):
             self.is_stopped = True
         elif self.anim != 'vainqueur':
             self.animate('vainqueur')
+
+    def gestion_vainqueurKO(self, temps, opponent: 'Barbarian'):
+        self.decapite = True
+        self.sang = False
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yG = 20
+        self.reset_xX()
+
+        if temps > self.reftemps + 230:
+            self.is_stopped = False
+
+        elif temps > self.reftemps + 75:
+            opponent.sprite = 'mort4'
+
+        elif temps > self.reftemps + 70:
+            opponent.sprite = 'mort3'
+            opponent.x = loc2px(opponent.x_loc() + 2)
+
+        elif temps == self.reftemps + 36:
+            distance = abs(self.x_loc() - opponent.x_loc())
+            if distance < 5:
+                self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
+                self.is_stopped = False
+                self.x = loc2px(self.x_loc() - 1)
+            if distance > 5:
+                self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
+                self.is_stopped = False
+                self.x = loc2px(self.x_loc() + 1)
+
+        elif temps == self.reftemps + 8:
+            self.animate('vainqueurKO', 8)
+
+    def gestion_touche1(self, temps):
+        self.attente = 0
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xF = self.x_loc() + (4 if self.rtl else 0)
+        self.xT = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xG = self.x_loc() + (4 if self.rtl else 0)
+        if temps > self.reftemps + 20:
+            self.sprite = 'debout'
+            self.occupe = False
+            self.state = State.debout
+        elif temps == self.reftemps + 11:
+            self.sang = False
+        elif temps == self.reftemps:
+            self.animate('touche1')
+    # endregion gestions
 
 
 class Sorcier(AnimatedSprite):

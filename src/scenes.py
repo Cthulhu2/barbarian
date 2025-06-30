@@ -373,6 +373,11 @@ class Battle(EmptyScene):
         self.gnome = False
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
+        self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
+
+    def snd_play(self, snd: str):
+        if snd and self.opts.sound:
+            get_snd(snd).play()
 
     def finish(self):
         if self.opts.sound:
@@ -571,6 +576,98 @@ class Battle(EmptyScene):
                 return 'gestion'
             self.joueurA.sang = False
             return 'clavier'
+
+        if self.sense == 'normal':
+            if self.joueurA.x_loc() < self.joueurB.x_loc():
+                xAttB = self.joueurB.xAtt
+                yAttB = self.joueurB.yAtt
+                if xAttB <= self.joueurA.xF and yAttB == self.joueurA.yF:
+                    if self.joueurA.state == State.protegeH:
+                        self.joueurA.state = State.clingH
+                        return 'gestion'
+                    self.joueurA.state = State.tombe
+                    self.joueurA.infoDegatF += 1
+                    return 'gestion'
+
+                if xAttB <= self.joueurA.xT and yAttB == self.joueurA.yT:
+                    if self.joueurB.state == State.coupdetete:
+                        self.joueurA.state = State.tombe
+                        return 'gestion'
+                    self.joueurA.state = State.touche
+                    Game.ScoreB += 250
+                    self.joueurA.infoDegatT += 1
+                    return 'gestion'
+
+                if xAttB <= self.joueurA.xM and yAttB == self.joueurA.yM:
+                    if self.joueurA.state == State.protegeD:
+                        self.joueurA.state = State.clingD
+                        return 'gestion'
+                    self.joueurA.state = State.touche
+                    Game.ScoreB += 250
+                    return 'gestion'
+
+                if xAttB <= self.joueurA.xG and yAttB == self.joueurA.yG:
+                    if self.joueurB.state == State.araignee:
+                        self.joueurA.state = State.tombe
+                        return 'gestion'
+                    if self.joueurB.state == State.rouladeAV:
+                        self.joueurA.state = State.tombe
+                        return 'gestion'
+                    if self.joueurA.state == State.protegeD:
+                        self.joueurA.state = State.clingD
+                        return 'gestion'
+                    if self.joueurB.state == State.coupdepied:
+                        self.joueurA.state = State.tombe
+                        self.joueurA.infoDegatG += 1
+                        return 'gestion'
+                    self.joueurA.state = State.touche
+                    Game.ScoreB += 100
+                    self.joueurA.infoDegatG += 1
+                    return 'gestion'
+
+        if self.sense == 'inverse':
+            if self.joueurA.x_loc() > self.joueurB.x_loc():
+                xAttB = self.joueurB.xAtt
+                yAttB = self.joueurB.yAtt
+                if xAttB >= self.joueurA.xF and yAttB == self.joueurA.yF:
+                    if self.joueurA.state == State.protegeH:
+                        self.joueurA.state = State.clingH
+                        return 'gestion'
+                    self.joueurA.state = State.tombe
+                    return 'gestion'
+
+                if xAttB >= self.joueurA.xT and yAttB == self.joueurA.yT:
+                    if self.joueurB.state == State.coupdetete:
+                        self.joueurA.state = State.tombe
+                        return 'gestion'
+                    self.joueurA.state = State.touche
+                    Game.ScoreB += 250
+                    return 'gestion'
+
+                if xAttB >= self.joueurA.xM and yAttB == self.joueurA.yM:
+                    if self.joueurA.state == State.protegeD:
+                        self.joueurA.state = State.clingD
+                        return 'gestion'
+                    self.joueurA.state = State.touche
+                    Game.ScoreB += 250
+                    return 'gestion'
+
+                if xAttB <= self.joueurA.xG and yAttB == self.joueurA.yG:
+                    if self.joueurB.state == State.araignee:
+                        self.joueurA.state = State.tombe
+                        return 'gestion'
+                    if self.joueurB.state == State.rouladeAV:
+                        self.joueurA.state = State.tombe
+                        return 'gestion'
+                    if self.joueurA.state == State.protegeD:
+                        self.joueurA.state = State.clingD
+                        return 'gestion'
+                    if self.joueurB.state == State.coupdepied:
+                        self.joueurA.state = State.tombe
+                        return 'gestion'
+                    self.joueurA.state = State.touche
+                    Game.ScoreB += 100
+                    return 'gestion'
 
         if self.joueurA.occupe:
             return 'gestion'
@@ -1095,6 +1192,57 @@ class Battle(EmptyScene):
 
         if self.joueurA.state == State.vainqueur:
             self.joueurA.gestion_vainqueur(self.temps)
+
+        if self.joueurA.state == State.vainqueurKO:
+            self.joueurA.gestion_vainqueurKO(self.temps, self.joueurB)
+            if self.temps > self.joueurA.reftemps + 230:
+                self.gnome = True
+                self.joueurA.reftemps = self.temps
+                self.xGNOME = 1
+                self.xSPRt = 270
+                return 'affichage'
+            elif self.temps == self.joueurA.reftemps + 36:
+                return 'colision'
+
+        # ******degats******
+        if self.joueurA.state == State.touche:
+            self.joueurA.attente = 0
+            self.joueurA.xAtt = self.joueurA.x_loc()
+            self.joueurA.xF = self.joueurA.x_loc()
+            self.joueurA.xT = self.joueurA.x_loc()
+            self.joueurA.xM = self.joueurA.x_loc()
+            self.joueurA.xG = self.joueurA.x_loc()
+            self.joueurA.yF = 15
+            self.joueurA.yT = 16
+            self.joueurA.yM = 18
+            self.joueurA.yG = 20
+            if self.joueurB.state == State.coupdepied:
+                self.joueurA.state = State.tombe
+                return 'gestion'
+
+            self.joueurA.sang = True
+            self.serpentA.animate('bite')
+
+            if self.joueurB.state == State.decapite and self.joueurA.decapite:
+                self.joueurA.occupe_state(State.mortdecap, self.temps)
+                self.xSPRt = self.joueurA.x_loc() + 3
+                Game.ScoreB += 250
+                self.joueurA.sang = False
+                return 'mort'
+
+            self.joueurA.vie -= 1
+            if self.joueurA.vie <= 0:
+                self.joueurA.occupe_state(State.mort, self.temps)
+                self.joueurA.sang = True
+                return 'mort'
+
+            self.snd_play(next(self.sontouche))
+
+            self.joueurA.occupe_state(State.touche1, self.temps)
+            self.joueurA.decapite = True
+
+        if self.joueurA.state == State.touche1:
+            self.joueurA.gestion_touche1(self.temps)
 
         return 'joueur2'
 
@@ -1976,6 +2124,57 @@ class Battle(EmptyScene):
 
         if self.joueurB.state == State.vainqueur:
             self.joueurB.gestion_vainqueur(self.temps)
+
+        if self.joueurB.state == State.vainqueurKO:
+            self.joueurB.gestion_vainqueurKO(self.temps, self.joueurA)
+            if self.temps > self.joueurB.reftemps + 230:
+                self.gnome = True
+                self.joueurB.reftemps = self.temps
+                self.xGNOME = 1
+                self.xSPRt = 270
+                return 'affichage'
+            elif self.temps == self.joueurA.reftemps + 36:
+                return 'colision'
+
+        # ******degats B ******
+        if self.joueurB.state == State.touche:
+            self.joueurB.attente = 0
+            self.joueurB.xAtt = self.joueurB.x_loc()
+            self.joueurB.xF = self.joueurB.x_loc()
+            self.joueurB.xT = self.joueurB.x_loc()
+            self.joueurB.xM = self.joueurB.x_loc()
+            self.joueurB.xG = self.joueurB.x_loc()
+            self.joueurB.yF = 15
+            self.joueurB.yT = 16
+            self.joueurB.yM = 18
+            self.joueurB.yG = 20
+            if self.joueurA.state == State.coupdepied:
+                self.joueurB.state = State.tombe
+                return 'gestionB'
+
+            self.joueurB.sang = True
+            self.serpentB.animate('bite')
+
+            if self.joueurA.state == State.decapite and self.joueurB.decapite:
+                self.joueurB.occupe_state(State.mortdecap, self.temps)
+                self.xSPRt = self.joueurB.x_loc() + 3
+                Game.ScoreB += 250
+                self.joueurA.sang = False
+                return 'mortB'
+
+            self.joueurB.vie -= 1
+            if self.joueurB.vie <= 0:
+                self.joueurB.occupe_state(State.mort, self.temps)
+                self.joueurB.sang = True
+                return 'mortB'
+
+            self.snd_play(next(self.sontouche))
+
+            self.joueurB.occupe_state(State.touche1, self.temps)
+            self.joueurB.decapite = True
+
+        if self.joueurB.state == State.touche1:
+            self.joueurB.gestion_touche1(self.temps)
 
         return 'colision'
 
