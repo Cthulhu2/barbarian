@@ -627,6 +627,24 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/cou2.gif',      tick=60,                       ),  # noqa
             # @formatter:on
         ],
+        'front': [
+            Frame(f'{subdir}/front1.gif', tick=5),
+            Frame(f'{subdir}/front2.gif', tick=23),
+            Frame(f'{subdir}/front3.gif', tick=30),
+            Frame(f'{subdir}/front2.gif', tick=46),
+        ],
+        'retourne': [
+            Frame(f'{subdir}/retourne1.gif', tick=5),
+            Frame(f'{subdir}/retourne2.gif', tick=10),
+            Frame(f'{subdir}/retourne3.gif', tick=16),
+        ],
+        'vainqueur': [
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=18),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=35),
+            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=100),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101),
+        ],
     }
 
 
@@ -778,6 +796,28 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60, dx=-CHAR_W * SCALE     ),  # noqa
             # @formatter:on
         ],
+        'front': [
+            # @formatter:off
+            Frame(f'{subdir}/front1.gif', xflip=True, tick=5,  dx=-CHAR_W * SCALE    ),  # noqa
+            Frame(f'{subdir}/front2.gif', xflip=True, tick=23, dx=-CHAR_W * SCALE    ),  # noqa
+            Frame(f'{subdir}/front3.gif', xflip=True, tick=30, dx=-3 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/front2.gif', xflip=True, tick=46, dx=-CHAR_W * SCALE    ),  # noqa
+            # @formatter:on
+        ],
+        'retourne': [
+            Frame(f'{subdir}/retourne1.gif', xflip=True, tick=5),
+            Frame(f'{subdir}/retourne2.gif', xflip=True, tick=10),
+            Frame(f'{subdir}/retourne3.gif', xflip=True, tick=16),
+        ],
+        'vainqueur': [
+            # @formatter:off
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=18,  dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=35,  dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85,  dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=100, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101, dx=-CHAR_W * SCALE),
+            # @formatter:on
+        ],
     }
 
 
@@ -821,7 +861,6 @@ class State(enum.Enum):
     finderoulade = enum.auto()
     retourne = enum.auto()
     front = enum.auto()
-    frontR = enum.auto()
     genou = enum.auto()
     protegeD1 = enum.auto()
     protegeD = enum.auto()
@@ -830,9 +869,7 @@ class State(enum.Enum):
     recule = enum.auto()
     releve = enum.auto()
     rouladeAV = enum.auto()
-    rouladeAVR = enum.auto()
     rouladeAR = enum.auto()
-    rouladeARR = enum.auto()
     saute = enum.auto()
     tombe = enum.auto()
     tombeR = enum.auto()
@@ -1199,6 +1236,46 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps + 2:
             self.animate('decapite', 2)
 
+    def gestion_front(self, temps, opponent: 'Barbarian',
+                      soncling: iter, songrogne: iter):
+        self.reset_xX()
+        self.yG = 20
+        if temps > self.reftemps + 45:
+            self.occupe = False
+            self.state = State.debout
+
+        elif temps > self.reftemps + 24:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+
+        elif temps == self.reftemps + 24:
+            if opponent.state == State.front:
+                distance = abs(self.x_loc() - opponent.x_loc())
+                # cycle and play cling-sound once (for one player only)
+                if distance < 12 and not self.rtl:
+                    self.snd_play(next(soncling))
+            else:
+                self.xF = self.x_loc() + (4 if self.rtl else 0)
+                self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+
+        elif temps == self.reftemps + 6:
+            self.snd_play(next(songrogne))
+            self.snd_play('epee.ogg')
+            self.yAtt = self.yF
+
+        elif temps == self.reftemps + 4:
+            self.animate('front', 4)
+
+    def gestion_retourne(self, temps):
+        self.xAtt = self.x_loc()
+        self.reset_xX()
+        self.yAtt = 14
+        if temps > self.reftemps + 15:
+            self.state = State.debout
+            self.occupe = False
+            self.turn_around(not self.rtl)
+        elif self.anim != 'retourne':
+            self.animate('retourne')
+
     def gestion_debout(self):
         self.set_anim_frame('debout', 0)
         self.decapite = True
@@ -1210,6 +1287,18 @@ class Barbarian(AnimatedSprite):
         self.yM = 18
         self.yG = 20
         self.reset_xX()
+
+    def gestion_vainqueur(self, temps):
+        self.decapite = True
+        self.sang = False
+        self.xAtt = self.x_loc()
+        self.yG = 20
+        self.yAtt = 14
+        self.reset_xX()
+        if temps > self.reftemps + 100:
+            self.is_stopped = True
+        elif self.anim != 'vainqueur':
+            self.animate('vainqueur')
 
 
 class Sorcier(AnimatedSprite):
