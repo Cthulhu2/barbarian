@@ -759,13 +759,13 @@ class Battle(EmptyScene):
         if self.sense == 'normal':
             if self.joueurA.levier == Levier.basD:
                 self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                if self.joueurA.attaque and not Game.Demo:
+                if self.joueurA.attaque:
                     self.joueurA.occupe_state(State.coupdepied, self.temps)
         if self.sense == 'inverse':
             if self.joueurA.levier == Levier.basD:
                 self.joueurA.occupe_state(State.rouladeAVR, self.temps)
-                if self.joueurA.attaque and not Game.Demo:
-                    self.joueurA.occupe_state(State.coupdepiedR, self.temps)
+                if self.joueurA.attaque:
+                    self.joueurA.occupe_state(State.coupdepied, self.temps)
         # roulade AR, coup sur front
         if self.sense == 'normal':
             if self.joueurA.levier == Levier.basG:
@@ -794,7 +794,7 @@ class Battle(EmptyScene):
                     return 'gestion'
                 self.joueurA.occupe_state(State.protegeH1, self.temps)
                 if self.joueurA.attaque and not Game.Demo:
-                    self.joueurA.occupe_state(State.araigneeR, self.temps)
+                    self.joueurA.occupe_state(State.araignee, self.temps)
 
         # protection devant, coup de tete
         if self.sense == 'normal':
@@ -812,7 +812,7 @@ class Battle(EmptyScene):
                     return 'gestion'
                 self.joueurA.occupe_state(State.protegeD1, self.temps)
                 if self.joueurA.attaque and not Game.Demo:
-                    self.joueurA.occupe_state(State.coupdeteteR, self.temps)
+                    self.joueurA.occupe_state(State.coupdetete, self.temps)
         return 'gestion'
 
     def _gestion(self):
@@ -1082,6 +1082,70 @@ class Battle(EmptyScene):
         if self.joueurA.state == State.genou:
             self.joueurA.gestion_genou(self.temps, self.joueurB,
                                        self.soncling, self.songrogne)
+        # araignee
+        if self.joueurA.state == State.araignee:
+            self.joueurA.gestion_araignee(self.temps, self.joueurB,
+                                          self.soncling, self.songrogne)
+
+        # coupdepied
+        if self.joueurA.state == State.coupdepied:
+            self.joueurA.gestion_coupdepied(self.temps)
+
+        # coupdetete
+        if self.joueurA.state == State.coupdetete:
+            self.joueurA.gestion_coupdetete(self.temps)
+
+        # decapite
+        if self.joueurA.state == State.decapite:
+            self.joueurA.gestion_decapite(self.temps)
+
+        # front
+        # if self.joueurA.state == State.front:
+        #     self.joueurA.xF = self.joueurA.x_loc() + 4: self.joueurA.xT = self.joueurA.x_loc() + 4: self.joueurA.xM = self.joueurA.x_loc() + 4: self.joueurA.xG = self.joueurA.x_loc() + 4
+        #     self.joueurA.yG = 20
+        #     if self.temps > self.joueurA.reftemps + 45: self.joueurA.occupe = False: self.joueurA.state = State.debout: return 'joueur2'
+        #     if self.temps > self.joueurA.reftemps + 30: self.joueurA.sprite = 'front2': return 'joueur2'
+        #     if self.temps > self.joueurA.reftemps + 24: self.joueurA.sprite = 'front3': self.joueurA.xAtt = self.joueurA.x_loc(): return 'joueur2'
+        #     if self.temps > self.joueurA.reftemps + 23:
+        #         self.joueurA.sprite = 'front3'
+        #         if joueurB$ = "front":
+        #             if distance < 12:
+        #                 soncling = soncling + 1
+        #                 if soncling > 3: soncling = 1
+        #                 if soncling = 1: self.snd_play('cling.ogg')
+        #                 if soncling = 2: self.snd_play('cling2.ogg')
+        #                 if soncling = 3: self.snd_play('cling3.ogg')
+        #             return 'joueur2'
+        #         self.joueurA.xF = self.joueurA.x_loc(): self.joueurA.xAtt = self.joueurA.x_loc() + 7: return 'joueur2'
+        #     if self.temps > self.joueurA.reftemps + 6: return 'joueur2'
+        #     if self.temps > self.joueurA.reftemps + 5:
+        #         songrogne = songrogne + 1
+        #         if songrogne > 6: songrogne = 0
+        #         if songrogne = 3: self.snd_play('grogne1.ogg')
+        #         if songrogne = 6: self.snd_play('grogne2.ogg')
+        #         self.snd_play('epee.ogg'): self.joueurA.sprite = 'front2': self.joueurA.yAtt = self.joueurA.yF: return 'joueur2'
+        #     if self.temps > self.joueurA.reftemps + 3: self.joueurA.sprite = 'front1': return 'joueur2'
+
+        # retourne
+        # if self.joueurA.state == State.retourne:
+        #     self.joueurA.xAtt = self.joueurA.x_loc(): self.joueurA.xF = self.joueurA.x_loc() + 4: self.joueurA.xT = self.joueurA.x_loc() + 4: self.joueurA.xM = self.joueurA.x_loc() + 4: self.joueurA.xG = self.joueurA.x_loc() + 4
+        #     self.joueurA.yAtt = 14:
+        #     self.joueurA.sprite = 'retourne1'
+        #     if self.temps > self.joueurA.reftemps + 5: self.joueurA.sprite = 'retourne2'
+        #     if self.temps > self.joueurA.reftemps + 10: self.joueurA.sprite = 'retourne3'
+        #     if self.temps > self.joueurA.reftemps + 15: self.joueurA.state = State.deboutR: self.joueurA.occupe = False: sens$ = "inverse"
+
+        # vainqueur
+        # if self.joueurA.state == State.vainqueur:
+        #     self.joueurA.sprite = 'vainqueur1'
+        #     decapiteA$ = "oui"
+        #     sangA$ = "non"
+        #     self.joueurA.xAtt = self.joueurA.x_loc(): self.joueurA.yG = 20: self.joueurA.yAtt = 14
+        #     self.joueurA.xF = self.joueurA.x_loc() + 4: self.joueurA.xT = self.joueurA.x_loc() + 4: self.joueurA.xM = self.joueurA.x_loc() + 4: self.joueurA.xG = self.joueurA.x_loc() + 4
+        #     if self.temps > self.joueurA.reftemps + 18: self.joueurA.sprite = 'vainqueur2'
+        #     if self.temps > self.joueurA.reftemps + 35: self.joueurA.sprite = 'vainqueur3'
+        #     if self.temps > self.joueurA.reftemps + 85: self.joueurA.sprite = 'vainqueur2'
+        #     if self.temps > self.joueurA.reftemps + 100: self.joueurA.sprite = 'vainqueur1'
 
         return 'joueur2'
 
@@ -1161,7 +1225,7 @@ class Battle(EmptyScene):
 
                 if (self.joueurA.xAtt <= self.joueurB.xT
                         and self.joueurA.yAtt == self.joueurB.yT):
-                    if self.joueurA.state == State.coupdeteteR:
+                    if self.joueurA.state == State.coupdetete:
                         self.joueurB.state = State.tombeR
                         return 'gestionB'
                     self.joueurB.state = State.toucheR
@@ -1180,7 +1244,7 @@ class Battle(EmptyScene):
 
                 if (self.joueurA.xAtt <= self.joueurB.xG
                         and self.joueurA.yAtt == self.joueurB.yG):
-                    if self.joueurA.state == State.araigneeR:
+                    if self.joueurA.state == State.araignee:
                         self.joueurB.state = State.tombeR
                         return 'gestionB'
                     if self.joueurA.state == State.rouladeAVR:
@@ -1189,7 +1253,7 @@ class Battle(EmptyScene):
                     if self.joueurB.state == State.protegeD:
                         self.joueurB.state = State.clingD
                         return 'gestionB'
-                    if self.joueurA.state == State.coupdepiedR:
+                    if self.joueurA.state == State.coupdepied:
                         self.joueurB.state = State.tombeR
                         self.joueurB.infoDegatG += 1
                         return 'gestionB'
@@ -1220,8 +1284,7 @@ class Battle(EmptyScene):
         # *****************************************
         # ******* Intelligence Artificielle *******
         # *****************************************
-        if (self.joueurA.state in (State.finderoulade, State.finderouladeR)
-                or self.joueurB.state in (State.finderoulade, State.finderouladeR)):
+        if State.finderoulade in (self.joueurA.state, self.joueurB.state):
             return 'gestionB'
 
         if Game.Partie == 'solo':
@@ -1634,7 +1697,7 @@ class Battle(EmptyScene):
             if self.joueurB.levier == Levier.basD:
                 self.joueurB.occupe_state(State.rouladeAVR, self.temps)
                 if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.coupdepiedR, self.temps)
+                    self.joueurB.occupe_state(State.coupdepied, self.temps)
 
         # roulade AR, coup sur front
         if self.sense == 'normal':
@@ -1683,7 +1746,7 @@ class Battle(EmptyScene):
                     return 'gestionB'
                 self.joueurB.occupe_state(State.protegeD1, self.temps)
                 if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.coupdeteteR, self.temps)
+                    self.joueurB.occupe_state(State.coupdetete, self.temps)
         return 'gestionB'
 
     def _gestionB(self):
@@ -1953,6 +2016,23 @@ class Battle(EmptyScene):
         if self.joueurB.state == State.genou:
             self.joueurB.gestion_genou(self.temps, self.joueurA,
                                        self.soncling, self.songrogne)
+
+        # araignee
+        if self.joueurB.state == State.araignee:
+            self.joueurB.gestion_araignee(self.temps, self.joueurA,
+                                          self.soncling, self.songrogne)
+
+        # coupdepied
+        if self.joueurB.state == State.coupdepied:
+            self.joueurB.gestion_coupdepied(self.temps)
+
+        # coupdetete
+        if self.joueurB.state == State.coupdetete:
+            self.joueurB.gestion_coupdetete(self.temps)
+
+        # decapite
+        if self.joueurB.state == State.decapite:
+            self.joueurB.gestion_decapite(self.temps)
 
         return 'colision'
 

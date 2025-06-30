@@ -588,6 +588,45 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/assis2.gif', tick=46),
             # @formatter:on
         ],
+        'araignee': [
+            # @formatter:off
+            Frame(f'{subdir}/toile1.gif', tick=7),
+            Frame(f'{subdir}/toile2.gif', tick=12),
+            Frame(f'{subdir}/toile3.gif', tick=18),
+            Frame(f'{subdir}/toile4.gif', tick=25),
+            # @formatter:on
+        ],
+        'coupdepied': [
+            # @formatter:off
+            Frame(f'{subdir}/pied1.gif',  tick=15),
+            Frame(f'{subdir}/pied2.gif',  tick=30),
+            Frame(f'{subdir}/pied1.gif',  tick=45),
+            Frame(f'{subdir}/debout.gif', tick=51),
+            # @formatter:on
+        ],
+        'coupdetete': [
+            # @formatter:off
+            Frame(f'{subdir}/tete1.gif', tick=18),
+            Frame(f'{subdir}/tete2.gif', tick=28, mv=( CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/tete1.gif', tick=38, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            # @formatter:on
+        ],
+        'decapite': [
+            # @formatter:off
+            Frame(f'{subdir}/retourne1.gif', tick=4,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne1.gif', tick=5,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne2.gif', tick=9,                        ),  # noqa
+            Frame(f'{subdir}/retourne2.gif', tick=14, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne3.gif', tick=15,                       ),  # noqa
+            Frame(f'{subdir}/retourne3.gif', tick=19, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne3.gif', tick=24, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne3.gif', tick=29,                       ),  # noqa
+            Frame(f'{subdir}/protegeH.gif',  tick=33,                       ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      tick=39,                       ),  # noqa
+            Frame(f'{subdir}/cou3.gif',      tick=51,                       ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      tick=60,                       ),  # noqa
+            # @formatter:on
+        ],
     }
 
 
@@ -692,12 +731,51 @@ def barb_anims_rtl(subdir: str):
             # @formatter:on
         ],
         'genou': [
-            # @formatter:on
+            # @formatter:off
             Frame(f'{subdir}/genou1.gif', xflip=True, tick=10, dx=-CHAR_W * SCALE / 4),
             Frame(f'{subdir}/assis2.gif', xflip=True, tick=20),
             Frame(f'{subdir}/genou3.gif', xflip=True, tick=30, dx=-CHAR_W * SCALE / 4
                                                                   - 3 * CHAR_W * SCALE),
             Frame(f'{subdir}/assis2.gif', xflip=True, tick=46),
+            # @formatter:on
+        ],
+        'araignee': [
+            # @formatter:off
+            Frame(f'{subdir}/toile1.gif', xflip=True, tick=7,  dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/toile2.gif', xflip=True, tick=12, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/toile3.gif', xflip=True, tick=18, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/toile4.gif', xflip=True, tick=25, dx=-3 * CHAR_W * SCALE),
+            # @formatter:on
+        ],
+        'coupdepied': [
+            # @formatter:off
+            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=15, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/pied2.gif',  xflip=True, tick=30, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=45, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=51),
+            # @formatter:on
+        ],
+        'coupdetete': [
+            # @formatter:off
+            Frame(f'{subdir}/tete1.gif', xflip=True, tick=18),
+            Frame(f'{subdir}/tete2.gif', xflip=True, tick=28),
+            Frame(f'{subdir}/tete1.gif', xflip=True, tick=38),
+            # @formatter:on
+        ],
+        'decapite': [
+            # @formatter:off
+            Frame(f'{subdir}/retourne1.gif', xflip=True, tick=4,  mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne1.gif', xflip=True, tick=5,  mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne2.gif', xflip=True, tick=9,                         ),  # noqa
+            Frame(f'{subdir}/retourne2.gif', xflip=True, tick=14, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne3.gif', xflip=True, tick=15,                        ),  # noqa
+            Frame(f'{subdir}/retourne3.gif', xflip=True, tick=19, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne3.gif', xflip=True, tick=24, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/retourne3.gif', xflip=True, tick=29,                        ),  # noqa
+            Frame(f'{subdir}/protegeH.gif',  xflip=True, tick=33, dx=-CHAR_W * SCALE     ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=39, dx=-CHAR_W * SCALE     ),  # noqa
+            Frame(f'{subdir}/cou3.gif',      xflip=True, tick=51, dx=-4 * CHAR_W * SCALE ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60, dx=-CHAR_W * SCALE     ),  # noqa
             # @formatter:on
         ],
     }
@@ -728,7 +806,6 @@ class Levier(enum.Enum):
 
 class State(enum.Enum):
     araignee = enum.auto()
-    araigneeR = enum.auto()
     attente = enum.auto()
     avance = enum.auto()
     assis = enum.auto()
@@ -737,16 +814,11 @@ class State(enum.Enum):
     clingH = enum.auto()
     cou = enum.auto()
     coupdepied = enum.auto()
-    coupdepiedR = enum.auto()
     coupdetete = enum.auto()
-    coupdeteteR = enum.auto()
     debout = enum.auto()
     decapite = enum.auto()
-    decapiteR = enum.auto()
     devant = enum.auto()
-    devantR = enum.auto()
     finderoulade = enum.auto()
-    finderouladeR = enum.auto()
     retourne = enum.auto()
     front = enum.auto()
     frontR = enum.auto()
@@ -1036,6 +1108,96 @@ class Barbarian(AnimatedSprite):
             self.yAtt = self.yG
         elif temps == self.reftemps:
             self.animate('genou')
+
+    def gestion_araignee(self, temps, opponent: 'Barbarian',
+                         soncling: iter, songrogne: iter):
+        self.xF = self.x_loc() + (0 if self.rtl else 4)
+        self.xT = self.x_loc() + (0 if self.rtl else 4)
+        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.yAtt = self.yG
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yG = 20
+        if temps > self.reftemps + 24:
+            self.occupe = False
+            self.state = State.debout
+
+        elif temps > self.reftemps + 19:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+
+        elif temps > self.reftemps + 18:
+            self.snd_play('epee.ogg')
+            if opponent.state == State.araignee:
+                distance = abs(self.x_loc() - opponent.x_loc())
+                # cycle and play cling-sound once (for one player only)
+                if distance < 12 and not self.rtl:
+                    self.snd_play(next(soncling))
+            else:
+                self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+
+        elif temps > self.reftemps + 12:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+
+        elif temps == self.reftemps + 7:
+            self.snd_play(next(songrogne))
+            self.snd_play('epee.ogg')
+            self.xAtt = self.x_loc()
+
+        elif temps == self.reftemps:
+            self.animate('araignee')
+
+    def gestion_coupdepied(self, temps):
+        self.reset_xX()
+        self.yAtt = self.yG
+        self.yG = 20
+        if temps > self.reftemps + 50:
+            self.occupe = False
+            self.state = State.debout
+        elif temps > self.reftemps + 16:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        elif temps > self.reftemps + 15:
+            self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+        elif temps == self.reftemps:
+            self.animate('coupdepied')
+
+    def gestion_coupdetete(self, temps):
+        self.reset_xX()
+        self.yG = 20
+        if temps > self.reftemps + 37:
+            self.occupe = False
+            self.sprite = 'debout'
+            self.state = State.debout
+        elif temps > self.reftemps + 20:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        elif temps > self.reftemps + 19:
+            self.xAtt = self.x_loc() + (0 if self.rtl else 4)
+        elif temps > self.reftemps + 18:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        elif temps > self.reftemps + 9:
+            self.yAtt = self.yT
+        elif temps == self.reftemps:
+            self.animate('coupdetete')
+
+    def gestion_decapite(self, temps):
+        self.decapite = False
+        self.xF = self.x_loc() + (1 if self.rtl else 3)
+        self.xT = self.x_loc() + 2
+        self.xM = self.x_loc() + 2
+        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        if temps > self.reftemps + 58:
+            self.occupe = False
+            self.state = State.debout
+        elif temps > self.reftemps + 51:
+            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        elif temps > self.reftemps + 50:
+            self.xT = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
+        elif temps > self.reftemps + 29:
+            self.yAtt = self.yT
+        elif temps == self.reftemps + 15:
+            self.snd_play('decapite.ogg')
+        elif temps == self.reftemps + 2:
+            self.animate('decapite', 2)
 
     def gestion_debout(self):
         self.set_anim_frame('debout', 0)
