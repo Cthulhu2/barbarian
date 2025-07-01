@@ -673,6 +673,15 @@ def barb_anims(subdir: str):
             Frame(f'{subdir}/debout.gif',  tick=21),
             # @formatter:on
         ],
+        'tombe1': [
+            # @formatter:off
+            Frame(f'{subdir}/tombe1.gif', tick=1,                               dx=-2 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe1.gif', tick=9,  mv=(-2 * CHAR_W * SCALE, 0), dx=-2 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe2.gif', tick=15, mv=(-2 * CHAR_W * SCALE, 0), dx=-3 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe3.gif', tick=25,                              dx=-3 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/debout.gif', tick=27, mv=(-CHAR_W * SCALE, 0)),
+            # @formatter:on
+        ],
     }
 
 
@@ -874,6 +883,15 @@ def barb_anims_rtl(subdir: str):
             Frame(f'{subdir}/debout.gif',  xflip=True, tick=21),
             # @formatter:on
         ],
+        'tombe1': [
+            # @formatter:off
+            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=1,                              dx=1 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=9,  mv=(2 * CHAR_W * SCALE, 0), dx=1 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe2.gif', xflip=True, tick=15, mv=(2 * CHAR_W * SCALE, 0), dx=1 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe3.gif', xflip=True, tick=25,                             dx=1 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=27, mv=(CHAR_W * SCALE, 0)),
+            # @formatter:on
+        ],
     }
 
 
@@ -928,10 +946,9 @@ class State(enum.Enum):
     rouladeAR = enum.auto()
     saute = enum.auto()
     tombe = enum.auto()
-    tombeR = enum.auto()
+    tombe1 = enum.auto()
     touche = enum.auto()
     touche1 = enum.auto()
-    toucheR = enum.auto()
     #
     vainqueur = enum.auto()
     vainqueurKO = enum.auto()
@@ -1401,13 +1418,31 @@ class Barbarian(AnimatedSprite):
         self.xM = self.x_loc() + (4 if self.rtl else 0)
         self.xG = self.x_loc() + (4 if self.rtl else 0)
         if temps > self.reftemps + 20:
-            self.sprite = 'debout'
             self.occupe = False
             self.state = State.debout
         elif temps == self.reftemps + 11:
             self.sang = False
         elif temps == self.reftemps:
             self.animate('touche1')
+
+    def gestion_tombe1(self, temps, opponent: 'Barbarian'):
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.attente = 0
+        self.xF = self.x_loc() + (4 if self.rtl else 0)
+        self.xT = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xG = self.x_loc() + (4 if self.rtl else 0)
+        if temps > self.reftemps + 25:
+            self.state = State.debout
+            self.occupe = False
+        elif temps == self.reftemps + 10:
+            self.sang = False
+        elif temps == self.reftemps + 2:
+            if opponent.state != State.coupdetete:
+                self.snd_play('tombe.ogg')
+        elif temps == self.reftemps:
+            self.animate('tombe1')
+
     # endregion gestions
 
 

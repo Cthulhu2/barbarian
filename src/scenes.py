@@ -1206,12 +1206,13 @@ class Battle(EmptyScene):
 
         # ******degats******
         if self.joueurA.state == State.touche:
+            rtl = self.joueurA.rtl
             self.joueurA.attente = 0
-            self.joueurA.xAtt = self.joueurA.x_loc()
-            self.joueurA.xF = self.joueurA.x_loc()
-            self.joueurA.xT = self.joueurA.x_loc()
-            self.joueurA.xM = self.joueurA.x_loc()
-            self.joueurA.xG = self.joueurA.x_loc()
+            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xF = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.yF = 15
             self.joueurA.yT = 16
             self.joueurA.yM = 18
@@ -1243,6 +1244,42 @@ class Battle(EmptyScene):
 
         if self.joueurA.state == State.touche1:
             self.joueurA.gestion_touche1(self.temps)
+
+        if self.joueurA.state == State.tombe:
+            rtl = self.joueurA.rtl
+            self.joueurA.xAttA = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.attente = 0
+            self.joueurA.xF = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
+            self.joueurA.yF = 15
+            self.joueurA.yT = 16
+            self.joueurA.yM = 18
+            self.joueurA.yG = 20
+            if self.joueurB.state != State.rouladeAV:
+                self.joueurA.sang = True
+                self.serpentA.animate('bite')
+                self.joueurA.vie -= 1
+                Game.ScoreB += 100
+
+            if self.joueurA.vie <= 0:
+                self.joueurA.occupe_state(State.mort, self.temps)
+                if self.joueurB.state in (State.coupdetete, State.coupdepied):
+                    self.joueurA.sang = False
+                return 'mort'
+            if self.joueurB.state == State.coupdetete:
+                Game.ScoreB += 150
+                self.joueurA.sang = False
+                self.snd_play('coupdetete.ogg')
+            if self.joueurB.state == State.coupdepied:
+                Game.ScoreB += 150
+                self.joueurA.sang = False
+                self.snd_play('coupdepied.ogg')
+            self.joueurA.occupe_state(State.tombe1, self.temps)
+
+        if self.joueurA.state == State.tombe1:
+            self.joueurA.gestion_tombe1(self.temps, self.joueurB)
 
         return 'joueur2'
 
@@ -1316,16 +1353,16 @@ class Battle(EmptyScene):
                     if self.joueurB.state == State.protegeH:
                         self.joueurB.state = State.clingH
                         return 'gestionB'
-                    self.joueurB.state = State.tombeR
+                    self.joueurB.state = State.tombe
                     self.joueurB.infoDegatF += 1
                     return 'gestionB'
 
                 if (self.joueurA.xAtt <= self.joueurB.xT
                         and self.joueurA.yAtt == self.joueurB.yT):
                     if self.joueurA.state == State.coupdetete:
-                        self.joueurB.state = State.tombeR
+                        self.joueurB.state = State.tombe
                         return 'gestionB'
-                    self.joueurB.state = State.toucheR
+                    self.joueurB.state = State.touche
                     Game.ScoreA += 250
                     self.joueurB.infoDegatT += 1
                     return 'gestionB'
@@ -1335,26 +1372,26 @@ class Battle(EmptyScene):
                     if self.joueurB.state == State.protegeD:
                         self.joueurB.state = State.clingD
                         return 'gestionB'
-                    self.joueurB.state = State.toucheR
+                    self.joueurB.state = State.touche
                     Game.ScoreA += 250
                     return 'gestionB'
 
                 if (self.joueurA.xAtt <= self.joueurB.xG
                         and self.joueurA.yAtt == self.joueurB.yG):
                     if self.joueurA.state == State.araignee:
-                        self.joueurB.state = State.tombeR
+                        self.joueurB.state = State.tombe
                         return 'gestionB'
                     if self.joueurA.state == State.rouladeAV:
-                        self.joueurB.state = State.tombeR
+                        self.joueurB.state = State.tombe
                         return 'gestionB'
                     if self.joueurB.state == State.protegeD:
                         self.joueurB.state = State.clingD
                         return 'gestionB'
                     if self.joueurA.state == State.coupdepied:
-                        self.joueurB.state = State.tombeR
+                        self.joueurB.state = State.tombe
                         self.joueurB.infoDegatG += 1
                         return 'gestionB'
-                    self.joueurB.state = State.toucheR
+                    self.joueurB.state = State.touche
                     Game.ScoreA += 100
                     self.joueurB.infoDegatG += 1
                     return 'gestionB'
@@ -2138,12 +2175,13 @@ class Battle(EmptyScene):
 
         # ******degats B ******
         if self.joueurB.state == State.touche:
+            rtl = self.joueurB.rtl
             self.joueurB.attente = 0
-            self.joueurB.xAtt = self.joueurB.x_loc()
-            self.joueurB.xF = self.joueurB.x_loc()
-            self.joueurB.xT = self.joueurB.x_loc()
-            self.joueurB.xM = self.joueurB.x_loc()
-            self.joueurB.xG = self.joueurB.x_loc()
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.yF = 15
             self.joueurB.yT = 16
             self.joueurB.yM = 18
@@ -2158,7 +2196,7 @@ class Battle(EmptyScene):
             if self.joueurA.state == State.decapite and self.joueurB.decapite:
                 self.joueurB.occupe_state(State.mortdecap, self.temps)
                 self.xSPRt = self.joueurB.x_loc() + 3
-                Game.ScoreB += 250
+                Game.ScoreA += 250
                 self.joueurA.sang = False
                 return 'mortB'
 
@@ -2175,6 +2213,42 @@ class Battle(EmptyScene):
 
         if self.joueurB.state == State.touche1:
             self.joueurB.gestion_touche1(self.temps)
+
+        if self.joueurB.state == State.tombe:
+            rtl = self.joueurB.rtl
+            self.joueurB.xAttA = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.attente = 0
+            self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
+            self.joueurB.yF = 15
+            self.joueurB.yT = 16
+            self.joueurB.yM = 18
+            self.joueurB.yG = 20
+            if self.joueurA.state != State.rouladeAV:
+                self.joueurB.sang = True
+                self.serpentB.animate('bite')
+                self.joueurB.vie -= 1
+                Game.ScoreA += 100
+
+            if self.joueurB.vie <= 0:
+                self.joueurB.occupe_state(State.mort, self.temps)
+                if self.joueurA.state in (State.coupdetete, State.coupdepied):
+                    self.joueurB.sang = False
+                return 'mortB'
+            if self.joueurB.state == State.coupdetete:
+                Game.ScoreA += 150
+                self.joueurB.sang = False
+                self.snd_play('coupdetete.ogg')
+            if self.joueurB.state == State.coupdepied:
+                Game.ScoreA += 150
+                self.joueurB.sang = False
+                self.snd_play('coupdepied.ogg')
+            self.joueurB.occupe_state(State.tombe1, self.temps)
+
+        if self.joueurB.state == State.tombe1:
+            self.joueurB.gestion_tombe1(self.temps, self.joueurA)
 
         return 'colision'
 
