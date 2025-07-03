@@ -294,7 +294,7 @@ def vie():
             Frame('fill', w=4.8 * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
             Frame('fill', w=6   * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
             # @formatter:on
-        ]
+        ],
     }
 
 
@@ -465,21 +465,22 @@ def barb(subdir: str):
         ],
         'vainqueurKO': [
             # @formatter:off
-            Frame(f'{subdir}/retourne1.gif',  tick=15),
-            Frame(f'{subdir}/retourne2.gif',  tick=23),
-            Frame(f'{subdir}/retourne3.gif',  tick=30),
-            Frame(f'{subdir}/debout.gif',     tick=40),
-            Frame(f'{subdir}/marche3.gif',    tick=40),  # optional frame, see gestion code on tick 35
-            Frame(f'{subdir}/debout.gif',     tick=55),
-            Frame(f'{subdir}/pied1.gif',      tick=70),
-            Frame(f'{subdir}/pied2.gif',      tick=75),
-            Frame(f'{subdir}/pied1.gif',      tick=100),
-            Frame(f'{subdir}/debout.gif',     tick=105),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123),
-            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140),
-            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195),
-            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231),
+            Frame(f'{subdir}/retourne1.gif',              tick=15),  # noqa
+            Frame(f'{subdir}/retourne2.gif',              tick=23),  # noqa
+            Frame(f'{subdir}/retourne3.gif',              tick=30),  # noqa
+            Frame(f'{subdir}/debout.gif',                 tick=40),  # noqa
+            Frame(f'{subdir}/marche3.gif',                tick=40),  # noqa optional frame, see gestion on tick 35
+            Frame(f'{subdir}/marche3.gif',    xflip=True, tick=40),  # noqa optional frame, see gestion on tick 35
+            Frame(f'{subdir}/debout.gif',                 tick=55),  # noqa
+            Frame(f'{subdir}/pied1.gif',                  tick=70),  # noqa
+            Frame(f'{subdir}/pied2.gif',                  tick=75),  # noqa
+            Frame(f'{subdir}/pied1.gif',                  tick=100),  # noqa
+            Frame(f'{subdir}/debout.gif',                 tick=105),  # noqa
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123),  # noqa
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140),  # noqa
+            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195),  # noqa
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205),  # noqa
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, post_action='stop'),  # noqa
             # @formatter:on
         ],
         'touche1': [
@@ -691,21 +692,22 @@ def barb_rtl(subdir: str):
         ],
         'vainqueurKO': [
             # @formatter:off
-            Frame(f'{subdir}/retourne1.gif',  xflip=True, tick=15),
-            Frame(f'{subdir}/retourne2.gif',  xflip=True, tick=23),
-            Frame(f'{subdir}/retourne3.gif',  xflip=True, tick=30),
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=40),
-            Frame(f'{subdir}/marche3.gif',    tick=40),  # optional frame, see gestion code on tick 35
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=55),
-            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=70,  dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/pied2.gif',      xflip=True, tick=75,  dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=100, dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=105),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123, dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205, dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/retourne1.gif',  xflip=True, tick=15),  # noqa
+            Frame(f'{subdir}/retourne2.gif',  xflip=True, tick=23),  # noqa
+            Frame(f'{subdir}/retourne3.gif',  xflip=True, tick=30),  # noqa
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=40),  # noqa
+            Frame(f'{subdir}/marche3.gif',                tick=40),  # noqa optional frame, see gestion on tick 35
+            Frame(f'{subdir}/marche3.gif',    xflip=True, tick=40),  # noqa optional frame, see gestion on tick 35
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=55),  # noqa
+            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=70,  dx=-CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/pied2.gif',      xflip=True, tick=75,  dx=-CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=100, dx=-CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=105),  # noqa
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123, dx=-CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=-CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=-CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205, dx=-CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, dx=-CHAR_W * SCALE, post_action='stop'),
             # @formatter:oon
         ],
         'touche1': [

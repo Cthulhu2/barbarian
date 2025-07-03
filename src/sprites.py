@@ -283,13 +283,13 @@ class AnimatedSprite(DirtySprite):
             self.animTick += 1
             if not self.frame.is_tickable:
                 passed = current_time - self.animTimer
-                while passed > self.frame_duration:
+                while not self.is_stopped and passed > self.frame_duration:
                     # TODO: Rewind mixed frame types
                     passed -= self.frame_duration
                     self.animTimer = current_time
                     self.next_frame()
             else:
-                while self.animTick > self.frame_tick:
+                while not self.is_stopped and self.animTick > self.frame_tick:
                     self.animTimer = current_time
                     self.next_frame()
 
@@ -871,25 +871,24 @@ class Barbarian(AnimatedSprite):
         self.yG = 20
         self.reset_xX()
 
-        if temps > self.reftemps + 230:
-            self.is_stopped = False
-
-        elif temps > self.reftemps + 75:
+        if temps == self.reftemps + 75:
             opponent.set_anim_frame('mort', 3)  # mort4
 
-        elif temps > self.reftemps + 70:
+        elif temps == self.reftemps + 70:
             opponent.set_anim_frame('mort', 2)  # mort3
+
+        elif temps == self.reftemps + 51:
+            self.animate('vainqueurKO', 51)
 
         elif temps == self.reftemps + 36:
             distance = abs(self.x_loc() - opponent.x_loc())
-            if distance < 5:
+            rtl = self.rtl
+            if (distance < 5 and rtl) or (distance > 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
-                self.is_stopped = False
-                self.x = loc2px(self.x_loc() - 1)
-            if distance > 5:
-                self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
-                self.is_stopped = False
-                self.x = loc2px(self.x_loc() + 1)
+                self.x = loc2px(self.x_loc() + abs(5 - distance))
+            if (distance > 5 and rtl) or (distance < 5 and not rtl):
+                self.set_anim_frame('vainqueurKO', 5)  # 'marche3' xflip=True
+                self.x = loc2px(self.x_loc() - abs(5 - distance))
 
         elif temps == self.reftemps + 8:
             self.animate('vainqueurKO', 8)
@@ -931,10 +930,12 @@ class Barbarian(AnimatedSprite):
 
     @AnimatedSprite.speed.getter
     def speed(self):
+        # noinspection PyArgumentList
         return AnimatedSprite.speed.fget(self)
 
     @speed.setter
     def speed(self, speed: float):
+        # noinspection PyArgumentList
         AnimatedSprite.speed.fset(self, speed)
         for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
             s.speed = speed

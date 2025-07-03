@@ -307,7 +307,7 @@ class Battle(EmptyScene):
         # noinspection PyTypeChecker
         self.clear(None, back)
         self.debugAttArea = False
-        if self.opts.debug:
+        if self.opts.debug > 1:
             self.jAstate = Txt.Debug(loc2px(10), 0)
             self.jBstate = Txt.Debug(loc2px(25), 0)
             self.jAlevier = Txt.Debug(loc2px(10), self.jAstate.rect.bottom)
@@ -319,6 +319,11 @@ class Battle(EmptyScene):
             self.add(self.jAstate, self.jAlevier, self.jAtemps,
                      self.jBstate, self.jBlevier, self.jBtemps,
                      self.debugTemps, layer=99)
+            if self.opts.debug > 2:
+                self.jAframe = Txt.Debug(loc2px(10), self.jAtemps.rect.bottom)
+                self.jBframe = Txt.Debug(loc2px(25), self.jBtemps.rect.bottom)
+                self.add(self.jAframe, self.jBframe, layer=99)
+
             self.jAAtt = area(Theme.RED, 'A', border_width=5)
             self.jAF = area(Theme.YELLOW, 'F')
             self.jAT = area(Theme.RED, 'T')
@@ -1317,9 +1322,7 @@ class Battle(EmptyScene):
 
     def _gestion_mort(self):
         if self.joueurA.state == State.mort:
-            if self.temps > self.joueurA.reftemps + 16:
-                self.joueurA.is_stopped = True
-            elif self.temps > self.joueurA.reftemps + 15:
+            if self.temps == self.joueurA.reftemps + 16:
                 self.joueurA.sang = False
             elif self.temps == self.joueurA.reftemps:
                 self.joueurA.animate('mort')
@@ -2399,13 +2402,15 @@ class Battle(EmptyScene):
                 goto = self._affichage()
             else:
                 goto = None
-        if self.opts.debug:
+        if self.opts.debug > 1:
             self.jAstate.msg = f'AS: {self.joueurA.state}'
             self.jAlevier.msg = f'AL: {self.joueurA.levier}'
-            self.jAtemps.msg = f'AT: {self.joueurA.reftemps}'
+            self.jAtemps.msg = (f'AT: {self.joueurA.reftemps}'
+                                f' ({self.temps - self.joueurA.reftemps})')
             self.jBstate.msg = f'BS: {self.joueurB.state}'
             self.jBlevier.msg = f'BL: {self.joueurB.levier}'
-            self.jBtemps.msg = f'BT: {self.joueurB.reftemps}'
+            self.jBtemps.msg = (f'BT: {self.joueurB.reftemps}'
+                                f' ({self.temps - self.joueurB.reftemps})')
             self.debugTemps.msg = f'T: {self.temps}'
             if self.debugAttArea:
                 self.jAAtt.move_to(loc2px(self.joueurA.xAtt), loc2px(self.joueurA.yAtt))
@@ -2418,6 +2423,13 @@ class Battle(EmptyScene):
                 self.jBT.move_to(loc2px(self.joueurB.xT), loc2px(self.joueurB.yT))
                 self.jBM.move_to(loc2px(self.joueurB.xM), loc2px(self.joueurB.yM))
                 self.jBG.move_to(loc2px(self.joueurB.xG), loc2px(self.joueurB.yG))
+            if self.opts.debug > 2:
+                self.jAframe.msg = (
+                    f'{self.joueurA.frameNum + 1} / {len(self.joueurA.frames)}'
+                    f' ({self.joueurA.frame.name})')
+                self.jBframe.msg = (
+                    f'{self.joueurB.frameNum + 1} / {len(self.joueurB.frames)}'
+                    f' ({self.joueurB.frame.name})')
 
 
 class Version(_MenuBackScene):

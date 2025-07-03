@@ -50,7 +50,8 @@ class BarbarianMain(object):
     def scene(self, scene: scenes.EmptyScene):
         if self._scene:
             for s in self._scene.sprites():
-                self._scene.remove(s)
+                s.kill()
+                del s
             del self._scene
         #
         self._scene = scene
@@ -246,9 +247,9 @@ def option_parser():
     debug = OptionGroup(parser, 'Debug Options', description='')
 
     debug.add_option('-d', '--debug',
-                     action='store_true',
+                     action='count',
                      dest='debug',
-                     default=True,  # False,
+                     default=3,
                      help='show debug info (CPU, VMS, RSS, FPS)')
     debug.add_option('-c', '--cpu-time',
                      action='store',
