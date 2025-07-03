@@ -9,7 +9,8 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
     get_img, get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    serpent_anims, rtl_anims, loc2px, loc, State, Levier, Sorcier, Rectangle
+    serpent_anims, rtl_anims, loc2px, loc, State, Levier, Sorcier, Rectangle,
+    vie_anims
 )
 
 
@@ -313,6 +314,7 @@ class Battle(EmptyScene):
             self.jAtemps = Txt.Debug(loc2px(10), self.jAlevier.rect.bottom)
             self.jBtemps = Txt.Debug(loc2px(25), self.jBlevier.rect.bottom)
             self.debugTemps = Txt.Debug(loc2px(18), 0)
+            # noinspection PyTypeChecker
             self.add(self.jAstate, self.jAlevier, self.jAtemps,
                      self.jBstate, self.jBlevier, self.jBtemps,
                      self.debugTemps)
@@ -326,6 +328,7 @@ class Battle(EmptyScene):
             self.jBT = area(Theme.RED, 'T')
             self.jBM = area(Theme.GREEN, 'M')
             self.jBG = area(Theme.PURPLE, 'G')
+        # noinspection PyTypeChecker
         self.add(
             StaticSprite((0, 104 * SCALE),
                          f'stage/{Game.Decor}ARBREG.gif'),
@@ -357,7 +360,7 @@ class Battle(EmptyScene):
 
         elif Game.Partie == 'solo':
             Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8), self)
-        self.add(self.joueurA, self.joueurB)
+        self.add(self.joueurA, self.joueurB, layer=1)
         self.joueurA.animate('avance')
         self.joueurB.animate('avance')
         self.serpentA = AnimatedSprite((11 * SCALE, 22 * SCALE),
@@ -367,6 +370,7 @@ class Battle(EmptyScene):
         self.entree = True
         self.entreesorcier = False
         self.lancerintro = True
+        self.lancerfin = True
         self.temps = 0
         self.tempsfini = False
         self.sense = 'normal'  # inverse
@@ -374,6 +378,10 @@ class Battle(EmptyScene):
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
+        self.vieA0 = AnimatedSprite((50, 20), vie_anims(), self)
+        self.vieA1 = AnimatedSprite((50, 40), vie_anims(), self)
+        self.vieB0 = AnimatedSprite((250, 20), rtl_anims(vie_anims()), self)
+        self.vieB1 = AnimatedSprite((250, 40), rtl_anims(vie_anims()), self)
 
     def snd_play(self, snd: str):
         if snd and self.opts.sound:
@@ -1280,6 +1288,54 @@ class Battle(EmptyScene):
 
         if self.joueurA.state == State.tombe1:
             self.joueurA.gestion_tombe1(self.temps, self.joueurB)
+
+        # bruit des epees  et decapitations loupees
+        if self.joueurA.state == State.clingD:
+            if self.joueurB.state == State.decapite and not self.joueurA.decapite:
+                self.joueurA.occupe_state(State.touche, self.temps)
+                return 'gestion'
+            if self.joueurB.state == State.genou:
+                self.joueurA.occupe_state(State.touche, self.temps)
+                return 'gestion'
+            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+            if distance < 12:
+                self.snd_play(next(self.soncling))
+            self.joueurA.state = State.protegeD
+            return 'joueur2'
+
+        if self.joueurA.state == State.clingH:
+            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+            if distance < 12:
+                self.snd_play(next(self.soncling))
+            self.joueurA.state = State.protegeH
+            return 'joueur2'
+
+        goto = self._gestion_mort()
+
+        return goto
+
+    def _gestion_mort(self):
+        if self.joueurA.state == State.mort:
+            if self.temps > self.joueurA.reftemps + 16:
+                self.joueurA.is_stopped = True
+            elif self.temps > self.joueurA.reftemps + 15:
+                self.joueurA.sang = False
+            elif self.temps == self.joueurA.reftemps:
+                self.joueurA.animate('mort')
+                self.joueurB.occupe_state(State.vainqueurKO, self.temps)
+                if self.lancerfin:
+                    self.snd_play('mortKO.ogg')
+                    self.lancerfin = False
+
+        if self.joueurA.state == State.mortdecap:
+            if self.temps == self.joueurA.reftemps:
+                # noinspection PyTypeChecker
+                self.change_layer(self.joueurA, 2)
+                self.joueurA.animate('mortdecap')
+                self.joueurB.occupe_state(State.vainqueur, self.temps)
+                if self.lancerfin:
+                    self.snd_play('mortdecap.ogg')
+                    self.lancerfin = False
 
         return 'joueur2'
 
@@ -2250,7 +2306,64 @@ class Battle(EmptyScene):
         if self.joueurB.state == State.tombe1:
             self.joueurB.gestion_tombe1(self.temps, self.joueurA)
 
-        return 'colision'
+        # bruit des epees  et decapitations loupees
+        if self.joueurB.state == State.clingD:
+            if self.joueurA.state == State.decapite and not self.joueurB.decapite:
+                self.joueurB.occupe_state(State.touche, self.temps)
+                return 'gestionB'
+            if self.joueurA.state == State.genou:
+                self.joueurB.occupe_state(State.touche, self.temps)
+                return 'gestionB'
+            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+            if distance < 12:
+                self.snd_play(next(self.soncling))
+            self.joueurB.state = State.protegeD
+            return 'colision'
+
+        if self.joueurB.state == State.clingH:
+            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+            if distance < 12:
+                self.snd_play(next(self.soncling))
+            self.joueurB.state = State.protegeH
+            return 'colision'
+
+        goto = self._gestion_mortB()
+
+        return goto
+
+    def _gestion_mortB(self):
+        if self.joueurB.state == State.mort:
+            self.joueurB.reset_xX()
+            if self.temps == self.joueurB.reftemps + 16:
+                self.joueurB.sang = False
+            elif self.temps == self.joueurB.reftemps:
+                self.joueurB.animate('mort')
+                self.joueurA.occupe_state(State.vainqueurKO, self.temps)
+                if self.lancerfin:
+                    self.snd_play('mortKO.ogg')
+                    self.lancerfin = False
+
+        if self.joueurB.state == State.mortdecap:
+            if self.temps == self.joueurB.reftemps:
+                # noinspection PyTypeChecker
+                self.change_layer(self.joueurB, 2)
+                self.joueurB.animate('mortdecap')
+                self.joueurA.occupe_state(State.vainqueur, self.temps)
+                if self.lancerfin:
+                    self.snd_play('mortdecap.ogg')
+                    self.lancerfin = False
+
+        return 'collision'
+
+    def _colision(self):
+        return 'affichage'
+
+    def _affichage(self):
+        self.vieA0.set_anim_frame('vie', min(0, 6 - self.joueurA.vie))
+        self.vieA1.set_anim_frame('vie', max(6, 12 - self.joueurA.vie))
+        self.vieB0.set_anim_frame('vie', min(0, 6 - self.joueurA.vie))
+        self.vieB1.set_anim_frame('vie', max(6, 12 - self.joueurB.vie))
+        return None
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
@@ -2267,6 +2380,8 @@ class Battle(EmptyScene):
                 goto = self._action()
             elif goto == 'gestion':
                 goto = self._gestion()
+            elif goto == 'mort':
+                goto = self._gestion_mort()
             elif goto == 'joueur2':
                 goto = self._joueur2()
             elif goto == 'clavierB':
@@ -2275,6 +2390,10 @@ class Battle(EmptyScene):
                 goto = self._actionB()
             elif goto == 'gestionB':
                 goto = self._gestionB()
+            elif goto == 'mortB':
+                goto = self._gestion_mortB()
+            elif goto == 'affichage':
+                goto = self._affichage()
             else:
                 goto = None
         if self.opts.debug:

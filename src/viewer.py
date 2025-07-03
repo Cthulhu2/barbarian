@@ -12,13 +12,15 @@ import sprites
 from main import BarbarianMain, option_parser
 from scenes import EmptyScene
 from settings import SCREEN_SIZE, Theme
-from sprites import Barbarian, Rectangle, Txt, img_cache
+from sprites import (
+    Barbarian, Rectangle, Txt, img_cache,
+)
 
 BACKGROUND = Surface(SCREEN_SIZE)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
 ANIM_KEYS = [
     K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0, K_q, K_w, K_e, K_r, K_t,
-    K_y, K_u, K_i, K_o, K_p, K_g, K_h, K_j, K_k, K_l,
+    K_y, K_u, K_i, K_o, K_p, K_g, K_h, K_j, K_k, K_l, K_SEMICOLON,
 ]
 TXT_SPEED = '{0:0.2f}'
 DIRECTIONS = {False: 'LTR', True: 'RTL'}
@@ -40,7 +42,7 @@ class AnimationViewerScene(EmptyScene):
         self.on_quit = on_quit
         self.canMove = True
         self.border = False
-        self.target = self.create_barbarian(400, 200)
+        self.target = self.create_barbarian(400, 300)
         self.add(self.target)
         #
         self.anims = list(self.target.anims.keys())
@@ -74,7 +76,8 @@ class AnimationViewerScene(EmptyScene):
         self.borderGroup = Rectangle(0, 0, 200, 200, Theme.VIEWER_BORDER)
         lbl = txt('Frame: ', (10, lbl.rect.bottom + 5), self)
         self.frameTxt = txt_selected(
-            f'{self.target.frameNum + 1} / {len(self.target.frames)} ({self.target.frame.name})',
+            f'{self.target.frameNum + 1} / {len(self.target.frames)}'
+            f' ({self.target.frame.name})',
             (int(lbl.rect.right), int(lbl.rect.top)),
             self)
         self.clear(None, BACKGROUND)
@@ -85,7 +88,7 @@ class AnimationViewerScene(EmptyScene):
         for anim in anims:
             key_name = key.name(ANIM_KEYS[ix])
             txt_list.append(txt(f'({key_name}): {anim}',
-                                (600, ix * 12 + 10), self))
+                                (700, ix * 12 + 10), self))
             ix += 1
         #
         cur_ix = self.anims.index(self.target.anim)
@@ -126,6 +129,7 @@ class AnimationViewerScene(EmptyScene):
                                              self.target.y,
                                              self.target.rtl,
                                              self.target.anim)
+                self.target.kill()
                 del self.target
                 gc.collect()
                 self.target = barb
