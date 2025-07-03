@@ -20,6 +20,11 @@ def get_img(name, w=0, h=0, angle=0, xflip=False, fill=None, blend_flags=0,
     img: Surface
     if name == 'empty':
         img = Surface((0, 0))
+    elif name == 'fill':
+        img = Surface((1, 1))
+        if fill:
+            img = img.copy()
+            img.fill(fill)
     elif color:
         img = image.load(join(IMG_PATH, name))
         img.set_colorkey(color)
@@ -270,13 +275,24 @@ def vie():
     return {
         'vie': [
             # @formatter:off
-            Frame('empty', w=1,                    h=CHAR_H * SCALE, fill=(0, 0, 0), dx=0, post_action='stop'),  # noqa
-            Frame('empty', w=0.5 * CHAR_W * SCALE, h=CHAR_H * SCALE, fill=(0, 0, 0), dx=-0.5 * CHAR_W * SCALE),  # noqa
-            Frame('empty', w=  1 * CHAR_W * SCALE, h=CHAR_H * SCALE, fill=(0, 0, 0), dx=-  1 * CHAR_W * SCALE),  # noqa
-            Frame('empty', w=1.5 * CHAR_W * SCALE, h=CHAR_H * SCALE, fill=(0, 0, 0), dx=-1.5 * CHAR_W * SCALE),  # noqa
-            Frame('empty', w=  2 * CHAR_W * SCALE, h=CHAR_H * SCALE, fill=(0, 0, 0), dx=-  2 * CHAR_W * SCALE),  # noqa
-            Frame('empty', w=2.5 * CHAR_W * SCALE, h=CHAR_H * SCALE, fill=(0, 0, 0), dx=-2.5 * CHAR_W * SCALE),  # noqa
-            Frame('empty', w=  3 * CHAR_W * SCALE, h=CHAR_H * SCALE, fill=(0, 0, 0), dx=-  3 * CHAR_W * SCALE),  # noqa
+            Frame('fill', w=1,            h=1.2 * CHAR_H, fill=(0, 0, 0), dx=0, post_action='stop'),  # noqa
+            Frame('fill', w=0.7 * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0), dx=-0.7 * CHAR_W * SCALE),  # noqa
+            Frame('fill', w=2   * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0), dx=-2   * CHAR_W * SCALE),  # noqa
+            Frame('fill', w=2.7 * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0), dx=-2.7 * CHAR_W * SCALE),  # noqa
+            Frame('fill', w=4   * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0), dx=-4   * CHAR_W * SCALE),  # noqa
+            Frame('fill', w=4.7 * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0), dx=-4.7 * CHAR_W * SCALE),  # noqa
+            Frame('fill', w=6   * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0), dx=-6   * CHAR_W * SCALE),  # noqa
+            # @formatter:on
+        ],
+        'vie_rtl': [
+            # @formatter:off
+            Frame('fill', w=1,            h=1.2 * CHAR_H, fill=(0, 0, 0), post_action='stop'),  # noqa
+            Frame('fill', w=0.8 * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
+            Frame('fill', w=2   * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
+            Frame('fill', w=2.8 * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
+            Frame('fill', w=4   * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
+            Frame('fill', w=4.8 * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
+            Frame('fill', w=6   * CHAR_W, h=1.2 * CHAR_H, fill=(0, 0, 0)),  # noqa
             # @formatter:on
         ]
     }

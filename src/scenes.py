@@ -186,9 +186,9 @@ class Logo(EmptyScene):
         get_img('spritesA/tetedecap5.gif')
         get_img('spritesA/tetedecap6.gif')
 
-        get_img('sprites/feu1.gif', color=(255, 0, 255))
-        get_img('sprites/feu2.gif', color=(255, 0, 255))
-        get_img('sprites/feu3.gif', color=(255, 0, 255))
+        get_img('sprites/feu1.gif')
+        get_img('sprites/feu2.gif')
+        get_img('sprites/feu3.gif')
 
         get_img('sprites/gicle1.gif')
         get_img('sprites/gicle2.gif')
@@ -379,10 +379,10 @@ class Battle(EmptyScene):
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
-        self.vieA0 = AnimatedSprite((50, 20), anims.vie(), self)
-        self.vieA1 = AnimatedSprite((50, 40), anims.vie(), self)
-        self.vieB0 = AnimatedSprite((250, 20), rtl_anims(anims.vie()), self)
-        self.vieB1 = AnimatedSprite((250, 40), rtl_anims(anims.vie()), self)
+        self.vieA0 = AnimatedSprite((43.3 * SCALE, 0), anims.vie(), self)
+        self.vieA1 = AnimatedSprite((43.3 * SCALE, 11 * SCALE), anims.vie(), self)
+        self.vieB0 = AnimatedSprite((276.3 * SCALE, 0), anims.vie(), self)
+        self.vieB1 = AnimatedSprite((276.3 * SCALE, 11 * SCALE), anims.vie(), self)
 
     def snd_play(self, snd: str):
         if snd and self.opts.sound:
@@ -2354,16 +2354,16 @@ class Battle(EmptyScene):
                     self.snd_play('mortdecap.ogg')
                     self.lancerfin = False
 
-        return 'collision'
+        return 'colision'
 
     def _colision(self):
         return 'affichage'
 
     def _affichage(self):
-        self.vieA0.set_anim_frame('vie', min(0, 6 - self.joueurA.vie))
-        self.vieA1.set_anim_frame('vie', max(6, 12 - self.joueurA.vie))
-        self.vieB0.set_anim_frame('vie', min(0, 6 - self.joueurA.vie))
-        self.vieB1.set_anim_frame('vie', max(6, 12 - self.joueurB.vie))
+        self.vieA0.set_anim_frame('vie', max(0, 6 - self.joueurA.vie))
+        self.vieA1.set_anim_frame('vie', max(0, min(6, 12 - self.joueurA.vie)))
+        self.vieB0.set_anim_frame('vie_rtl', max(0, 6 - self.joueurB.vie))
+        self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - self.joueurB.vie)))
         return None
 
     def update(self, current_time, *args):
@@ -2393,6 +2393,8 @@ class Battle(EmptyScene):
                 goto = self._gestionB()
             elif goto == 'mortB':
                 goto = self._gestion_mortB()
+            elif goto == 'colision':
+                goto = self._colision()
             elif goto == 'affichage':
                 goto = self._affichage()
             else:

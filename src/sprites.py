@@ -347,7 +347,7 @@ class AnimatedSprite(DirtySprite):
             self.animTick = 0
         next_ = self.frames[self.frameNum]
         if self.frame != next_:
-            if self.frame and self.frame.post_action:
+            if self.frame and self.frame.post_action and not self.is_stopped:
                 cur_anim = self.anim
                 self.on_post_action(self.anim, self.frame.post_action)
                 if cur_anim != self.anim or self.is_stopped:
