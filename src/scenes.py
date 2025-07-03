@@ -8,10 +8,11 @@ from pygame.time import get_ticks
 
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
-    get_img, get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    serpent_anims, rtl_anims, loc2px, loc, State, Levier, Sorcier, Rectangle,
-    vie_anims
+    get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
+    loc2px, loc, State, Levier, Sorcier, Rectangle
 )
+import anims
+from anims import get_img, rtl_anims
 
 
 class Game:  # Mutable options
@@ -317,7 +318,7 @@ class Battle(EmptyScene):
             # noinspection PyTypeChecker
             self.add(self.jAstate, self.jAlevier, self.jAtemps,
                      self.jBstate, self.jBlevier, self.jBtemps,
-                     self.debugTemps)
+                     self.debugTemps, layer=99)
             self.jAAtt = area(Theme.RED, 'A', border_width=5)
             self.jAF = area(Theme.YELLOW, 'F')
             self.jAT = area(Theme.RED, 'T')
@@ -364,9 +365,9 @@ class Battle(EmptyScene):
         self.joueurA.animate('avance')
         self.joueurB.animate('avance')
         self.serpentA = AnimatedSprite((11 * SCALE, 22 * SCALE),
-                                       serpent_anims(), self)
+                                       anims.serpent(), self)
         self.serpentB = AnimatedSprite((275 * SCALE, 22 * SCALE),
-                                       rtl_anims(serpent_anims()), self)
+                                       rtl_anims(anims.serpent()), self)
         self.entree = True
         self.entreesorcier = False
         self.lancerintro = True
@@ -378,10 +379,10 @@ class Battle(EmptyScene):
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
-        self.vieA0 = AnimatedSprite((50, 20), vie_anims(), self)
-        self.vieA1 = AnimatedSprite((50, 40), vie_anims(), self)
-        self.vieB0 = AnimatedSprite((250, 20), rtl_anims(vie_anims()), self)
-        self.vieB1 = AnimatedSprite((250, 40), rtl_anims(vie_anims()), self)
+        self.vieA0 = AnimatedSprite((50, 20), anims.vie(), self)
+        self.vieA1 = AnimatedSprite((50, 40), anims.vie(), self)
+        self.vieB0 = AnimatedSprite((250, 20), rtl_anims(anims.vie()), self)
+        self.vieB1 = AnimatedSprite((250, 40), rtl_anims(anims.vie()), self)
 
     def snd_play(self, snd: str):
         if snd and self.opts.sound:

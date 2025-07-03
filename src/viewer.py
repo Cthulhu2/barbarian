@@ -8,13 +8,12 @@ from typing import Any
 from pygame import key, Surface, display
 from pygame.locals import *
 
-import sprites
+import anims
 from main import BarbarianMain, option_parser
 from scenes import EmptyScene
 from settings import SCREEN_SIZE, Theme
 from sprites import (
-    Barbarian, Rectangle, Txt, img_cache,
-)
+    Barbarian, Rectangle, Txt, )
 
 BACKGROUND = Surface(SCREEN_SIZE)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
@@ -119,10 +118,10 @@ class AnimationViewerScene(EmptyScene):
             if evt.key == K_SPACE:
                 self.target.kill()
 
-                for v in img_cache.values():
+                for v in anims.img_cache.values():
                     del v
-                img_cache.clear()
-                importlib.reload(sprites)
+                anims.img_cache.clear()
+                importlib.reload(anims)
 
                 speed = self.target.speed
                 barb = self.create_barbarian(self.target.x,
