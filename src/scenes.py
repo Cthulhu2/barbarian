@@ -281,6 +281,10 @@ def area(color, lbl, border_width=2):
     return Rectangle(0, 0, CHAR_W * SCALE, CHAR_H * SCALE, color, border_width, lbl)
 
 
+def is_in_roulade(a: Barbarian, b: Barbarian):
+    return a.state == State.saute and b.state == State.rouladeAV
+
+
 class Battle(EmptyScene):
     def __init__(self, opts, *,
                  on_esc,
@@ -340,7 +344,7 @@ class Battle(EmptyScene):
                          f'stage/{Game.Decor}ARBREG.gif'),
             StaticSprite((272 * SCALE, 104 * SCALE),
                          f'stage/{Game.Decor}ARBRED.gif'),
-            layer=2)
+            layer=3)
 
         self.joueurA = Barbarian(opts, loc2px(1), loc2px(14),
                                  'spritesA',
@@ -376,7 +380,6 @@ class Battle(EmptyScene):
         self.entree = True
         self.entreesorcier = False
         self.lancerintro = True
-        self.lancerfin = True
         self.temps = 0
         self.tempsfini = False
         self.sense = 'normal'  # inverse
@@ -484,7 +487,7 @@ class Battle(EmptyScene):
             self.txtScoreB.msg = f'{Game.ScoreB:05}'
 
         if self.lancerintro:
-            get_snd('prepare.ogg').play()
+            self.snd_play('prepare.ogg')
             self.lancerintro = False
 
         if self.entree:
@@ -564,11 +567,9 @@ class Battle(EmptyScene):
                         self.joueurA.state = State.mortSORCIER
                         self.joueurA.occupe = True
                         self.joueurB.reftemps = self.temps
-                        self.joueurA.sang = False
                         self.joueurB.state = State.sorcierFINI
                         self.joueurB.occupe = True
                         self.joueurB.reftemps = self.temps
-                        self.joueurB.sang = False
                         self.jeu = 'perdu'
                         return 'gestion'
                 if self.joueurA.xG <= self.joueurB.xAtt <= self.joueurA.xG + 2:
@@ -579,16 +580,13 @@ class Battle(EmptyScene):
                         self.joueurA.state = State.mortSORCIER
                         self.joueurA.occupe = True
                         self.joueurA.reftemps = self.temps
-                        self.joueurA.sang = False
                         self.joueurB.state = State.sorcierFINI
                         self.joueurB.occupe = True
                         self.joueurB.reftemps = self.temps
-                        self.joueurB.sang = False
                         self.jeu = 'perdu'
                         return 'gestion'
             if self.joueurA.occupe:
                 return 'gestion'
-            self.joueurA.sang = False
             return 'clavier'
 
         if self.sense == 'normal':
@@ -685,7 +683,6 @@ class Battle(EmptyScene):
 
         if self.joueurA.occupe:
             return 'gestion'
-        self.joueurA.sang = False
         return 'clavier'
 
     def _clavier(self):
@@ -1067,8 +1064,7 @@ class Battle(EmptyScene):
                 self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
                 return 'joueur2'
             elif self.temps == self.joueurA.reftemps + 2:
-                if self.opts.sound:
-                    get_snd('roule.ogg').play()
+                self.snd_play('roule.ogg')
                 self.joueurA.animate('rouladeAV', 2)
                 return 'joueur2'
             else:
@@ -1114,8 +1110,7 @@ class Battle(EmptyScene):
                 self.joueurA.state = State.debout
                 return 'joueur2'
             elif self.temps == self.joueurA.reftemps + 2:
-                if self.opts.sound:
-                    get_snd('roule.ogg').play()
+                self.snd_play('roule.ogg')
                 self.joueurA.animate('rouladeAR', 2)
                 return 'joueur2'
             else:
@@ -1137,8 +1132,7 @@ class Battle(EmptyScene):
             if self.temps > self.joueurA.reftemps + 2:
                 return 'joueur2'
             if self.temps == self.joueurA.reftemps + 2:
-                if self.opts.sound:
-                    get_snd('protege.ogg').play()
+                self.snd_play('protege.ogg')
                 self.joueurA.animate('protegeH', 2)
                 return 'joueur2'
 
@@ -1161,9 +1155,8 @@ class Battle(EmptyScene):
                 self.joueurA.occupe = False
             if self.temps > self.joueurA.reftemps + 2:
                 return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 1:
-                if self.opts.sound:
-                    get_snd('protege.ogg').play()
+            elif self.temps == self.joueurA.reftemps + 2:
+                self.snd_play('protege.ogg')
 
         if self.joueurA.state == State.protegeD:
             self.joueurA.gestion_protegeD(self.temps)
@@ -1235,20 +1228,18 @@ class Battle(EmptyScene):
                 self.joueurA.state = State.tombe
                 return 'gestion'
 
-            self.joueurA.sang = True
             self.serpentA.animate('bite')
 
             if self.joueurB.state == State.decapite and self.joueurA.decapite:
                 self.joueurA.occupe_state(State.mortdecap, self.temps)
                 self.xSPRt = self.joueurA.x_loc() + 3
                 Game.ScoreB += 250
-                self.joueurA.sang = False
                 return 'mort'
 
+            self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
             self.joueurA.vie -= 1
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
-                self.joueurA.sang = True
                 return 'mort'
 
             self.snd_play(next(self.sontouche))
@@ -1272,7 +1263,7 @@ class Battle(EmptyScene):
             self.joueurA.yM = 18
             self.joueurA.yG = 20
             if self.joueurB.state != State.rouladeAV:
-                self.joueurA.sang = True
+                self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
                 self.serpentA.animate('bite')
                 self.joueurA.vie -= 1
                 Game.ScoreB += 100
@@ -1280,15 +1271,15 @@ class Battle(EmptyScene):
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
                 if self.joueurB.state in (State.coupdetete, State.coupdepied):
-                    self.joueurA.sang = False
+                    self.joueurA.sangSprite.kill()
                 return 'mort'
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreB += 150
-                self.joueurA.sang = False
+                self.joueurA.sangSprite.kill()
                 self.snd_play('coupdetete.ogg')
             if self.joueurB.state == State.coupdepied:
                 Game.ScoreB += 150
-                self.joueurA.sang = False
+                self.joueurA.sangSprite.kill()
                 self.snd_play('coupdepied.ogg')
             self.joueurA.occupe_state(State.tombe1, self.temps)
 
@@ -1322,14 +1313,10 @@ class Battle(EmptyScene):
 
     def _gestion_mort(self):
         if self.joueurA.state == State.mort:
-            if self.temps == self.joueurA.reftemps + 16:
-                self.joueurA.sang = False
-            elif self.temps == self.joueurA.reftemps:
+            if self.temps == self.joueurA.reftemps:
                 self.joueurA.animate('mort')
                 self.joueurB.occupe_state(State.vainqueurKO, self.temps)
-                if self.lancerfin:
-                    self.snd_play('mortKO.ogg')
-                    self.lancerfin = False
+                self.snd_play('mortKO.ogg')
 
         if self.joueurA.state == State.mortdecap:
             if self.temps == self.joueurA.reftemps:
@@ -1337,16 +1324,13 @@ class Battle(EmptyScene):
                 self.change_layer(self.joueurA, 2)
                 self.joueurA.animate('mortdecap')
                 self.joueurB.occupe_state(State.vainqueur, self.temps)
-                if self.lancerfin:
-                    self.snd_play('mortdecap.ogg')
-                    self.lancerfin = False
+                self.snd_play('mortdecap.ogg')
 
         return 'joueur2'
 
     def _joueur2(self):
         # debut joueur 2
         if Game.Sorcier:
-            self.joueurB.sang = False
             if self.joueurA.x_loc() <= self.joueurB.x_loc() + 4:
                 self.joueurB.occupe_state(State.marianna, self.temps)
                 self.joueurA.occupe_state(State.fini, self.temps)
@@ -1357,7 +1341,6 @@ class Battle(EmptyScene):
                 return None  # 'debut'
             if self.joueurB.occupe:
                 return 'gestionB'
-            self.joueurB.sang = False
             return 'clavierB'
 
         # ************degats sur joueurB************
@@ -1458,7 +1441,6 @@ class Battle(EmptyScene):
 
         if self.joueurB.occupe:
             return 'gestionB'
-        self.joueurB.sang = False
         return 'clavierB'
 
     def _clavierB(self):
@@ -2084,8 +2066,7 @@ class Battle(EmptyScene):
                 self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
                 return 'colision'
             elif self.temps == self.joueurB.reftemps + 2:
-                if self.opts.sound:
-                    get_snd('roule.ogg').play()
+                self.snd_play('roule.ogg')
                 self.joueurB.animate('rouladeAV', 2)
                 return 'colision'
             else:
@@ -2131,8 +2112,7 @@ class Battle(EmptyScene):
                 self.joueurB.state = State.debout
                 return 'colision'
             elif self.temps == self.joueurB.reftemps + 2:
-                if self.opts.sound:
-                    get_snd('roule.ogg').play()
+                self.snd_play('roule.ogg')
                 self.joueurB.animate('rouladeAR', 2)
                 return 'colision'
             else:
@@ -2154,8 +2134,7 @@ class Battle(EmptyScene):
             if self.temps > self.joueurB.reftemps + 2:
                 return 'colision'
             if self.temps == self.joueurB.reftemps + 2:
-                if self.opts.sound:
-                    get_snd('protege.ogg').play()
+                self.snd_play('protege.ogg')
                 self.joueurB.animate('protegeH', 2)
                 return 'colision'
 
@@ -2178,9 +2157,8 @@ class Battle(EmptyScene):
                 self.joueurB.occupe = False
             if self.temps > self.joueurB.reftemps + 2:
                 return 'colision'
-            if self.temps > self.joueurB.reftemps + 1:
-                if self.opts.sound:
-                    get_snd('protege.ogg').play()
+            elif self.temps == self.joueurB.reftemps + 2:
+                self.snd_play('protege.ogg')
 
         if self.joueurB.state == State.protegeD:
             self.joueurB.gestion_protegeD(self.temps)
@@ -2250,20 +2228,18 @@ class Battle(EmptyScene):
                 self.joueurB.state = State.tombe
                 return 'gestionB'
 
-            self.joueurB.sang = True
             self.serpentB.animate('bite')
 
             if self.joueurA.state == State.decapite and self.joueurB.decapite:
                 self.joueurB.occupe_state(State.mortdecap, self.temps)
                 self.xSPRt = self.joueurB.x_loc() + 3
                 Game.ScoreA += 250
-                self.joueurA.sang = False
                 return 'mortB'
 
+            self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
             self.joueurB.vie -= 1
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
-                self.joueurB.sang = True
                 return 'mortB'
 
             self.snd_play(next(self.sontouche))
@@ -2287,7 +2263,7 @@ class Battle(EmptyScene):
             self.joueurB.yM = 18
             self.joueurB.yG = 20
             if self.joueurA.state != State.rouladeAV:
-                self.joueurB.sang = True
+                self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
                 self.serpentB.animate('bite')
                 self.joueurB.vie -= 1
                 Game.ScoreA += 100
@@ -2295,15 +2271,15 @@ class Battle(EmptyScene):
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
                 if self.joueurA.state in (State.coupdetete, State.coupdepied):
-                    self.joueurB.sang = False
+                    self.joueurB.sangSprite.kill()
                 return 'mortB'
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreA += 150
-                self.joueurB.sang = False
+                self.joueurB.sangSprite.kill()
                 self.snd_play('coupdetete.ogg')
             if self.joueurB.state == State.coupdepied:
                 Game.ScoreA += 150
-                self.joueurB.sang = False
+                self.joueurB.sangSprite.kill()
                 self.snd_play('coupdepied.ogg')
             self.joueurB.occupe_state(State.tombe1, self.temps)
 
@@ -2338,14 +2314,10 @@ class Battle(EmptyScene):
     def _gestion_mortB(self):
         if self.joueurB.state == State.mort:
             self.joueurB.reset_xX()
-            if self.temps == self.joueurB.reftemps + 16:
-                self.joueurB.sang = False
-            elif self.temps == self.joueurB.reftemps:
+            if self.temps == self.joueurB.reftemps:
                 self.joueurB.animate('mort')
                 self.joueurA.occupe_state(State.vainqueurKO, self.temps)
-                if self.lancerfin:
-                    self.snd_play('mortKO.ogg')
-                    self.lancerfin = False
+                self.snd_play('mortKO.ogg')
 
         if self.joueurB.state == State.mortdecap:
             if self.temps == self.joueurB.reftemps:
@@ -2353,19 +2325,63 @@ class Battle(EmptyScene):
                 self.change_layer(self.joueurB, 2)
                 self.joueurB.animate('mortdecap')
                 self.joueurA.occupe_state(State.vainqueur, self.temps)
-                if self.lancerfin:
-                    self.snd_play('mortdecap.ogg')
-                    self.lancerfin = False
+                self.snd_play('mortdecap.ogg')
 
         return 'colision'
 
     def _colision(self):
+        # ***************************************
+        # ***********   COLISION   **************
+        # ***************************************
+        # if sens$ = "inverse" GOTO colisionR
+        jax = self.joueurA.x_loc()
+        jbx = self.joueurB.x_loc()
+        if (abs(jbx - jax) < 4
+                and not is_in_roulade(self.joueurA, self.joueurB)
+                and not is_in_roulade(self.joueurB, self.joueurA)):
+            # pour empecher que A entre dans B
+            if (self.joueurA.levier == Levier.droite
+                    or self.joueurA.state in (State.rouladeAV, State.decapite)):
+                self.joueurA.x = loc2px(jax - 1)
+
+            # pour empecher que B entre dans A
+            if (self.joueurB.levier == Levier.gauche
+                    or self.joueurB.state in (State.rouladeAV, State.decapite)):
+                self.joueurB.x = loc2px(jbx + 1)
+
+            # garder la distance debout
+            if (self.joueurB.state == State.debout
+                    and self.joueurA.state == State.debout):
+                self.joueurA.x = loc2px(jax - 1)
+                self.joueurB.x = loc2px(jbx + 1)
+
+        # sortie du cadre
+        if any((self.entree, self.entreesorcier,
+                self.joueurA.sortie, self.joueurB.sortie)):
+
+            if jax < 0:
+                self.joueurB.x = loc2px(40)
+            if jbx < 0:
+                self.joueurB.x = loc2px(40)
+            if jax > 40:
+                self.joueurA.x = loc2px(40)
+            if jbx > 40:
+                self.joueurB.x = loc2px(40)
+
+        if jax < 5:
+            self.joueurA.x = loc2px(5)
+        if jax > 32:
+            self.joueurA.x = loc2px(32)
+        if jbx < 5:
+            self.joueurB.x = loc2px(5)
+        if jbx > 32:
+            self.joueurB.x = loc2px(32)
         return 'affichage'
 
     def _affichage(self):
-        self.vieA0.set_anim_frame('vie', max(0, 6 - self.joueurA.vie))
+        self.vieA0.set_anim_frame('vie', max(0, min(6, 6 - self.joueurA.vie)))
         self.vieA1.set_anim_frame('vie', max(0, min(6, 12 - self.joueurA.vie)))
-        self.vieB0.set_anim_frame('vie_rtl', max(0, 6 - self.joueurB.vie))
+        self.vieB0.set_anim_frame('vie_rtl', max(0, min(6, 6 - self.joueurB.vie)))
         self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - self.joueurB.vie)))
         return None
 

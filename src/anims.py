@@ -117,6 +117,10 @@ def serpent():
 
 def sang_decap():
     return {
+        'sang_touche': [
+            Frame('sprites/sang.gif', tick=11, post_action='kill'),
+            Frame('empty')
+        ],
         'sang': [
             # @formatter:off
             # TODO: invisible tickable sprites

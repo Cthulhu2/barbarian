@@ -224,6 +224,8 @@ class AnimatedSprite(DirtySprite):
 
     @x.setter
     def x(self, x):
+        if self.top_left[0] != x:
+            self.dirty = 1
         self.top_left = (x, self.top_left[1])
         self._update_rect()
 
@@ -233,6 +235,8 @@ class AnimatedSprite(DirtySprite):
 
     @y.setter
     def y(self, y: int):
+        if self.top_left[1] != y:
+            self.dirty = 1
         self.top_left = (self.top_left[0], y)
         self._update_rect()
 
@@ -472,7 +476,6 @@ class Barbarian(AnimatedSprite):
         self.xG = px2loc(self.x) if rtl else px2loc(self.x) + 4
         #
         self.reftemps = 0
-        self.sang = False
         self.attente = 1
         self.vie = 12
         self.occupe = False
@@ -915,11 +918,9 @@ class Barbarian(AnimatedSprite):
         self.xT = self.x_loc() + (4 if self.rtl else 0)
         self.xM = self.x_loc() + (4 if self.rtl else 0)
         self.xG = self.x_loc() + (4 if self.rtl else 0)
-        if temps > self.reftemps + 25:
+        if temps == self.reftemps + 25:
             self.state = State.debout
             self.occupe = False
-        elif temps == self.reftemps + 10:
-            self.sang = False
         elif temps == self.reftemps + 2:
             if opponent.state != State.coupdetete:
                 self.snd_play('tombe.ogg')
@@ -944,6 +945,16 @@ class Barbarian(AnimatedSprite):
         super().kill()
         for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
             s.kill()
+
+    def animate_sang(self, y):
+        for gr in self.groups():  # type:LayeredDirty
+            # noinspection PyTypeChecker
+            gr.add(self.sangSprite, layer=3)
+        if self.rtl:
+            self.sangSprite.top_left = (self.x + 2 * CHAR_W * SCALE, y)
+        else:
+            self.sangSprite.top_left = (self.x + 1 * CHAR_W * SCALE, y)
+        self.sangSprite.animate('sang_touche')
 
     def animate(self, anim: str, tick=0):
         super().animate(anim, tick)
