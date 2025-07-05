@@ -363,9 +363,11 @@ class Battle(EmptyScene):
         self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8), self)
         self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8), self)
 
+        self.chrono = 0
+        self.chronoOn = False
         if Game.Partie == 'vs':
             self.txtChronometre = Txt(sz, f'{Game.Chronometre:02}',
-                                      Theme.TXT, loc(19, 8))
+                                      Theme.TXT, loc(20, 8))
             self.add(self.txtChronometre)
 
         elif Game.Partie == 'solo':
@@ -467,24 +469,21 @@ class Battle(EmptyScene):
         jax = self.joueurA.x_loc()
         jbx = self.joueurB.x_loc()
         if self.joueurA.bonus:
-            Game.ScoreA += 10
-            Game.Chronometre -= 1
-            if Game.Chronometre <= 0:
-                Game.ScoreA -= 10
-                if jbx >= 37:
-                    self.joueurA.sortie = True
-                    self.joueurA.occupe = False
-            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            if Game.Chronometre > 0:
+                Game.ScoreA += 10
+                Game.Chronometre -= 1
+                self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            elif jbx >= 37:
+                self.joueurA.sortie = True
+                self.joueurA.occupe = False
         if self.joueurB.bonus:
-            Game.ScoreB += 10
-            Game.Chronometre -= 1
-            if Game.Chronometre <= 0:
-                Game.Chronometre = 0
-                Game.ScoreB -= 10
-                if jax >= 37:
-                    self.joueurB.sortie = True
-                    self.joueurB.occupe = False
-            self.txtScoreB.msg = f'{Game.ScoreB:05}'
+            if Game.Chronometre > 0:
+                Game.ScoreB += 10
+                Game.Chronometre -= 1
+                self.txtScoreB.msg = f'{Game.ScoreB:05}'
+            elif jax >= 37:
+                self.joueurB.sortie = True
+                self.joueurB.occupe = False
 
         if self.lancerintro:
             self.snd_play('prepare.ogg')
@@ -502,6 +501,8 @@ class Battle(EmptyScene):
                 self.joueurA.set_anim_frame('debout', 0)
                 self.joueurB.set_anim_frame('debout', 0)
                 self.entree = False
+                if Game.Partie == 'vs':
+                    self.chronoOn = True
             return None
 
         if self.joueurA.sortie:
@@ -533,6 +534,7 @@ class Battle(EmptyScene):
                 # SLEEP 1
                 self.next_stage()
                 return None
+            return 'clavier'
         if self.joueurB.sortie:
             if not self.tempsfini:
                 if jax >= 37 and jbx >= 37:
@@ -607,6 +609,7 @@ class Battle(EmptyScene):
                         return 'gestion'
                     self.joueurA.state = State.touche
                     Game.ScoreB += 250
+                    self.txtScoreB.msg = f'{Game.ScoreB:05}'
                     self.joueurA.infoDegatT += 1
                     return 'gestion'
 
@@ -616,6 +619,7 @@ class Battle(EmptyScene):
                         return 'gestion'
                     self.joueurA.state = State.touche
                     Game.ScoreB += 250
+                    self.txtScoreB.msg = f'{Game.ScoreB:05}'
                     return 'gestion'
 
                 if xAttB <= self.joueurA.xG and yAttB == self.joueurA.yG:
@@ -634,6 +638,7 @@ class Battle(EmptyScene):
                         return 'gestion'
                     self.joueurA.state = State.touche
                     Game.ScoreB += 100
+                    self.txtScoreB.msg = f'{Game.ScoreB:05}'
                     self.joueurA.infoDegatG += 1
                     return 'gestion'
 
@@ -654,6 +659,7 @@ class Battle(EmptyScene):
                         return 'gestion'
                     self.joueurA.state = State.touche
                     Game.ScoreB += 250
+                    self.txtScoreB.msg = f'{Game.ScoreB:05}'
                     return 'gestion'
 
                 if xAttB >= self.joueurA.xM and yAttB == self.joueurA.yM:
@@ -662,6 +668,7 @@ class Battle(EmptyScene):
                         return 'gestion'
                     self.joueurA.state = State.touche
                     Game.ScoreB += 250
+                    self.txtScoreB.msg = f'{Game.ScoreB:05}'
                     return 'gestion'
 
                 if xAttB <= self.joueurA.xG and yAttB == self.joueurA.yG:
@@ -679,6 +686,7 @@ class Battle(EmptyScene):
                         return 'gestion'
                     self.joueurA.state = State.touche
                     Game.ScoreB += 100
+                    self.txtScoreB.msg = f'{Game.ScoreB:05}'
                     return 'gestion'
 
         if self.joueurA.occupe:
@@ -691,6 +699,15 @@ class Battle(EmptyScene):
         self.joueurA.levier = Levier.neutre
         if not Game.Demo:
             self.joueurA.clavier()
+
+        if self.joueurA.sortie:
+            if self.tempsfini:
+                if self.sense == 'inverse':
+                    self.joueurA.levier = Levier.droite
+                    return 'action'
+            self.sense = 'normal'
+            self.joueurA.levier = Levier.gauche
+            return 'action'
 
         if Game.Demo:
             distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
@@ -1234,6 +1251,7 @@ class Battle(EmptyScene):
                 self.joueurA.occupe_state(State.mortdecap, self.temps)
                 self.xSPRt = self.joueurA.x_loc() + 3
                 Game.ScoreB += 250
+                self.txtScoreB.msg = f'{Game.ScoreB:05}'
                 return 'mort'
 
             self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
@@ -1267,6 +1285,7 @@ class Battle(EmptyScene):
                 self.serpentA.animate('bite')
                 self.joueurA.vie -= 1
                 Game.ScoreB += 100
+                self.txtScoreB.msg = f'{Game.ScoreB:05}'
 
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
@@ -1275,10 +1294,12 @@ class Battle(EmptyScene):
                 return 'mort'
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreB += 150
+                self.txtScoreB.msg = f'{Game.ScoreB:05}'
                 self.joueurA.sangSprite.kill()
                 self.snd_play('coupdetete.ogg')
             if self.joueurB.state == State.coupdepied:
                 Game.ScoreB += 150
+                self.txtScoreB.msg = f'{Game.ScoreB:05}'
                 self.joueurA.sangSprite.kill()
                 self.snd_play('coupdepied.ogg')
             self.joueurA.occupe_state(State.tombe1, self.temps)
@@ -1314,12 +1335,14 @@ class Battle(EmptyScene):
     def _gestion_mort(self):
         if self.joueurA.state == State.mort:
             if self.temps == self.joueurA.reftemps:
+                self.chronoOn = False
                 self.joueurA.animate('mort')
                 self.joueurB.occupe_state(State.vainqueurKO, self.temps)
                 self.snd_play('mortKO.ogg')
 
         if self.joueurA.state == State.mortdecap:
             if self.temps == self.joueurA.reftemps:
+                self.chronoOn = False
                 # noinspection PyTypeChecker
                 self.change_layer(self.joueurA, 2)
                 self.joueurA.animate('mortdecap')
@@ -1362,6 +1385,7 @@ class Battle(EmptyScene):
                         return 'gestionB'
                     self.joueurB.state = State.touche
                     Game.ScoreA += 250
+                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
                     self.joueurB.infoDegatT += 1
                     return 'gestionB'
 
@@ -1372,6 +1396,7 @@ class Battle(EmptyScene):
                         return 'gestionB'
                     self.joueurB.state = State.touche
                     Game.ScoreA += 250
+                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
                     return 'gestionB'
 
                 if (self.joueurA.xAtt >= self.joueurB.xG
@@ -1386,6 +1411,7 @@ class Battle(EmptyScene):
                         return 'gestionB'
                     self.joueurB.state = State.touche
                     Game.ScoreA += 100
+                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
                     self.joueurB.infoDegatG += 1
                     return 'gestionB'
 
@@ -1407,6 +1433,7 @@ class Battle(EmptyScene):
                         return 'gestionB'
                     self.joueurB.state = State.touche
                     Game.ScoreA += 250
+                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
                     self.joueurB.infoDegatT += 1
                     return 'gestionB'
 
@@ -1417,6 +1444,7 @@ class Battle(EmptyScene):
                         return 'gestionB'
                     self.joueurB.state = State.touche
                     Game.ScoreA += 250
+                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
                     return 'gestionB'
 
                 if (self.joueurA.xAtt <= self.joueurB.xG
@@ -1436,6 +1464,7 @@ class Battle(EmptyScene):
                         return 'gestionB'
                     self.joueurB.state = State.touche
                     Game.ScoreA += 100
+                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
                     self.joueurB.infoDegatG += 1
                     return 'gestionB'
 
@@ -2234,6 +2263,7 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.mortdecap, self.temps)
                 self.xSPRt = self.joueurB.x_loc() + 3
                 Game.ScoreA += 250
+                self.txtScoreA.msg = f'{Game.ScoreA:05}'
                 return 'mortB'
 
             self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
@@ -2267,6 +2297,7 @@ class Battle(EmptyScene):
                 self.serpentB.animate('bite')
                 self.joueurB.vie -= 1
                 Game.ScoreA += 100
+                self.txtScoreA.msg = f'{Game.ScoreA:05}'
 
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
@@ -2275,10 +2306,12 @@ class Battle(EmptyScene):
                 return 'mortB'
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreA += 150
+                self.txtScoreA.msg = f'{Game.ScoreA:05}'
                 self.joueurB.sangSprite.kill()
                 self.snd_play('coupdetete.ogg')
             if self.joueurB.state == State.coupdepied:
                 Game.ScoreA += 150
+                self.txtScoreA.msg = f'{Game.ScoreA:05}'
                 self.joueurB.sangSprite.kill()
                 self.snd_play('coupdepied.ogg')
             self.joueurB.occupe_state(State.tombe1, self.temps)
@@ -2315,12 +2348,14 @@ class Battle(EmptyScene):
         if self.joueurB.state == State.mort:
             self.joueurB.reset_xX()
             if self.temps == self.joueurB.reftemps:
+                self.chronoOn = False
                 self.joueurB.animate('mort')
                 self.joueurA.occupe_state(State.vainqueurKO, self.temps)
                 self.snd_play('mortKO.ogg')
 
         if self.joueurB.state == State.mortdecap:
             if self.temps == self.joueurB.reftemps:
+                self.chronoOn = False
                 # noinspection PyTypeChecker
                 self.change_layer(self.joueurB, 2)
                 self.joueurB.animate('mortdecap')
@@ -2360,22 +2395,23 @@ class Battle(EmptyScene):
                 self.joueurA.sortie, self.joueurB.sortie)):
 
             if jax < 0:
-                self.joueurB.x = loc2px(40)
+                self.joueurA.x = loc2px(40)
             if jbx < 0:
                 self.joueurB.x = loc2px(40)
             if jax > 40:
                 self.joueurA.x = loc2px(40)
             if jbx > 40:
                 self.joueurB.x = loc2px(40)
+        else:
+            if jax < 5:
+                self.joueurA.x = loc2px(5)
+            if jax > 32:
+                self.joueurA.x = loc2px(32)
+            if jbx < 5:
+                self.joueurB.x = loc2px(5)
+            if jbx > 32:
+                self.joueurB.x = loc2px(32)
 
-        if jax < 5:
-            self.joueurA.x = loc2px(5)
-        if jax > 32:
-            self.joueurA.x = loc2px(32)
-        if jbx < 5:
-            self.joueurB.x = loc2px(5)
-        if jbx > 32:
-            self.joueurB.x = loc2px(32)
         return 'affichage'
 
     def _affichage(self):
@@ -2387,6 +2423,23 @@ class Battle(EmptyScene):
 
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
+        if self.chronoOn:
+            if self.chrono == 0:
+                self.chrono = current_time
+            elif current_time > self.chrono + 1000:
+                self.chrono += 1000
+                Game.Chronometre -= 1
+                if Game.Chronometre < 1:
+                    Game.Chronometre = 0
+                    self.chronoOn = False
+                    if Game.Partie == 'vs':
+                        self.joueurA.sortie = True
+                        self.joueurA.occupe = False
+                        self.joueurB.sortie = True
+                        self.joueurB.occupe = False
+                        self.tempsfini = True
+                self.txtChronometre.msg = f'{Game.Chronometre:02}'
+
         self.temps += 1
         goto = 'debut'
         while goto:
