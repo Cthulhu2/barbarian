@@ -946,7 +946,24 @@ class Barbarian(AnimatedSprite):
         for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
             s.kill()
 
+    def animate_football(self, temps):
+        if self.teteSprite.is_stopped:
+            self.reftemps = temps
+            self.snd_play('tete2.ogg')
+            self.teteSprite.top_left = self.teteSprite.rect.topleft
+            self.teteSprite.animate('football')
+            self.teteOmbreSprite.top_left = self.teteOmbreSprite.rect.topleft
+            self.teteOmbreSprite.animate('football')
+
+    def stop_football(self):
+        self.teteSprite.is_stopped = True
+        self.teteOmbreSprite.is_stopped = True
+        self.teteSprite.kill()
+        self.teteOmbreSprite.kill()
+
     def animate_sang(self, y):
+        if self.sangSprite.alive():
+            return
         for gr in self.groups():  # type:LayeredDirty
             # noinspection PyTypeChecker
             gr.add(self.sangSprite, layer=3)

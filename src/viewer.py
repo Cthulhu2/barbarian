@@ -18,8 +18,10 @@ from sprites import (
 BACKGROUND = Surface(SCREEN_SIZE)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
 ANIM_KEYS = [
-    K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0, K_q, K_w, K_e, K_r, K_t,
-    K_y, K_u, K_i, K_o, K_p, K_g, K_h, K_j, K_k, K_l, K_SEMICOLON,
+    K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0,
+    K_q, K_w, K_e, K_r, K_t, K_y, K_u, K_i, K_o, K_p,
+    K_LEFTBRACKET, K_RIGHTBRACKET,
+    K_g, K_h, K_j, K_k, K_l, K_SEMICOLON,
 ]
 TXT_SPEED = '{0:0.2f}'
 DIRECTIONS = {False: 'LTR', True: 'RTL'}

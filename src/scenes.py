@@ -3,7 +3,7 @@ from itertools import cycle
 
 from pygame import Surface
 from pygame.locals import *
-from pygame.sprite import LayeredDirty
+from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
 
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
@@ -338,13 +338,16 @@ class Battle(EmptyScene):
             self.jBT = area(Theme.RED, 'T')
             self.jBM = area(Theme.GREEN, 'M')
             self.jBG = area(Theme.PURPLE, 'G')
+            self.attAreas = Group(
+                self.jAAtt, self.jAF, self.jAT, self.jAM, self.jAG,
+                self.jBAtt, self.jBF, self.jBT, self.jBM, self.jBG)
         # noinspection PyTypeChecker
         self.add(
             StaticSprite((0, 104 * SCALE),
                          f'stage/{Game.Decor}ARBREG.gif'),
             StaticSprite((272 * SCALE, 104 * SCALE),
                          f'stage/{Game.Decor}ARBRED.gif'),
-            layer=3)
+            layer=5)
 
         self.joueurA = Barbarian(opts, loc2px(1), loc2px(14),
                                  'spritesA',
@@ -356,7 +359,7 @@ class Battle(EmptyScene):
         if Game.Partie == 'solo' and not Game.Demo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
         elif Game.Partie == 'vs':
-            Txt(sz, 'TWO PLAYER', Theme.TXT, loc(16, 25), self)
+            Txt(sz, 'TWO PLAYERS', Theme.TXT, loc(16, 25), self)
         elif Game.Demo:
             Txt(sz, 'DEMONSTRATION', Theme.TXT, loc(14, 25), self)
 
@@ -385,7 +388,6 @@ class Battle(EmptyScene):
         self.temps = 0
         self.tempsfini = False
         self.sense = 'normal'  # inverse
-        self.gnome = False
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
@@ -393,6 +395,9 @@ class Battle(EmptyScene):
         self.vieA1 = AnimatedSprite((43.3 * SCALE, 11 * SCALE), anims.vie(), self)
         self.vieB0 = AnimatedSprite((276.3 * SCALE, 0), anims.vie(), self)
         self.vieB1 = AnimatedSprite((276.3 * SCALE, 11 * SCALE), anims.vie(), self)
+        #
+        self.gnome = False
+        self.gnomeSprite = AnimatedSprite((0, loc2px(20)), anims.gnome())
 
     def snd_play(self, snd: str):
         if snd and self.opts.sound:
@@ -425,14 +430,9 @@ class Battle(EmptyScene):
         if evt.type == KEYUP and evt.key == K_F12 and self.opts.debug:
             self.debugAttArea = not self.debugAttArea
             if self.debugAttArea:
-                self.add(
-                    self.jAAtt, self.jAF, self.jAT, self.jAM, self.jAG,
-                    self.jBAtt, self.jBF, self.jBT, self.jBM, self.jBG,
-                    layer=99)
+                self.add(self.attAreas, layer=99)
             else:
-                self.remove(
-                    self.jAAtt, self.jAF, self.jAT, self.jAM, self.jAG,
-                    self.jBAtt, self.jBF, self.jBT, self.jBM, self.jBG)
+                self.remove(self.attAreas)
 
         if Game.Demo:
             return
@@ -465,6 +465,12 @@ class Battle(EmptyScene):
             elif evt.key == K_SPACE:
                 self.joueurB.pressedFire = keyState
 
+    def animate_gnome(self):
+        if not self.gnome:
+            self.gnome = True
+            self.add(self.gnomeSprite, layer=4)
+            self.gnomeSprite.animate('gnome')
+
     def _debut(self):
         jax = self.joueurA.x_loc()
         jbx = self.joueurB.x_loc()
@@ -472,6 +478,7 @@ class Battle(EmptyScene):
             if Game.Chronometre > 0:
                 Game.ScoreA += 10
                 Game.Chronometre -= 1
+                self.txtChronometre.msg = f'{Game.Chronometre:02}'
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
             elif jbx >= 37:
                 self.joueurA.sortie = True
@@ -480,6 +487,7 @@ class Battle(EmptyScene):
             if Game.Chronometre > 0:
                 Game.ScoreB += 10
                 Game.Chronometre -= 1
+                self.txtChronometre.msg = f'{Game.Chronometre:02}'
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
             elif jax >= 37:
                 self.joueurB.sortie = True
@@ -527,6 +535,8 @@ class Battle(EmptyScene):
                             self.entreesorcier = True
                             self.joueurB.occupe = True
                             self.joueurB.reftemps = self.temps
+                    if Game.Partie == 'vs':
+                        self.next_stage()
                     return None
             elif ((self.sense == 'normal' and jax < 2 and jbx >= 37)
                   or (self.sense == 'inverse' and jbx < 2 and jax >= 37)):
@@ -1220,10 +1230,8 @@ class Battle(EmptyScene):
         if self.joueurA.state == State.vainqueurKO:
             self.joueurA.gestion_vainqueurKO(self.temps, self.joueurB)
             if self.temps > self.joueurA.reftemps + 230:
-                self.gnome = True
+                self.animate_gnome()
                 self.joueurA.reftemps = self.temps
-                self.xGNOME = 1
-                self.xSPRt = 270
                 return 'affichage'
             elif self.temps == self.joueurA.reftemps + 36:
                 return 'colision'
@@ -1341,7 +1349,11 @@ class Battle(EmptyScene):
                 self.snd_play('mortKO.ogg')
 
         if self.joueurA.state == State.mortdecap:
-            if self.temps == self.joueurA.reftemps:
+            if self.temps == self.joueurA.reftemps + 126:
+                self.animate_gnome()
+                self.joueurA.reftemps = self.temps
+                return 'affichage'
+            elif self.temps == self.joueurA.reftemps:
                 self.chronoOn = False
                 # noinspection PyTypeChecker
                 self.change_layer(self.joueurA, 2)
@@ -2232,10 +2244,8 @@ class Battle(EmptyScene):
         if self.joueurB.state == State.vainqueurKO:
             self.joueurB.gestion_vainqueurKO(self.temps, self.joueurA)
             if self.temps > self.joueurB.reftemps + 230:
-                self.gnome = True
+                self.animate_gnome()
                 self.joueurB.reftemps = self.temps
-                self.xGNOME = 1
-                self.xSPRt = 270
                 return 'affichage'
             elif self.temps == self.joueurA.reftemps + 36:
                 return 'colision'
@@ -2304,12 +2314,12 @@ class Battle(EmptyScene):
                 if self.joueurA.state in (State.coupdetete, State.coupdepied):
                     self.joueurB.sangSprite.kill()
                 return 'mortB'
-            if self.joueurB.state == State.coupdetete:
+            if self.joueurA.state == State.coupdetete:
                 Game.ScoreA += 150
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
                 self.joueurB.sangSprite.kill()
                 self.snd_play('coupdetete.ogg')
-            if self.joueurB.state == State.coupdepied:
+            if self.joueurA.state == State.coupdepied:
                 Game.ScoreA += 150
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
                 self.joueurB.sangSprite.kill()
@@ -2354,7 +2364,11 @@ class Battle(EmptyScene):
                 self.snd_play('mortKO.ogg')
 
         if self.joueurB.state == State.mortdecap:
-            if self.temps == self.joueurB.reftemps:
+            if self.temps == self.joueurB.reftemps + 126:
+                self.animate_gnome()
+                self.joueurB.reftemps = self.temps
+                return 'affichage'
+            elif self.temps == self.joueurB.reftemps:
                 self.chronoOn = False
                 # noinspection PyTypeChecker
                 self.change_layer(self.joueurB, 2)
@@ -2421,6 +2435,48 @@ class Battle(EmptyScene):
         self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - self.joueurB.vie)))
         return None
 
+    def _gnome(self):
+        mort = None
+        if self.joueurA.state in (State.mort, State.mortdecap):
+            mort = self.joueurA
+        elif self.joueurB.state in (State.mort, State.mortdecap):
+            mort = self.joueurB
+
+        if mort.state == State.mort:
+            if self.gnomeSprite.rect.right >= mort.rect.right:
+                mort.top_left = mort.rect.topleft
+                mort.animate('mortgnome')
+        elif mort.state == State.mortdecap:
+            if self.gnomeSprite.rect.right >= mort.rect.right:
+                mort.top_left = mort.rect.topleft
+                mort.animate('mortdecapgnome')
+            if mort.teteSprite.alive():
+                if self.gnomeSprite.rect.right >= mort.teteSprite.rect.center[0]:
+                    mort.animate_football(self.temps)
+                if not mort.teteSprite.is_stopped:
+                    if self.temps == mort.reftemps + 38:
+                        self.snd_play('tete.ogg')
+                    elif self.temps == mort.reftemps + 83:
+                        self.snd_play('tete.ogg')
+                if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
+                    mort.stop_football()
+        if loc2px(self.gnomeSprite.x) > 39:
+            if self.joueurB == mort:
+                if Game.Partie == 'vs':
+                    self.joueurA.bonus = True
+                if Game.Partie == 'solo':
+                    if mort.x_loc() >= 40:
+                        self.joueurA.sortie = True
+                        self.joueurA.occupe = False
+            elif self.joueurA == mort:
+                if Game.Partie == 'vs':
+                    self.joueurB.bonus = True
+                if Game.Partie == 'solo':
+                    if mort.x_loc() >= 40:
+                        self.joueurB.sortie = True
+                        self.joueurB.occupe = False
+        return None
+
     def update(self, current_time, *args):
         super(Battle, self).update(current_time, *args)
         if self.chronoOn:
@@ -2469,6 +2525,8 @@ class Battle(EmptyScene):
                 goto = self._colision()
             elif goto == 'affichage':
                 goto = self._affichage()
+            elif goto == 'gnome':
+                goto = self._gnome()
             else:
                 goto = None
         if self.opts.debug > 1:

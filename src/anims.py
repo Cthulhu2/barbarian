@@ -229,6 +229,26 @@ def tete_decap(subdir: str):
             Frame(f'{subdir}/tetedecap3.gif', xflip=True, tick=57, dx=15 * CHAR_W * SCALE, dy=64 * SCALE, post_action='stop'),  # noqa
             # @formatter:on
         ],
+        'football': [
+            # @formatter:off
+            Frame(f'{subdir}/tetedecap3.gif', tick=  4, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.6 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap2.gif', tick=  7, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.7 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap1.gif', tick= 15, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.9 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap6.gif', tick= 22, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.8 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap5.gif', tick= 30, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.4 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap4.gif', tick= 37, mv=(CHAR_W * SCALE, 0), dy=-2 * 0   * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap3.gif', tick= 45, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.1 * CHAR_H * SCALE),  # noqa snd
+            Frame(f'{subdir}/tetedecap2.gif', tick= 52, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.3 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap1.gif', tick= 60, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.5 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap6.gif', tick= 67, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.3 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap5.gif', tick= 75, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.1 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap4.gif', tick= 82, mv=(CHAR_W * SCALE, 0), dy=-2 * 0   * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap3.gif', tick= 90, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.1 * CHAR_H * SCALE),  # noqa snd
+            Frame(f'{subdir}/tetedecap2.gif', tick= 97, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.4 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap1.gif', tick=105, mv=(CHAR_W * SCALE, 0), dy=-2 * 0.1 * CHAR_H * SCALE),  # noqa
+            Frame(f'{subdir}/tetedecap3.gif', tick=112, mv=(CHAR_W * SCALE, 0), dy=-2 * 0   * CHAR_H * SCALE, post_action='stop'),  # noqa
+            # @formatter:on
+        ],
     }
 
 
@@ -270,6 +290,26 @@ def teteombre_decap():
             Frame('spritesA/teteombre.gif', tick=52, dx= 13 * CHAR_W * SCALE, dy=70 * SCALE),  # noqa
             Frame('spritesA/teteombre.gif', tick=56, dx= 14 * CHAR_W * SCALE, dy=70 * SCALE),  # noqa
             Frame('spritesA/teteombre.gif', tick=57, dx= 15 * CHAR_W * SCALE, dy=70 * SCALE, post_action='stop'),  # noqa
+            # @formatter:on
+        ],
+        'football': [
+            # @formatter:off
+            Frame(f'spritesA/teteombre.gif', tick=4,   mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=7,   mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=15,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=22,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=30,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=37,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=45,  mv=(CHAR_W * SCALE, 0)),  # noqa snd
+            Frame(f'spritesA/teteombre.gif', tick=52,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=60,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=67,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=75,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=82,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=90,  mv=(CHAR_W * SCALE, 0)),  # noqa snd
+            Frame(f'spritesA/teteombre.gif', tick=97,  mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=105, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'spritesA/teteombre.gif', tick=112, mv=(CHAR_W * SCALE, 0), post_action='stop'),  # noqa
             # @formatter:on
         ],
     }
@@ -384,14 +424,14 @@ def barb(subdir: str):
             # @formatter:on
         ],
         'protegeD': [
-            Frame(f'{subdir}/protegeH.gif', tick=5),
-            Frame(f'{subdir}/protegeD.gif', tick=9),
+            Frame(f'{subdir}/protegeH.gif', tick=5, dx=-2 * SCALE),
+            Frame(f'{subdir}/protegeD.gif', tick=9, dx=-2 * SCALE),
         ],
         'cou': [
             # @formatter:off
-            Frame(f'{subdir}/protegeH.gif', tick=15),
-            Frame(f'{subdir}/cou2.gif',     tick=30),
-            Frame(f'{subdir}/cou3.gif',     tick=46),
+            Frame(f'{subdir}/protegeH.gif', tick=15, dx=-2 * SCALE),
+            Frame(f'{subdir}/cou2.gif',     tick=30, dx=-4 * SCALE),
+            Frame(f'{subdir}/cou3.gif',     tick=46, dx=-1 * SCALE),
             # @formatter:on
         ],
         'devant': [
@@ -450,7 +490,7 @@ def barb(subdir: str):
             # @formatter:on
         ],
         'front': [
-            Frame(f'{subdir}/front1.gif', tick=5),
+            Frame(f'{subdir}/front1.gif', tick=5, dx=-1 * SCALE),
             Frame(f'{subdir}/front2.gif', tick=23),
             Frame(f'{subdir}/front3.gif', tick=30),
             Frame(f'{subdir}/front2.gif', tick=46),
@@ -520,6 +560,12 @@ def barb(subdir: str):
             Frame(f'{subdir}/decap3.gif', tick=80, dx=2 * CHAR_W * SCALE),
             Frame(f'{subdir}/decap4.gif', tick=82, dx=2 * CHAR_W * SCALE, post_action='stop'),
             # @formatter:on
+        ],
+        'mortgnome': [
+            Frame(f'{subdir}/mort4.gif', tick=1, mv=((CHAR_W / 12) * SCALE, 0)),
+        ],
+        'mortdecapgnome': [
+            Frame(f'{subdir}/decap4.gif', tick=1, mv=((CHAR_W / 12) * SCALE, 0)),
         ],
     }
 
@@ -606,14 +652,14 @@ def barb_rtl(subdir: str):
             # @formatter:on
         ],
         'protegeD': [
-            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=5, dx=-CHAR_W * SCALE),
-            Frame(f'{subdir}/protegeD.gif', xflip=True, tick=9, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=5, dx=(-CHAR_W + 2) * SCALE),
+            Frame(f'{subdir}/protegeD.gif', xflip=True, tick=9, dx=(-CHAR_W + 2) * SCALE),
         ],
         'cou': [
             # @formatter:off
-            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=15, dx=-CHAR_W * SCALE    ),  # noqa
-            Frame(f'{subdir}/cou2.gif',     xflip=True, tick=30, dx=-CHAR_W * SCALE    ),  # noqa
-            Frame(f'{subdir}/cou3.gif',     xflip=True, tick=46, dx=-4 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=15, dx=(-CHAR_W + 2) * SCALE    ),  # noqa
+            Frame(f'{subdir}/cou2.gif',     xflip=True, tick=30, dx=(-CHAR_W + 4) * SCALE    ),  # noqa
+            Frame(f'{subdir}/cou3.gif',     xflip=True, tick=46, dx=(-4 * CHAR_W + 1) * SCALE),  # noqa
             # @formatter:on
         ],
         'devant': [
@@ -674,10 +720,10 @@ def barb_rtl(subdir: str):
         ],
         'front': [
             # @formatter:off
-            Frame(f'{subdir}/front1.gif', xflip=True, tick=5,  dx=-CHAR_W * SCALE    ),  # noqa
-            Frame(f'{subdir}/front2.gif', xflip=True, tick=23, dx=-CHAR_W * SCALE    ),  # noqa
-            Frame(f'{subdir}/front3.gif', xflip=True, tick=30, dx=-3 * CHAR_W * SCALE),  # noqa
-            Frame(f'{subdir}/front2.gif', xflip=True, tick=46, dx=-CHAR_W * SCALE    ),  # noqa
+            Frame(f'{subdir}/front1.gif', xflip=True, tick=5,  dx=(-CHAR_W + 1) * SCALE),  # noqa
+            Frame(f'{subdir}/front2.gif', xflip=True, tick=23, dx=-CHAR_W * SCALE      ),  # noqa
+            Frame(f'{subdir}/front3.gif', xflip=True, tick=30, dx=-3 * CHAR_W * SCALE  ),  # noqa
+            Frame(f'{subdir}/front2.gif', xflip=True, tick=46, dx=-CHAR_W * SCALE      ),  # noqa
             # @formatter:on
         ],
         'retourne': [
@@ -748,15 +794,32 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/decap4.gif', xflip=True, tick=82, dx=-5 * CHAR_W * SCALE, post_action='stop'),
             # @formatter:on
         ],
+        'mortgnome': [
+            Frame(f'{subdir}/mort4.gif', xflip=True, tick=1, mv=((CHAR_W / 12) * SCALE, 0)),
+        ],
+        'mortdecapgnome': [
+            Frame(f'{subdir}/decap4.gif', xflip=True, tick=1, mv=((CHAR_W / 12) * SCALE, 0)),
+        ],
+    }
+
+
+def gnome():
+    return {
+        'gnome': [
+            Frame('sprites/gnome1.gif', tick=6, mv=(CHAR_W * SCALE, 0)),
+            Frame('sprites/gnome2.gif', tick=12),
+            Frame('sprites/gnome3.gif', tick=18, mv=(CHAR_W * SCALE, 0)),
+            Frame('sprites/gnome4.gif', tick=24),
+        ],
     }
 
 
 def sorcier():
     return {
         'debout': [
-            Frame(f'sprites/drax1.gif'),
+            Frame('sprites/drax1.gif'),
         ],
         'attaque': [
-            Frame(f'sprites/drax2.gif'),
+            Frame('sprites/drax2.gif'),
         ],
     }
