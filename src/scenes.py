@@ -1122,7 +1122,7 @@ class Battle(EmptyScene):
             self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.yG = 20
             self.joueurA.yAtt = self.joueurA.yG
-            self.joueurA.xAtt = self.joueurA.x_loc() + (0 if rtl else 4)
+            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
             if self.joueurA.attaque:
                 self.joueurA.occupe_state(State.front, self.temps)
                 return 'gestion'
@@ -1340,6 +1340,8 @@ class Battle(EmptyScene):
         if self.joueurA.state == State.mort:
             if self.temps == self.joueurA.reftemps:
                 self.chronoOn = False
+                # noinspection PyTypeChecker
+                self.change_layer(self.joueurA, 2)
                 self.joueurA.animate('mort')
                 self.joueurB.occupe_state(State.vainqueurKO, self.temps)
                 self.snd_play('mortKO.ogg')
@@ -2138,7 +2140,7 @@ class Battle(EmptyScene):
             self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.yG = 20
             self.joueurB.yAtt = self.joueurB.yG
-            self.joueurB.xAtt = self.joueurB.x_loc() + (0 if rtl else 4)
+            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
             if self.joueurB.attaque:
                 self.joueurB.occupe_state(State.front, self.temps)
                 return 'gestionB'
@@ -2355,6 +2357,8 @@ class Battle(EmptyScene):
             self.joueurB.reset_xX()
             if self.temps == self.joueurB.reftemps:
                 self.chronoOn = False
+                # noinspection PyTypeChecker
+                self.change_layer(self.joueurB, 2)
                 self.joueurB.animate('mort')
                 self.joueurA.occupe_state(State.vainqueurKO, self.temps)
                 self.snd_play('mortKO.ogg')
@@ -2400,8 +2404,10 @@ class Battle(EmptyScene):
 
             # garder la distance debout
             if jb.state == State.debout and ja.state == State.debout:
-                ja.x = loc2px(jax - 1)
-                jb.x = loc2px(jbx + 1)
+                if ja.xLocPrev != jax:
+                    ja.x = loc2px(jax - 1)
+                if jb.xLocPrev != jbx:
+                    jb.x = loc2px(jbx + 1)
 
         # sortie du cadre
         if any((self.entree, self.entreesorcier, ja.sortie, jb.sortie)):
@@ -2440,11 +2446,13 @@ class Battle(EmptyScene):
             return None
 
         if mort.state == State.mort:
-            if self.gnomeSprite.rect.right >= mort.rect.right:
+            if (self.gnomeSprite.rect.right >= mort.rect.right + CHAR_W * SCALE
+                    and mort.anim != 'mortgnome'):
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortgnome')
         elif mort.state == State.mortdecap:
-            if self.gnomeSprite.rect.right >= mort.rect.right:
+            if (self.gnomeSprite.rect.right >= mort.rect.right + CHAR_W * SCALE
+                    and mort.anim != 'mortdecapgnome'):
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortdecapgnome')
             if mort.teteSprite.alive():
