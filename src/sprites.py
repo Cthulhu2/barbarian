@@ -464,6 +464,7 @@ class Barbarian(AnimatedSprite):
         self.clavierY = 7
         self.attaque = False
         #
+        self.xLocPrev = 0  # x_loc at the begin of frame
         self.yAtt = 17
         self.xAtt = 27 if rtl else 15
         self.yF = 15  # front

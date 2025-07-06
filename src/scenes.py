@@ -281,10 +281,6 @@ def area(color, lbl, border_width=2):
     return Rectangle(0, 0, CHAR_W * SCALE, CHAR_H * SCALE, color, border_width, lbl)
 
 
-def is_in_roulade(a: Barbarian, b: Barbarian):
-    return a.state == State.saute and b.state == State.rouladeAV
-
-
 class Battle(EmptyScene):
     def __init__(self, opts, *,
                  on_esc,
@@ -1978,7 +1974,7 @@ class Battle(EmptyScene):
 
         if self.joueurB.state == State.attente:
             self.joueurB.gestion_attente(self.temps)
-            return 'collision'
+            return 'colision'
 
         if self.joueurB.state == State.avance:
             self.joueurB.reset_xX()
@@ -2057,7 +2053,7 @@ class Battle(EmptyScene):
             self.joueurB.set_anim_frame('assis', 1)
             if self.joueurB.attaque:
                 self.joueurB.occupe_state(State.genou, self.temps)
-            if Game.Partie == "solo":
+            if Game.Partie == 'solo':
                 if self.temps > self.joueurB.reftemps + 20:
                     self.joueurB.occupe = False
                 return 'colision'
@@ -2378,54 +2374,54 @@ class Battle(EmptyScene):
 
         return 'colision'
 
-    def _colision(self):
+    def _colision(self, ja: Barbarian, jb: Barbarian):
         # ***************************************
         # ***********   COLISION   **************
         # ***************************************
         # if sens$ = "inverse" GOTO colisionR
-        jax = self.joueurA.x_loc()
-        jbx = self.joueurB.x_loc()
+        jax = ja.x_loc()
+        jbx = jb.x_loc()
         if (abs(jbx - jax) < 4
-                and not is_in_roulade(self.joueurA, self.joueurB)
-                and not is_in_roulade(self.joueurB, self.joueurA)):
+                and not (ja.state == State.saute and jb.state == State.rouladeAV)
+                and not (jb.state == State.saute and ja.state == State.rouladeAV)):
             # pour empecher que A entre dans B
-            if (self.joueurA.levier == Levier.droite
-                    or self.joueurA.state in (State.rouladeAV, State.decapite)):
-                self.joueurA.x = loc2px(jax - 1)
+            levier = Levier.gauche if ja.rtl else Levier.droite
+            if (ja.levier == levier
+                    or ja.state in (State.rouladeAV, State.decapite)):
+                if ja.xLocPrev != jax:
+                    ja.x = loc2px(jax - (-1 if ja.rtl else 1))
 
             # pour empecher que B entre dans A
-            if (self.joueurB.levier == Levier.gauche
-                    or self.joueurB.state in (State.rouladeAV, State.decapite)):
-                self.joueurB.x = loc2px(jbx + 1)
+            levier = Levier.gauche if jb.rtl else Levier.droite
+            if (jb.levier == levier
+                    or jb.state in (State.rouladeAV, State.decapite)):
+                if jb.xLocPrev != jbx:
+                    jb.x = loc2px(jbx - (-1 if jb.rtl else 1))
 
             # garder la distance debout
-            if (self.joueurB.state == State.debout
-                    and self.joueurA.state == State.debout):
-                self.joueurA.x = loc2px(jax - 1)
-                self.joueurB.x = loc2px(jbx + 1)
+            if jb.state == State.debout and ja.state == State.debout:
+                ja.x = loc2px(jax - 1)
+                jb.x = loc2px(jbx + 1)
 
         # sortie du cadre
-        if any((self.entree, self.entreesorcier,
-                self.joueurA.sortie, self.joueurB.sortie)):
-
+        if any((self.entree, self.entreesorcier, ja.sortie, jb.sortie)):
             if jax < 0:
-                self.joueurA.x = loc2px(40)
+                ja.x = loc2px(40)
             if jbx < 0:
-                self.joueurB.x = loc2px(40)
+                jb.x = loc2px(40)
             if jax > 40:
-                self.joueurA.x = loc2px(40)
+                ja.x = loc2px(40)
             if jbx > 40:
-                self.joueurB.x = loc2px(40)
+                jb.x = loc2px(40)
         else:
             if jax < 5:
-                self.joueurA.x = loc2px(5)
+                ja.x = loc2px(5)
             if jax > 32:
-                self.joueurA.x = loc2px(32)
+                ja.x = loc2px(32)
             if jbx < 5:
-                self.joueurB.x = loc2px(5)
+                jb.x = loc2px(5)
             if jbx > 32:
-                self.joueurB.x = loc2px(32)
-
+                jb.x = loc2px(32)
         return 'affichage'
 
     def _affichage(self):
@@ -2436,11 +2432,12 @@ class Battle(EmptyScene):
         return None
 
     def _gnome(self):
-        mort = None
         if self.joueurA.state in (State.mort, State.mortdecap):
             mort = self.joueurA
         elif self.joueurB.state in (State.mort, State.mortdecap):
             mort = self.joueurB
+        else:
+            return None
 
         if mort.state == State.mort:
             if self.gnomeSprite.rect.right >= mort.rect.right:
@@ -2478,6 +2475,8 @@ class Battle(EmptyScene):
         return None
 
     def update(self, current_time, *args):
+        self.joueurA.xLocPrev = self.joueurA.x_loc()
+        self.joueurB.xLocPrev = self.joueurB.x_loc()
         super(Battle, self).update(current_time, *args)
         if self.chronoOn:
             if self.chrono == 0:
@@ -2522,7 +2521,7 @@ class Battle(EmptyScene):
             elif goto == 'mortB':
                 goto = self._gestion_mortB()
             elif goto == 'colision':
-                goto = self._colision()
+                goto = self._colision(self.joueurA, self.joueurB)
             elif goto == 'affichage':
                 goto = self._affichage()
             elif goto == 'gnome':
