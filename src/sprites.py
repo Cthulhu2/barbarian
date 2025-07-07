@@ -846,7 +846,8 @@ class Barbarian(AnimatedSprite):
             self.animate('retourne')
 
     def gestion_debout(self):
-        self.set_anim_frame('debout', 0)
+        if self.anim != 'debout':
+            self.set_anim_frame('debout', 0)
         self.decapite = True
         self.sang = False
         self.xAtt = self.x_loc() + (0 if self.rtl else 4)
