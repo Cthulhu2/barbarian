@@ -760,9 +760,9 @@ class Barbarian(AnimatedSprite):
         if temps > self.reftemps + 50:
             self.occupe = False
             self.state = State.debout
-        elif temps > self.reftemps + 16:
+        elif temps > self.reftemps + 10:
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-        elif temps > self.reftemps + 15:
+        elif temps > self.reftemps + 9:
             self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
         elif temps == self.reftemps:
             self.animate('coupdepied')
@@ -798,9 +798,8 @@ class Barbarian(AnimatedSprite):
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 50:
             self.xT = self.x_loc() + (4 if self.rtl else 0)
-            self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
-        elif temps > self.reftemps + 29:
             self.yAtt = self.yT
+            self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
         elif temps == self.reftemps + 15:
             self.snd_play('decapite.ogg')
         elif temps == self.reftemps + 2:

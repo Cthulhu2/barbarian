@@ -391,7 +391,7 @@ def barb(subdir: str):
             # @formatter:off
             Frame(f'{subdir}/roulade1.gif',             tick=4,  mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=7,  mv=(CHAR_W * SCALE, 0)),  # noqa
-            Frame(f'{subdir}/roulade2.gif',             tick=10, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=10, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif',             tick=13, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(CHAR_W * SCALE, 0)),  # noqa
@@ -400,6 +400,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/debout.gif',               tick=39,                       ),  # noqa
             # @formatter:on
         ],
         'rouladeAR': [
@@ -460,7 +461,7 @@ def barb(subdir: str):
         ],
         'coupdepied': [
             # @formatter:off
-            Frame(f'{subdir}/pied1.gif',  tick=15),
+            Frame(f'{subdir}/pied1.gif',  tick=9),
             Frame(f'{subdir}/pied2.gif',  tick=30),
             Frame(f'{subdir}/pied1.gif',  tick=45),
             Frame(f'{subdir}/debout.gif', tick=51),
@@ -538,10 +539,10 @@ def barb(subdir: str):
         ],
         'tombe1': [
             # @formatter:off
-            Frame(f'{subdir}/tombe1.gif', tick=1,                               dx=-2 * CHAR_W * SCALE),  # noqa
-            Frame(f'{subdir}/tombe1.gif', tick=9,  mv=(-2 * CHAR_W * SCALE, 0), dx=-2 * CHAR_W * SCALE),  # noqa
-            Frame(f'{subdir}/tombe2.gif', tick=15, mv=(-2 * CHAR_W * SCALE, 0), dx=-3 * CHAR_W * SCALE),  # noqa
-            Frame(f'{subdir}/tombe3.gif', tick=25,                              dx=-3 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe1.gif', tick=1,                           dx=-2 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe1.gif', tick=9,  mv=(-CHAR_W * SCALE, 0), dx=-2 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe2.gif', tick=15, mv=(-CHAR_W * SCALE, 0), dx=-3 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe3.gif', tick=25,                          dx=-3 * CHAR_W * SCALE),  # noqa
             Frame(f'{subdir}/debout.gif', tick=27, mv=(-CHAR_W * SCALE, 0)),
             # @formatter:on
         ],
@@ -619,7 +620,7 @@ def barb_rtl(subdir: str):
             # @formatter:off
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=4,  mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=7,  mv=(-CHAR_W * SCALE, 0)),  # noqa
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=10, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=10, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif', xflip=True, tick=13, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(-CHAR_W * SCALE, 0)),  # noqa
@@ -628,6 +629,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W * SCALE, 0)),  # noqa
+            Frame(f'{subdir}/debout.gif',   xflip=True, tick=39,                        ),  # noqa
             # @formatter:on
         ],
         'rouladeAR': [
@@ -689,7 +691,7 @@ def barb_rtl(subdir: str):
         ],
         'coupdepied': [
             # @formatter:off
-            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=15, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=9,  dx=-CHAR_W * SCALE),
             Frame(f'{subdir}/pied2.gif',  xflip=True, tick=30, dx=-CHAR_W * SCALE),
             Frame(f'{subdir}/pied1.gif',  xflip=True, tick=45, dx=-CHAR_W * SCALE),
             Frame(f'{subdir}/debout.gif', xflip=True, tick=51),
@@ -771,10 +773,10 @@ def barb_rtl(subdir: str):
         ],
         'tombe1': [
             # @formatter:off
-            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=1,                              dx=1 * CHAR_W * SCALE),  # noqa
-            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=9,  mv=(2 * CHAR_W * SCALE, 0), dx=1 * CHAR_W * SCALE),  # noqa
-            Frame(f'{subdir}/tombe2.gif', xflip=True, tick=15, mv=(2 * CHAR_W * SCALE, 0), dx=1 * CHAR_W * SCALE),  # noqa
-            Frame(f'{subdir}/tombe3.gif', xflip=True, tick=25,                             dx=1 * CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=1,                          dx=CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=9,  mv=(CHAR_W * SCALE, 0), dx=CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe2.gif', xflip=True, tick=15, mv=(CHAR_W * SCALE, 0), dx=CHAR_W * SCALE),  # noqa
+            Frame(f'{subdir}/tombe3.gif', xflip=True, tick=25,                         dx=CHAR_W * SCALE),  # noqa
             Frame(f'{subdir}/debout.gif', xflip=True, tick=27, mv=(CHAR_W * SCALE, 0)),
             # @formatter:on
         ],

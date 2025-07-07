@@ -282,10 +282,7 @@ def area(color, lbl, border_width=2):
 
 
 class Battle(EmptyScene):
-    def __init__(self, opts, *,
-                 on_esc,
-                 on_next,
-                 on_menu):
+    def __init__(self, opts, *, on_esc, on_next, on_menu):
         super(Battle, self).__init__(opts)
         self.on_esc = on_esc
         self.on_menu = on_menu
@@ -1073,7 +1070,7 @@ class Battle(EmptyScene):
                 self.joueurA.yT = 16
                 self.joueurA.occupe_state(State.coupdepied, self.temps)
                 return 'gestion'
-            elif self.temps > self.joueurA.reftemps + 33:
+            elif self.temps > self.joueurA.reftemps + 38:
                 self.joueurA.xT = self.joueurA.x_loc() + (0 if rtl else 4)
                 self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
                 self.joueurA.yT = 16
@@ -1086,7 +1083,12 @@ class Battle(EmptyScene):
             elif self.temps == self.joueurA.reftemps + 14:
                 self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
                 return 'joueur2'
+            elif self.temps > self.joueurA.reftemps + 10:
+                pass
+            elif self.temps > self.joueurA.reftemps + 2:
+                self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
             elif self.temps == self.joueurA.reftemps + 2:
+                self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
                 self.snd_play('roule.ogg')
                 self.joueurA.animate('rouladeAV', 2)
                 return 'joueur2'
@@ -2091,7 +2093,7 @@ class Battle(EmptyScene):
                 self.joueurB.yT = 16
                 self.joueurB.occupe_state(State.coupdepied, self.temps)
                 return 'colision'
-            elif self.temps > self.joueurB.reftemps + 33:
+            elif self.temps > self.joueurB.reftemps + 38:
                 self.joueurB.xT = self.joueurB.x_loc() + (0 if rtl else 4)
                 self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
                 self.joueurB.yT = 16
@@ -2104,7 +2106,12 @@ class Battle(EmptyScene):
             elif self.temps == self.joueurB.reftemps + 14:
                 self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
                 return 'colision'
+            elif self.temps > self.joueurB.reftemps + 10:
+                pass
+            elif self.temps > self.joueurB.reftemps + 2:
+                self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
             elif self.temps == self.joueurB.reftemps + 2:
+                self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
                 self.snd_play('roule.ogg')
                 self.joueurB.animate('rouladeAV', 2)
                 return 'colision'
@@ -2382,7 +2389,6 @@ class Battle(EmptyScene):
         # ***************************************
         # ***********   COLISION   **************
         # ***************************************
-        # if sens$ = "inverse" GOTO colisionR
         jax = ja.x_loc()
         jbx = jb.x_loc()
         if (abs(jbx - jax) < 4
@@ -2403,7 +2409,8 @@ class Battle(EmptyScene):
                     jb.x = loc2px(jbx - (-1 if jb.rtl else 1))
 
             # garder la distance debout
-            if jb.state == State.debout and ja.state == State.debout:
+            if (jb.state in (State.debout, State.rouladeAV)
+                    and ja.state in (State.debout, State.rouladeAV)):
                 if ja.xLocPrev != jax:
                     ja.x = loc2px(jax - 1)
                 if jb.xLocPrev != jbx:
@@ -2420,14 +2427,16 @@ class Battle(EmptyScene):
             if jbx > 40:
                 jb.x = loc2px(40)
         else:
-            if jax < 5:
-                ja.x = loc2px(5)
-            if jax > 32:
-                ja.x = loc2px(32)
-            if jbx < 5:
-                jb.x = loc2px(5)
-            if jbx > 32:
-                jb.x = loc2px(32)
+            left, right = (9, 32) if ja.rtl else (5, 28)
+            if jax < left:
+                ja.x = loc2px(left)
+            if jax > right:
+                ja.x = loc2px(right)
+            left, right = (9, 32) if jb.rtl else (5, 28)
+            if jbx < left:
+                jb.x = loc2px(left)
+            if jbx > right:
+                jb.x = loc2px(right)
         return 'affichage'
 
     def _affichage(self):
