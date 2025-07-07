@@ -9,7 +9,7 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2px, loc, State, Levier, Sorcier, Rectangle
+    loc2px, loc, State, Levier, Sorcier, Rectangle, YG, YM, YT, YF
 )
 import anims
 from anims import get_img, rtl_anims
@@ -1062,18 +1062,18 @@ class Battle(EmptyScene):
             self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = 20
+            self.joueurA.yG = YG
             self.joueurA.yAtt = self.joueurA.yG
             self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.yT = self.joueurA.yG
             if self.joueurA.attaque:
-                self.joueurA.yT = 16
+                self.joueurA.yT = YT
                 self.joueurA.occupe_state(State.coupdepied, self.temps)
                 return 'gestion'
             elif self.temps > self.joueurA.reftemps + 38:
                 self.joueurA.xT = self.joueurA.x_loc() + (0 if rtl else 4)
                 self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.yT = 16
+                self.joueurA.yT = YT
                 self.joueurA.occupe = False
                 self.joueurA.state = State.finderoulade
                 # return 'finderoulade'  # vvv
@@ -1086,9 +1086,9 @@ class Battle(EmptyScene):
             elif self.temps > self.joueurA.reftemps + 10:
                 pass
             elif self.temps > self.joueurA.reftemps + 2:
-                self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
+                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
             elif self.temps == self.joueurA.reftemps + 2:
-                self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
+                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
                 self.snd_play('roule.ogg')
                 self.joueurA.animate('rouladeAV', 2)
                 return 'joueur2'
@@ -1110,10 +1110,7 @@ class Battle(EmptyScene):
                 self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
                 self.joueurA.yAtt = 17
                 self.joueurA.reset_xX()
-                self.joueurA.yF = 15
-                self.joueurA.yT = 16
-                self.joueurA.yM = 18
-                self.joueurA.yG = 20
+                self.joueurA.reset_yX()
                 return 'joueur2'
 
         if self.joueurA.state == State.rouladeAR:
@@ -1122,7 +1119,7 @@ class Battle(EmptyScene):
             self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = 20
+            self.joueurA.yG = YG
             self.joueurA.yAtt = self.joueurA.yG
             self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
             if self.joueurA.attaque:
@@ -1145,7 +1142,7 @@ class Battle(EmptyScene):
             rtl = self.joueurA.rtl
             self.joueurA.reset_xX()
             self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = 20
+            self.joueurA.yG = YG
             if self.joueurA.attaque:
                 self.joueurA.occupe_state(State.araignee, self.temps)
                 return 'gestion'
@@ -1167,7 +1164,7 @@ class Battle(EmptyScene):
         if self.joueurA.state == State.protegeD1:
             rtl = self.joueurA.rtl
             self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = 20
+            self.joueurA.yG = YG
             self.joueurA.reset_xX()
             self.joueurA.decapite = False
             self.joueurA.set_anim_frame('protegeD', 0)
@@ -1243,10 +1240,7 @@ class Battle(EmptyScene):
             self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yF = 15
-            self.joueurA.yT = 16
-            self.joueurA.yM = 18
-            self.joueurA.yG = 20
+            self.joueurA.reset_yX()
             if self.joueurB.state == State.coupdepied:
                 self.joueurA.state = State.tombe
                 return 'gestion'
@@ -1282,10 +1276,7 @@ class Battle(EmptyScene):
             self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yF = 15
-            self.joueurA.yT = 16
-            self.joueurA.yM = 18
-            self.joueurA.yG = 20
+            self.joueurA.reset_yX()
             if self.joueurB.state != State.rouladeAV:
                 self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
                 self.serpentA.animate('bite')
@@ -2083,18 +2074,18 @@ class Battle(EmptyScene):
             self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = 20
+            self.joueurB.yG = YG
             self.joueurB.yAtt = self.joueurB.yG
             self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.yT = self.joueurB.yG
             if self.joueurB.attaque:
-                self.joueurB.yT = 16
+                self.joueurB.yT = YT
                 self.joueurB.occupe_state(State.coupdepied, self.temps)
                 return 'colision'
             elif self.temps > self.joueurB.reftemps + 38:
                 self.joueurB.xT = self.joueurB.x_loc() + (0 if rtl else 4)
                 self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.yT = 16
+                self.joueurB.yT = YT
                 self.joueurB.occupe = False
                 self.joueurB.state = State.finderoulade
                 # return 'finderouladeB'  # vvv
@@ -2107,9 +2098,9 @@ class Battle(EmptyScene):
             elif self.temps > self.joueurB.reftemps + 10:
                 pass
             elif self.temps > self.joueurB.reftemps + 2:
-                self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
             elif self.temps == self.joueurB.reftemps + 2:
-                self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
+                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
                 self.snd_play('roule.ogg')
                 self.joueurB.animate('rouladeAV', 2)
                 return 'colision'
@@ -2131,10 +2122,7 @@ class Battle(EmptyScene):
                 self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
                 self.joueurB.yAtt = 17
                 self.joueurB.reset_xX()
-                self.joueurB.yF = 15
-                self.joueurB.yT = 16
-                self.joueurB.yM = 18
-                self.joueurB.yG = 20
+                self.joueurB.reset_yX()
                 return 'colision'
 
         if self.joueurB.state == State.rouladeAR:
@@ -2143,7 +2131,7 @@ class Battle(EmptyScene):
             self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = 20
+            self.joueurB.yG = YG
             self.joueurB.yAtt = self.joueurB.yG
             self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
             if self.joueurB.attaque:
@@ -2166,7 +2154,7 @@ class Battle(EmptyScene):
             rtl = self.joueurB.rtl
             self.joueurB.reset_xX()
             self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = 20
+            self.joueurB.yG = YG
             if self.joueurB.attaque:
                 self.joueurB.occupe_state(State.araignee, self.temps)
                 return 'gestionB'
@@ -2188,7 +2176,7 @@ class Battle(EmptyScene):
         if self.joueurB.state == State.protegeD1:
             rtl = self.joueurB.rtl
             self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = 20
+            self.joueurB.yG = YG
             self.joueurB.reset_xX()
             self.joueurB.decapite = False
             self.joueurB.set_anim_frame('protegeD', 0)
@@ -2262,10 +2250,7 @@ class Battle(EmptyScene):
             self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yF = 15
-            self.joueurB.yT = 16
-            self.joueurB.yM = 18
-            self.joueurB.yG = 20
+            self.joueurB.reset_yX()
             if self.joueurA.state == State.coupdepied:
                 self.joueurB.state = State.tombe
                 return 'gestionB'
@@ -2301,10 +2286,7 @@ class Battle(EmptyScene):
             self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
             self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yF = 15
-            self.joueurB.yT = 16
-            self.joueurB.yM = 18
-            self.joueurB.yG = 20
+            self.joueurB.reset_yX()
             if self.joueurA.state != State.rouladeAV:
                 self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
                 self.serpentB.animate('bite')
