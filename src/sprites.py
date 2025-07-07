@@ -733,7 +733,7 @@ class Barbarian(AnimatedSprite):
         self.xT = self.x_loc() + (0 if self.rtl else 4)
         self.xM = self.x_loc() + (4 if self.rtl else 0)
         self.xG = self.x_loc() + (0 if self.rtl else 4)
-        self.yAtt = self.yG
+        self.yAtt = YM
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
         if temps > self.reftemps + 24:
@@ -751,7 +751,7 @@ class Barbarian(AnimatedSprite):
                 if distance < 12 and not self.rtl:
                     self.snd_play(next(soncling))
             else:
-                self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+                self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
 
         elif temps > self.reftemps + 12:
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
@@ -805,7 +805,7 @@ class Barbarian(AnimatedSprite):
         self.decapite = False
         self.xF = self.x_loc() + (0 if self.rtl else 4)
         self.xT = self.x_loc() + 2
-        self.xM = self.x_loc() + 2
+        self.xM = self.x_loc() + (0 if self.rtl else 4)
         self.xG = self.x_loc() + (0 if self.rtl else 4)
         if temps > self.reftemps + 58:
             self.occupe = False
@@ -839,7 +839,7 @@ class Barbarian(AnimatedSprite):
                     self.snd_play(next(soncling))
             else:
                 self.xF = self.x_loc() + (4 if self.rtl else 0)
-                self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+                self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 6:
             self.snd_play(next(songrogne))

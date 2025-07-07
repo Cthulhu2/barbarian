@@ -1656,7 +1656,7 @@ class Battle(EmptyScene):
                                 self.joueurB.reftempsB = self.temps
                                 return 'gestionB'
                     if distance == 12 and self.joueurA.state == State.debout:
-                        self.joueurB.occupe_state(State.decapiteR, self.temps)
+                        self.joueurB.occupe_state(State.decapite, self.temps)
                         return 'gestionB'
                     if 9 < distance < 15:  # pour se rapprocher
                         if self.joueurA.levier == Levier.droite:
