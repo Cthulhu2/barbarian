@@ -2672,9 +2672,9 @@ class Battle(EmptyScene):
         # sortie du cadre
         if any((self.entree, self.entreesorcier, ja.sortie, jb.sortie)):
             if jax < 0:
-                ja.x = loc2px(40)
+                ja.x = loc2px(0)
             if jbx < 0:
-                jb.x = loc2px(40)
+                jb.x = loc2px(0)
             if jax > 40:
                 ja.x = loc2px(40)
             if jbx > 40:
