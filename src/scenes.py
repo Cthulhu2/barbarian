@@ -562,137 +562,115 @@ class Battle(EmptyScene):
 
     def _degats(self):
         # degats sur joueurA
+        ja = self.joueurA
+        jb = self.joueurB
         if Game.Sorcier:
-            if self.joueurA.x_loc() < 29:
-                if self.joueurA.xT < self.joueurB.xAtt <= self.joueurA.xT + 2:
-                    if self.joueurB.yAtt == self.joueurA.yT:
-                        self.gnome = False
-                        if self.jeu == 'perdu':
-                            return 'gestion'
-                        self.joueurA.state = State.mortSORCIER
-                        self.joueurA.occupe = True
-                        self.joueurB.reftemps = self.temps
-                        self.joueurB.state = State.sorcierFINI
-                        self.joueurB.occupe = True
-                        self.joueurB.reftemps = self.temps
-                        self.jeu = 'perdu'
-                        return 'gestion'
-                if self.joueurA.xG <= self.joueurB.xAtt <= self.joueurA.xG + 2:
-                    if self.joueurB.yAtt == self.joueurA.yG:
-                        self.gnome = False
-                        if self.jeu == 'perdu':
-                            return 'gestion'
-                        self.joueurA.state = State.mortSORCIER
-                        self.joueurA.occupe = True
-                        self.joueurA.reftemps = self.temps
-                        self.joueurB.state = State.sorcierFINI
-                        self.joueurB.occupe = True
-                        self.joueurB.reftemps = self.temps
-                        self.jeu = 'perdu'
-                        return 'gestion'
-            if self.joueurA.occupe:
+            if (ja.x_loc() < 29 and (
+                    (jb.yAtt == ja.yT and ja.xT < jb.xAtt <= ja.xT + 2)
+                    or (jb.yAtt == ja.yG and ja.xG <= jb.xAtt <= ja.xG + 2)
+            )):
+                self.gnome = False
+                if self.jeu == 'perdu':
+                    return 'gestion'
+                ja.occupe_state(State.mortSORCIER, self.temps)
+                jb.occupe_state(State.sorcierFINI, self.temps)
+                self.jeu = 'perdu'
+                return 'gestion'
+            if ja.occupe:
                 return 'gestion'
             return 'clavier'
 
-        if self.sense == 'normal':
-            if self.joueurA.x_loc() < self.joueurB.x_loc():
-                xAttB = self.joueurB.xAtt
-                yAttB = self.joueurB.yAtt
-                if xAttB <= self.joueurA.xF and yAttB == self.joueurA.yF:
-                    if self.joueurA.state == State.protegeH:
-                        self.joueurA.state = State.clingH
-                        return 'gestion'
-                    self.joueurA.state = State.tombe
-                    self.joueurA.infoDegatF += 1
-                    return 'gestion'
+        if self.sense == 'normal' and ja.x_loc() < jb.x_loc():
+            xAttB = jb.xAtt
+            yAttB = jb.yAtt
+            if xAttB <= ja.xF and yAttB == ja.yF:
+                if ja.state == State.protegeH:
+                    ja.state = State.clingH
+                else:
+                    ja.state = State.tombe
+                    ja.infoDegatF += 1
+                return 'gestion'
 
-                if xAttB <= self.joueurA.xT and yAttB == self.joueurA.yT:
-                    if self.joueurB.state == State.coupdetete:
-                        self.joueurA.state = State.tombe
-                        return 'gestion'
-                    self.joueurA.state = State.touche
+            if xAttB <= ja.xT and yAttB == ja.yT:
+                if jb.state == State.coupdetete:
+                    ja.state = State.tombe
+                else:
+                    ja.state = State.touche
                     Game.ScoreB += 250
                     self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                    self.joueurA.infoDegatT += 1
-                    return 'gestion'
+                    ja.infoDegatT += 1
+                return 'gestion'
 
-                if xAttB <= self.joueurA.xM and yAttB == self.joueurA.yM:
-                    if self.joueurA.state == State.protegeD:
-                        self.joueurA.state = State.clingD
-                        return 'gestion'
-                    self.joueurA.state = State.touche
+            if xAttB <= ja.xM and yAttB == ja.yM:
+                if ja.state == State.protegeD:
+                    ja.state = State.clingD
+                else:
+                    ja.state = State.touche
                     Game.ScoreB += 250
                     self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                    return 'gestion'
+                return 'gestion'
 
-                if xAttB <= self.joueurA.xG and yAttB == self.joueurA.yG:
-                    if self.joueurB.state == State.araignee:
-                        self.joueurA.state = State.tombe
-                        return 'gestion'
-                    if self.joueurB.state == State.rouladeAV:
-                        self.joueurA.state = State.tombe
-                        return 'gestion'
-                    if self.joueurA.state == State.protegeD:
-                        self.joueurA.state = State.clingD
-                        return 'gestion'
-                    if self.joueurB.state == State.coupdepied:
-                        self.joueurA.state = State.tombe
-                        self.joueurA.infoDegatG += 1
-                        return 'gestion'
-                    self.joueurA.state = State.touche
+            if xAttB <= ja.xG and yAttB == ja.yG:
+                if jb.state == State.araignee:
+                    ja.state = State.tombe
+                elif jb.state == State.rouladeAV:
+                    ja.state = State.tombe
+                elif ja.state == State.protegeD:
+                    ja.state = State.clingD
+                elif jb.state == State.coupdepied:
+                    ja.state = State.tombe
+                    ja.infoDegatG += 1
+                else:
+                    ja.state = State.touche
                     Game.ScoreB += 100
                     self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                    self.joueurA.infoDegatG += 1
-                    return 'gestion'
+                    ja.infoDegatG += 1
+                return 'gestion'
 
-        if self.sense == 'inverse':
-            if self.joueurA.x_loc() > self.joueurB.x_loc():
-                xAttB = self.joueurB.xAtt
-                yAttB = self.joueurB.yAtt
-                if xAttB >= self.joueurA.xF and yAttB == self.joueurA.yF:
-                    if self.joueurA.state == State.protegeH:
-                        self.joueurA.state = State.clingH
-                        return 'gestion'
-                    self.joueurA.state = State.tombe
-                    return 'gestion'
+        if self.sense == 'inverse' and ja.x_loc() > jb.x_loc():
+            xAttB = jb.xAtt
+            yAttB = jb.yAtt
+            if xAttB >= ja.xF and yAttB == ja.yF:
+                if ja.state == State.protegeH:
+                    ja.state = State.clingH
+                else:
+                    ja.state = State.tombe
+                return 'gestion'
 
-                if xAttB >= self.joueurA.xT and yAttB == self.joueurA.yT:
-                    if self.joueurB.state == State.coupdetete:
-                        self.joueurA.state = State.tombe
-                        return 'gestion'
-                    self.joueurA.state = State.touche
+            if xAttB >= ja.xT and yAttB == ja.yT:
+                if jb.state == State.coupdetete:
+                    ja.state = State.tombe
+                else:
+                    ja.state = State.touche
                     Game.ScoreB += 250
                     self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                    return 'gestion'
+                return 'gestion'
 
-                if xAttB >= self.joueurA.xM and yAttB == self.joueurA.yM:
-                    if self.joueurA.state == State.protegeD:
-                        self.joueurA.state = State.clingD
-                        return 'gestion'
-                    self.joueurA.state = State.touche
+            if xAttB >= ja.xM and yAttB == ja.yM:
+                if ja.state == State.protegeD:
+                    ja.state = State.clingD
+                else:
+                    ja.state = State.touche
                     Game.ScoreB += 250
                     self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                    return 'gestion'
+                return 'gestion'
 
-                if xAttB >= self.joueurA.xG and yAttB == self.joueurA.yG:
-                    if self.joueurB.state == State.araignee:
-                        self.joueurA.state = State.tombe
-                        return 'gestion'
-                    if self.joueurB.state == State.rouladeAV:
-                        self.joueurA.state = State.tombe
-                        return 'gestion'
-                    if self.joueurA.state == State.protegeD:
-                        self.joueurA.state = State.clingD
-                        return 'gestion'
-                    if self.joueurB.state == State.coupdepied:
-                        self.joueurA.state = State.tombe
-                        return 'gestion'
-                    self.joueurA.state = State.touche
+            if xAttB >= ja.xG and yAttB == ja.yG:
+                if jb.state == State.araignee:
+                    ja.state = State.tombe
+                elif jb.state == State.rouladeAV:
+                    ja.state = State.tombe
+                elif ja.state == State.protegeD:
+                    ja.state = State.clingD
+                elif jb.state == State.coupdepied:
+                    ja.state = State.tombe
+                else:
+                    ja.state = State.touche
                     Game.ScoreB += 100
                     self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                    return 'gestion'
+                return 'gestion'
 
-        if self.joueurA.occupe:
+        if ja.occupe:
             return 'gestion'
         return 'clavier'
 
