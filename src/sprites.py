@@ -760,10 +760,16 @@ class Barbarian(AnimatedSprite):
         if temps > self.reftemps + 50:
             self.occupe = False
             self.state = State.debout
+        elif temps > self.reftemps + 30:
+            self.xG = self.x_loc() + (0 if self.rtl else 4)
         elif temps > self.reftemps + 10:
+            self.xG = self.x_loc() + (4 if self.rtl else 0)
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
+            self.xG = self.x_loc() + (4 if self.rtl else 0)
             self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+        elif temps > self.reftemps + 1:
+            self.xG = self.x_loc() + (4 if self.rtl else 0)
         elif temps == self.reftemps:
             self.animate('coupdepied')
 

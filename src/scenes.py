@@ -1301,12 +1301,10 @@ class Battle(EmptyScene):
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreB += 150
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                self.joueurA.sangSprite.kill()
                 self.snd_play('coupdetete.ogg')
             if self.joueurB.state == State.coupdepied:
                 Game.ScoreB += 150
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                self.joueurA.sangSprite.kill()
                 self.snd_play('coupdepied.ogg')
             self.joueurA.occupe_state(State.tombe1, self.temps)
 
@@ -2322,12 +2320,10 @@ class Battle(EmptyScene):
             if self.joueurA.state == State.coupdetete:
                 Game.ScoreA += 150
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                self.joueurB.sangSprite.kill()
                 self.snd_play('coupdetete.ogg')
             if self.joueurA.state == State.coupdepied:
                 Game.ScoreA += 150
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                self.joueurB.sangSprite.kill()
                 self.snd_play('coupdepied.ogg')
             self.joueurB.occupe_state(State.tombe1, self.temps)
 
@@ -2397,24 +2393,18 @@ class Battle(EmptyScene):
             # pour empecher que A entre dans B
             levier = Levier.gauche if ja.rtl else Levier.droite
             if (ja.levier == levier
-                    or ja.state in (State.rouladeAV, State.decapite)):
+                    or ja.state in (State.rouladeAV, State.decapite,
+                                    State.debout, State.coupdepied)):
                 if ja.xLocPrev != jax:
                     ja.x = loc2px(jax - (-1 if ja.rtl else 1))
 
             # pour empecher que B entre dans A
             levier = Levier.gauche if jb.rtl else Levier.droite
             if (jb.levier == levier
-                    or jb.state in (State.rouladeAV, State.decapite)):
+                    or jb.state in (State.rouladeAV, State.decapite,
+                                    State.debout, State.coupdepied)):
                 if jb.xLocPrev != jbx:
                     jb.x = loc2px(jbx - (-1 if jb.rtl else 1))
-
-            # garder la distance debout
-            if (jb.state in (State.debout, State.rouladeAV)
-                    and ja.state in (State.debout, State.rouladeAV)):
-                if ja.xLocPrev != jax:
-                    ja.x = loc2px(jax - 1)
-                if jb.xLocPrev != jbx:
-                    jb.x = loc2px(jbx + 1)
 
         # sortie du cadre
         if any((self.entree, self.entreesorcier, ja.sortie, jb.sortie)):
