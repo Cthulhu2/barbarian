@@ -226,8 +226,8 @@ class AnimatedSprite(DirtySprite):
     def x(self, x):
         if self.top_left[0] != x:
             self.dirty = 1
-        self.top_left = (x, self.top_left[1])
-        self._update_rect()
+            self.top_left = (x, self.top_left[1])
+            self._update_rect()
 
     @property
     def y(self) -> int:
@@ -237,8 +237,8 @@ class AnimatedSprite(DirtySprite):
     def y(self, y: int):
         if self.top_left[1] != y:
             self.dirty = 1
-        self.top_left = (self.top_left[0], y)
-        self._update_rect()
+            self.top_left = (self.top_left[0], y)
+            self._update_rect()
 
     @property
     def speed(self):
@@ -497,7 +497,6 @@ class Barbarian(AnimatedSprite):
         self.assis = False
         self.protegeD = False
         self.protegeH = False
-        self.sprite = ''
         self.decapite = False
         self.pressedUp = False
         self.pressedDown = False
@@ -790,7 +789,6 @@ class Barbarian(AnimatedSprite):
         self.yG = YG
         if temps > self.reftemps + 37:
             self.occupe = False
-            self.sprite = 'debout'
             self.state = State.debout
         elif temps > self.reftemps + 20:
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)

@@ -9,7 +9,7 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2px, loc, State, Levier, Sorcier, Rectangle, YG, YM, YT, YF
+    loc2px, loc, State, Levier, Sorcier, Rectangle, YG, YT, px2loc
 )
 import anims
 from anims import get_img, rtl_anims
@@ -420,7 +420,7 @@ class Battle(EmptyScene):
             Game.IA = 0
             self.on_esc()
             return
-        if evt.type == KEYUP and evt.key == K_F12 and self.opts.debug:
+        if evt.type == KEYUP and evt.key == K_F12 and self.opts.debug > 1:
             self.debugAttArea = not self.debugAttArea
             if self.debugAttArea:
                 self.add(self.attAreas, layer=99)
@@ -2398,24 +2398,25 @@ class Battle(EmptyScene):
 
     def _gnome(self):
         if self.joueurA.state in (State.mort, State.mortdecap):
-            mort = self.joueurA
+            mort, vainqueur = self.joueurA, self.joueurB
         elif self.joueurB.state in (State.mort, State.mortdecap):
-            mort = self.joueurB
+            mort, vainqueur = self.joueurB, self.joueurA
         else:
             return None
+        gnome = self.gnomeSprite
 
         if mort.state == State.mort:
-            if (self.gnomeSprite.rect.right >= mort.rect.right + CHAR_W * SCALE
+            if (gnome.rect.right >= mort.rect.right + CHAR_W * SCALE
                     and mort.anim != 'mortgnome'):
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortgnome')
         elif mort.state == State.mortdecap:
-            if (self.gnomeSprite.rect.right >= mort.rect.right + CHAR_W * SCALE
+            if (gnome.rect.right >= mort.rect.right + CHAR_W * SCALE
                     and mort.anim != 'mortdecapgnome'):
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortdecapgnome')
             if mort.teteSprite.alive():
-                if self.gnomeSprite.rect.right >= mort.teteSprite.rect.center[0]:
+                if gnome.rect.right >= mort.teteSprite.rect.center[0]:
                     mort.animate_football(self.temps)
                 if not mort.teteSprite.is_stopped:
                     if self.temps == mort.reftemps + 38:
@@ -2424,21 +2425,14 @@ class Battle(EmptyScene):
                         self.snd_play('tete.ogg')
                 if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
                     mort.stop_football()
-        if loc2px(self.gnomeSprite.x) > 39:
-            if self.joueurB == mort:
-                if Game.Partie == 'vs':
-                    self.joueurA.bonus = True
-                if Game.Partie == 'solo':
-                    if mort.x_loc() >= 40:
-                        self.joueurA.sortie = True
-                        self.joueurA.occupe = False
-            elif self.joueurA == mort:
-                if Game.Partie == 'vs':
-                    self.joueurB.bonus = True
-                if Game.Partie == 'solo':
-                    if mort.x_loc() >= 40:
-                        self.joueurB.sortie = True
-                        self.joueurB.occupe = False
+        if gnome.alive() and px2loc(gnome.x) > 40:
+            gnome.kill()
+            if Game.Partie == 'vs':
+                vainqueur.bonus = True
+            if Game.Partie == 'solo':
+                mort.kill()
+                vainqueur.sortie = True
+                vainqueur.occupe = False
         return None
 
     def update(self, current_time, *args):
