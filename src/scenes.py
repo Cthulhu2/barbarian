@@ -674,7 +674,7 @@ class Battle(EmptyScene):
                     self.txtScoreB.msg = f'{Game.ScoreB:05}'
                     return 'gestion'
 
-                if xAttB <= self.joueurA.xG and yAttB == self.joueurA.yG:
+                if xAttB >= self.joueurA.xG and yAttB == self.joueurA.yG:
                     if self.joueurB.state == State.araignee:
                         self.joueurA.state = State.tombe
                         return 'gestion'
