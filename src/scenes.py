@@ -508,7 +508,7 @@ class Battle(EmptyScene):
 
         if self.joueurA.sortie:
             if not self.tempsfini:
-                if jax < 2 and jbx >= 37:
+                if jbx >= 35 and (jax <= 0 or 38 <= jax):
                     if Game.Partie == 'solo':
                         if Game.Demo:
                             self.finish()
@@ -540,7 +540,7 @@ class Battle(EmptyScene):
             return 'clavier'
         if self.joueurB.sortie:
             if not self.tempsfini:
-                if jax >= 37 and jbx >= 37:
+                if jax >= 35 and (jbx <= 0 or 38 <= jbx):
                     # SLEEP 1
                     if Game.Partie == 'solo':  # ********** partie solo finie
                         if Game.Demo:
@@ -1472,10 +1472,10 @@ class Battle(EmptyScene):
             return 'gestionB'
 
         if Game.Partie == 'solo':
+            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
             # ***************************IA de 1,2,3,6
             if Game.IA in (0, 1, 2, 3, 6):
                 if self.sense == 'normal':
-                    distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
                     if distance >= 15:
                         # quand trop loin
                         self.joueurB.occupe_state(State.rouladeAV, self.temps)
@@ -1499,20 +1499,20 @@ class Battle(EmptyScene):
                         self.joueurB.occupe_state(State.decapite, self.temps)
                         return 'gestionB'
                     if 9 < distance < 15:  # pour se rapprocher
-                        if self.joueurA.levier == Levier.gauche:
+                        if self.joueurA.levier == Levier.gauche:  # inverse gauche->droite
                             self.joueurB.state = State.debout
                             return 'gestionB'
-                        self.joueurB.levier = Levier.gauche
+                        self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                         return 'actionB'
                     if distance == 9:
                         if self.joueurA.attente > 100:
-                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                             return 'actionB'
                         if self.joueurA.state == State.rouladeAR:
                             self.joueurB.occupe_state(State.devant, self.temps)
                             return 'gestionB'
                         if self.joueurA.occupe:
-                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                             return 'actionB'
                     if 6 < distance < 9:  # distance de combat 1
                         # pour autoriser les croisements
@@ -1523,7 +1523,7 @@ class Battle(EmptyScene):
                         if self.joueurA.state == State.rouladeAR:
                             self.joueurB.occupe_state(State.genou, self.temps)
                             return 'gestionB'
-                        if self.joueurA.levier == Levier.gauche:
+                        if self.joueurA.levier == Levier.gauche:  # inverse gauche->droite
                             self.joueurB.occupe_state(State.araignee, self.temps)
                             return 'gestionB'
                         # pour eviter les degats repetitifs
@@ -1570,7 +1570,7 @@ class Battle(EmptyScene):
                             self.joueurB.infoCoup += 1
                             return 'gestionB'
                         if self.joueurB.infoCoup == 6:
-                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                             self.joueurB.infoCoup = 0
                             return 'actionB'
                     if distance <= 6:
@@ -1590,7 +1590,7 @@ class Battle(EmptyScene):
                         if Game.IA > 1:
                             if self.joueurB.infoDegatG > 4:
                                 if self.joueurA.state in (State.assis2, State.genou):
-                                    self.joueurB.occupe_state(State.coupdepied, self.temps)
+                                    self.joueurB.occupe_state(State.coupdepied, self.temps)  # inverse coupdepied->genou
                                     return 'gestionB'
                                 if Game.IA > 2:
                                     if self.joueurA.state == State.araignee:
@@ -1600,8 +1600,8 @@ class Battle(EmptyScene):
                                 if self.joueurA.state == State.coupdepied:
                                     self.joueurB.occupe_state(State.rouladeAV, self.temps)
                                     return 'gestionB'
-                                if self.joueurA.state in (State.assis2, State.genou):
-                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                if self.joueurA.state in (State.assis2, State.genou):  # inverse genou->coupdepied
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)  # inverse rouladeAV->genou
                                     return 'gestionB'
 
                         if self.joueurB.infoCoup == 0:
@@ -1633,13 +1633,170 @@ class Battle(EmptyScene):
                             self.joueurB.infoCoup += 1
                             return 'gestionB'
                         if self.joueurB.infoCoup == 7:
-                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                             self.joueurB.infoCoup = 0
                             return 'actionB'
-                # if sens$ = 'inverse': ...
-            if Game.IA in (4, 5, 7):
+                else:
+                    if distance >= 15:  # quand trop loin
+                        self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                        return 'gestionB'
+                    if Game.IA == 6:
+                        if distance < 15:
+                            if self.joueurA.state == State.decapite:
+                                self.joueurB.occupe_state(State.genou, self.temps)
+                                return 'gestionB'
+                    if Game.IA == 3:
+                        if distance < 15:
+                            if self.joueurB.infoDegatT > 2:
+                                if self.joueurA.state == State.decapite:
+                                    self.joueurB.state = State.assis2
+                                    return 'gestionB'
+                            if self.joueurA.state == State.decapite:
+                                self.joueurB.state = State.protegeD
+                                self.joueurB.reftempsB = self.temps
+                                return 'gestionB'
+                    if distance == 12 and self.joueurA.state == State.debout:
+                        self.joueurB.occupe_state(State.decapiteR, self.temps)
+                        return 'gestionB'
+                    if 9 < distance < 15:  # pour se rapprocher
+                        if self.joueurA.levier == Levier.droite:
+                            self.joueurB.state = State.debout
+                            return 'gestionB'
+                        self.joueurB.levier = Levier.droite
+                        return 'actionB'
+                    if distance == 9:
+                        if self.joueurA.attente > 100:
+                            self.joueurB.levier = Levier.droite
+                            return 'actionB'
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.devant, self.temps)
+                            return 'gestionB'
+                        if self.joueurA.occupe:
+                            self.joueurB.levier = Levier.droite
+                            return 'actionB'
+                    if 6 < distance < 9:  # distance de combat 1
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.rouladeAV:
+                            self.joueurB.occupe_state(State.saute, self.temps)
+                            return 'gestionB'
+                        # pour se rapprocher
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            return 'gestionB'
+                        if self.joueurA.levier == Levier.droite:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            return 'gestionB'
+                        # pour eviter les degats repetitifs
+                        if Game.IA > 1:
+                            if self.joueurB.infoDegatG > 4:
+                                if self.joueurA.state in (State.assis2, State.genou):
+                                    self.joueurB.occupe_state(State.genou, self.temps)
+                                    return 'gestionB'
+                            if self.joueurB.infoDegatG > 2:
+                                if self.joueurA.state in (State.assis2, State.rouladeAV):
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                            if self.joueurB.infoDegatT > 2:
+                                if self.joueurA.state == State.cou:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                            if self.joueurB.infoDegatF > 2:
+                                if self.joueurA.state == State.front:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                        # pour alterner les attaques
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.coupdepied, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.assis2, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 5:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 6:
+                            self.joueurB.levier = Levier.droite
+                            self.joueurB.infoCoup = 0
+                            return 'actionB'
+                    if distance <= 6:
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.saute:
+                            self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                            return 'gestionB'
+                        if Game.IA == 3:
+                            if self.joueurA.state == State.devant:
+                                self.joueurB.state = State.protegeD
+                                self.joueurB.reftempsB = self.temps
+                                return 'gestionB'
+                        if Game.IA == 2:
+                            if self.joueurA.state == State.genou:
+                                self.joueurB.occupe_state(State.saute, self.temps)
+                                return 'gestionB'
+                        if Game.IA > 1:
+                            if self.joueurB.infoDegatG > 4:
+                                if self.joueurA.state in (State.assis2, State.genou):
+                                    self.joueurB.occupe_state(State.genou, self.temps)
+                                    return 'gestionB'
+                                if Game.IA > 2:
+                                    if self.joueurA.state == State.araignee:
+                                        self.joueurB.occupe_state(State.araignee, self.temps)
+                                        return 'gestionB'
+                            if self.joueurB.infoDegatG > 2:
+                                if self.joueurA.state == State.coupdepied:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                                if self.joueurA.state in (State.assis2, State.coupdepied):
+                                    self.joueurB.occupe_state(State.genou, self.temps)
+                                    return 'gestionB'
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.coupdepied, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.coupdetete, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.assis2, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 5:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 6:
+                            self.joueurB.occupe_state(State.debout, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 7:
+                            self.joueurB.levier = Levier.droite
+                            self.joueurB.infoCoup = 0
+                            return 'actionB'
+            elif Game.IA in (4, 5, 7):
                 if self.sense == 'normal':
-                    distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
                     if distance >= 15:  # quand trop loin
                         self.joueurB.occupe_state(State.rouladeAV, self.temps)
                         return 'gestionB'
@@ -1652,17 +1809,17 @@ class Battle(EmptyScene):
                         self.joueurB.occupe_state(State.decapite, self.temps)
                         return 'gestionB'
                     if 9 < distance < 15:  # pour se rapprocher
-                        if self.joueurA.levier == Levier.gauche:
+                        if self.joueurA.levier == Levier.gauche:  # inverse gauche->droite
                             self.joueurB.state = State.debout
                             return 'gestionB'
-                        self.joueurB.levier = Levier.gauche
+                        self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                         return 'actionB'
                     if distance == 9:
                         if self.joueurA.attente > 100:
                             self.joueurB.occupe_state(State.decapite, self.temps)
                             return 'gestionB'
                         if Game.Demo:
-                            if self.joueurA.attente > 25:
+                            if self.joueurA.attente > 25:  # inverse 25->100
                                 self.joueurB.occupe_state(State.decapite, self.temps)
                                 return 'gestionB'
                         if self.joueurA.state == State.rouladeAR:
@@ -1674,7 +1831,7 @@ class Battle(EmptyScene):
                                 return 'gestionB'
                         if Game.IA == 7:
                             if self.joueurA.occupe:
-                                self.joueurB.levier = Levier.gauche
+                                self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                                 return 'actionB'
                     if 6 < distance < 9:  # distance de combat 1
                         # pour autoriser les croisements
@@ -1685,7 +1842,7 @@ class Battle(EmptyScene):
                         if self.joueurA.state == State.rouladeAR:
                             self.joueurB.occupe_state(State.genou, self.temps)
                             return 'gestionB'
-                        if self.joueurA.levier == Levier.gauche:
+                        if self.joueurA.levier == Levier.gauche:  # inverse gauche->droite
                             self.joueurB.occupe_state(State.araignee, self.temps)
                             return 'gestionB'
                         # plus l'IA est forte, plus il y des des coups imposs avant infocoupB ou infodegat
@@ -1734,7 +1891,7 @@ class Battle(EmptyScene):
                             self.joueurB.infoCoup += 1
                             return 'gestionB'
                         if self.joueurB.infoCoup == 5:
-                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                             self.joueurB.infoCoup = 0
                             return 'actionB'
                     if distance <= 6:
@@ -1783,10 +1940,156 @@ class Battle(EmptyScene):
                             self.joueurB.infoCoup += 1
                             return 'gestionB'
                         if self.joueurB.infoCoup == 6:
-                            self.joueurB.levier = Levier.gauche
+                            self.joueurB.levier = Levier.gauche  # inverse gauche->droite
                             self.joueurB.infoCoup = 0
                             return 'action'
-                # if sens$ = 'inverse': ...
+                else:
+                    if distance >= 15:  # quand trop loin
+                        self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                        return 'gestionB'
+                    if distance < 15:
+                        if Game.IA == 7:
+                            if self.joueurA.state == State.decapite:
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                    if distance == 12 and self.joueurA.state == State.debout:
+                        self.joueurB.occupe_state(State.decapite, self.temps)
+                        return 'gestionB'
+                    if 9 < distance < 15:  # pour se rapprocher
+                        if self.joueurA.levier == Levier.droite:
+                            self.joueurB.state = State.debout
+                            return 'gestionB'
+                        self.joueurB.levier = Levier.droite
+                        return 'actionB'
+                    if distance == 9:
+                        if self.joueurA.attente > 100:
+                            self.joueurB.occupe_state(State.decapite, self.temps)
+                            return 'gestionB'
+                        if Game.Demo:
+                            if self.joueurA.attente > 100:
+                                self.joueurB.occupe_state(State.decapite, self.temps)
+                                return 'gestionB'
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            return 'gestionB'
+                        if Game.IA < 7:
+                            if self.joueurA.occupe:
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                        if Game.IA == 7:
+                            if self.joueurA.occupe:
+                                self.joueurB.levier = Levier.droite
+                                return 'actionB'
+                    if 6 < distance < 9:  # distance de combat 1
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.rouladeAV:
+                            self.joueurB.occupe_state(State.saute, self.temps)
+                            return 'gestionB'
+                        # pour se rapprocher
+                        if self.joueurA.state == State.rouladeAR:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            return 'gestionB'
+                        if self.joueurA.levier == Levier.droite:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            return 'gestionB'
+                        # plus l'IA est forte, plus il y des des coups imposs avant infocoupB ou infodegat
+                        if Game.IA == 5:
+                            if self.joueurA.state == State.front:
+                                self.joueurB.state = State.protegeH
+                                self.joueurB.reftemps = self.temps
+                                return 'gestionB'
+                        # pour eviter les degats repetitifs
+                        if self.joueurB.infoDegatG > 4:
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.araignee, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatG > 2:
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatT > 2:
+                            if self.joueurA.state == State.cou:
+                                self.joueurB.occupe_state(State.genou, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatF > 2:
+                            if Game.IA < 7:
+                                if self.joueurA.state == State.front:
+                                    self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                    return 'gestionB'
+                        # pour alterner les attaques
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.devant, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.front, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.cou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 5:
+                            self.joueurB.levier = Levier.droite
+                            self.joueurB.infoCoup = 0
+                            return 'actionB'
+                    if distance <= 6:
+                        # pour autoriser les croisements
+                        if not Game.Demo and self.joueurA.state == State.saute:
+                            self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                            return 'gestionB'
+                        if Game.IA > 4:
+                            if self.joueurA.state == State.devant:
+                                self.joueurB.state = State.protegeD
+                                self.joueurB.reftemps = self.temps
+                                return 'gestionB'
+                        if 4 < Game.IA < 7:
+                            if self.joueurA.state == State.genou:
+                                self.joueurB.occupe_state(State.saute, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatG > 4:
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.araignee, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoDegatG > 2:
+                            if self.joueurA.state == State.coupdepied:
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                            if self.joueurA.state in (State.assis2, State.genou, State.araignee):
+                                self.joueurB.occupe_state(State.rouladeAV, self.temps)
+                                return 'gestionB'
+                        if self.joueurB.infoCoup == 0:
+                            self.joueurB.occupe_state(State.coupdepied, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 1:
+                            self.joueurB.occupe_state(State.coupdetete, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 2:
+                            self.joueurB.occupe_state(State.araignee, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 3:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 4:
+                            self.joueurB.occupe_state(State.genou, self.temps)
+                            self.joueurB.infoCoup += 1
+                            return 'gestionB'
+                        if self.joueurB.infoCoup == 6:
+                            self.joueurB.levier = Levier.droite
+                            self.joueurB.infoCoup = 0
+                            return 'action'
         # redirection suivant les touches
         if self.joueurB.levier != Levier.neutre:
             return 'actionB'
