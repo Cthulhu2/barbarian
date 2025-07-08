@@ -504,6 +504,12 @@ class Barbarian(AnimatedSprite):
         self.pressedRight = False
         self.pressedFire = False
 
+    def recule_levier(self):
+        return Levier.droite if self.rtl else Levier.gauche
+
+    def avance_levier(self):
+        return Levier.gauche if self.rtl else Levier.droite
+
     def snd_play(self, snd: str):
         if snd and self.opts.sound:
             get_snd(snd).play()
