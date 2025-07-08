@@ -678,19 +678,13 @@ class Battle(EmptyScene):
         self.joueurA.clavierX = 7
         self.joueurA.clavierY = 7
         self.joueurA.levier = Levier.neutre
+        if self.joueurA.sortie:
+            self.joueurA.attaque = False
+            self.joueurA.levier = self.joueurA.recule_levier()
+            return 'action'
         if not Game.Demo:
             self.joueurA.clavier()
-
-        if self.joueurA.sortie:
-            if self.tempsfini:
-                if self.sense == 'inverse':
-                    self.joueurA.levier = Levier.droite
-                    return 'action'
-            self.sense = 'normal'
-            self.joueurA.levier = Levier.gauche
-            return 'action'
-
-        if Game.Demo:
+        else:
             distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
             if distance >= 15:  # quand trop loin
                 self.joueurA.occupe_state(State.rouladeAV, self.temps)
@@ -1455,16 +1449,12 @@ class Battle(EmptyScene):
         self.joueurB.clavierX = 7
         self.joueurB.clavierY = 7
         self.joueurB.levier = Levier.neutre
+        if self.joueurB.sortie:
+            self.joueurB.attaque = False
+            self.joueurB.levier = self.joueurB.recule_levier()
+            return 'actionB'
         if Game.Partie == 'vs':
             self.joueurB.clavier()
-        if self.joueurB.sortie:
-            if self.tempsfini:
-                if self.sense == 'inverse':
-                    self.joueurB.levier = Levier.gauche
-                    return 'actionB'
-            self.sense = 'normal'
-            self.joueurB.levier = Levier.droite
-            return 'actionB'
         # *****************************************
         # ******* Intelligence Artificielle *******
         # *****************************************

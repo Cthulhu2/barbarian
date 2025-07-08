@@ -604,7 +604,7 @@ class Barbarian(AnimatedSprite):
             return
         self.state = state
         self.reftemps = temps
-        if self.attaque and not self.sortie:
+        if self.attaque:
             self.occupe_state(attack, temps)
 
     def action_haut(self, temps):
@@ -709,7 +709,7 @@ class Barbarian(AnimatedSprite):
                       soncling: iter, songrogne: iter):
         self.xF = self.x_loc() + (4 if self.rtl else 0)
         self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (0 if self.rtl else 4)
         self.xG = self.x_loc() + (0 if self.rtl else 4)
         self.yG = YG
         if temps > self.reftemps + 45:
@@ -780,13 +780,13 @@ class Barbarian(AnimatedSprite):
         elif temps > self.reftemps + 30:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
         elif temps > self.reftemps + 10:
-            self.xM = self.x_loc() + (4 if self.rtl else 0)
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
             self.xM = self.x_loc() + (4 if self.rtl else 0)
             self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
         elif temps > self.reftemps + 1:
-            self.xM = self.x_loc() + (4 if self.rtl else 0)
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
         elif temps == self.reftemps:
             self.animate('coupdepied')
 
