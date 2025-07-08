@@ -1221,7 +1221,6 @@ class Battle(EmptyScene):
 
             if self.joueurB.state == State.decapite and self.joueurA.decapite:
                 self.joueurA.occupe_state(State.mortdecap, self.temps)
-                self.xSPRt = self.joueurA.x_loc() + 3
                 Game.ScoreB += 250
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
                 return 'mort'
@@ -1258,8 +1257,6 @@ class Battle(EmptyScene):
 
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
-                if self.joueurB.state in (State.coupdetete, State.coupdepied):
-                    self.joueurA.sangSprite.kill()
                 return 'mort'
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreB += 150
@@ -1377,15 +1374,14 @@ class Battle(EmptyScene):
                     if self.joueurA.state in (State.araignee, State.rouladeAV,
                                               State.protegeD):
                         self.joueurB.state = State.tombe
-                        return 'gestionB'
-                    if self.joueurA.state == State.coupdepied:
+                    elif self.joueurA.state == State.coupdepied:
                         self.joueurB.state = State.tombe
                         self.joueurB.infoDegatG += 1
-                        return 'gestionB'
-                    self.joueurB.state = State.touche
-                    Game.ScoreA += 100
-                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                    self.joueurB.infoDegatG += 1
+                    else:
+                        self.joueurB.state = State.touche
+                        self.joueurB.infoDegatG += 1
+                        Game.ScoreA += 100
+                        self.txtScoreA.msg = f'{Game.ScoreA:05}'
                     return 'gestionB'
 
         if self.sense == 'inverse':
@@ -1424,21 +1420,18 @@ class Battle(EmptyScene):
                         and self.joueurA.yAtt == self.joueurB.yG):
                     if self.joueurA.state == State.araignee:
                         self.joueurB.state = State.tombe
-                        return 'gestionB'
-                    if self.joueurA.state == State.rouladeAV:
+                    elif self.joueurA.state == State.rouladeAV:
                         self.joueurB.state = State.tombe
-                        return 'gestionB'
-                    if self.joueurB.state == State.protegeD:
+                    elif self.joueurB.state == State.protegeD:
                         self.joueurB.state = State.clingD
-                        return 'gestionB'
-                    if self.joueurA.state == State.coupdepied:
+                    elif self.joueurA.state == State.coupdepied:
                         self.joueurB.state = State.tombe
                         self.joueurB.infoDegatG += 1
-                        return 'gestionB'
-                    self.joueurB.state = State.touche
-                    Game.ScoreA += 100
-                    self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                    self.joueurB.infoDegatG += 1
+                    else:
+                        self.joueurB.state = State.touche
+                        Game.ScoreA += 100
+                        self.txtScoreA.msg = f'{Game.ScoreA:05}'
+                        self.joueurB.infoDegatG += 1
                     return 'gestionB'
 
         if self.joueurB.occupe:
@@ -1482,7 +1475,7 @@ class Battle(EmptyScene):
                                 return 'gestionB'
                         if self.joueurA.state == State.decapite:
                             self.joueurB.state = State.protegeD
-                            self.joueurB.reftempsB = self.temps
+                            self.joueurB.reftemps = self.temps
                             return 'gestionB'
                 if distance == 12 and self.joueurA.state == State.debout:
                     self.joueurB.occupe_state(State.decapite, self.temps)
@@ -1570,7 +1563,7 @@ class Battle(EmptyScene):
                     if Game.IA == 3:
                         if self.joueurA.state == State.devant:
                             self.joueurB.state = State.protegeD
-                            self.joueurB.reftempsB = self.temps
+                            self.joueurB.reftemps = self.temps
                             return 'gestionB'
                     if Game.IA == 2:
                         if self.joueurA.state == State.genou:
@@ -2235,7 +2228,6 @@ class Battle(EmptyScene):
 
             if self.joueurA.state == State.decapite and self.joueurB.decapite:
                 self.joueurB.occupe_state(State.mortdecap, self.temps)
-                self.xSPRt = self.joueurB.x_loc() + 3
                 Game.ScoreA += 250
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
                 return 'mortB'
@@ -2272,8 +2264,6 @@ class Battle(EmptyScene):
 
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
-                if self.joueurA.state in (State.coupdetete, State.coupdepied):
-                    self.joueurB.sangSprite.kill()
                 return 'mortB'
             if self.joueurA.state == State.coupdetete:
                 Game.ScoreA += 150
