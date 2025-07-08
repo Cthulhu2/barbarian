@@ -891,6 +891,7 @@ class Barbarian(AnimatedSprite):
         self.sang = False
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
+        self.yAtt = 14
         self.reset_xX()
 
         if temps == self.reftemps + 75:
