@@ -434,7 +434,7 @@ def barb(subdir: str):
         'protegeH': [
             # @formatter:off
             Frame(f'{subdir}/marche1.gif',  tick=5, mv=(-CHAR_W * SCALE, 0)),
-            Frame(f'{subdir}/protegeH.gif', tick=9),
+            Frame(f'{subdir}/protegeH.gif', tick=9, dx=-2 * SCALE),
             # @formatter:on
         ],
         'protegeD': [
@@ -676,7 +676,7 @@ def barb_rtl(subdir: str):
         'protegeH': [
             # @formatter:off
             Frame(f'{subdir}/marche1.gif',  xflip=True, tick=5, mv=(CHAR_W * SCALE, 0)),
-            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=9, dx=-CHAR_W * SCALE),
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=9, dx=(-CHAR_W + 2) * SCALE),
             # @formatter:on
         ],
         'protegeD': [
