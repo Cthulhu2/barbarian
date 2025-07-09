@@ -1049,9 +1049,15 @@ class Battle(EmptyScene):
                 self.joueurA.occupe = False
                 self.joueurA.state = State.finderoulade
                 # return 'finderoulade'  # vvv
+            elif self.temps == self.joueurA.reftemps + 18:
+                if self.joueurB.state in (State.tombe, State.tombe1):
+                    self.joueurA.animate('rouladeAV-out', self.joueurA.animTick)
             elif self.temps == self.joueurA.reftemps + 17:
                 self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
                 return 'joueur2'
+            elif self.temps == self.joueurA.reftemps + 15:
+                if self.joueurB.state in (State.tombe, State.tombe1):
+                    self.joueurA.animate('rouladeAV-out', self.joueurA.animTick)
             elif self.temps == self.joueurA.reftemps + 14:
                 self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
                 return 'joueur2'
@@ -2058,9 +2064,15 @@ class Battle(EmptyScene):
                 self.joueurB.occupe = False
                 self.joueurB.state = State.finderoulade
                 # return 'finderouladeB'  # vvv
+            elif self.temps == self.joueurB.reftemps + 18:
+                if self.joueurA.state in (State.tombe, State.tombe1):
+                    self.joueurB.animate('rouladeAV-out', self.joueurB.animTick)
             elif self.temps == self.joueurB.reftemps + 17:
                 self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
                 return 'colision'
+            elif self.temps == self.joueurB.reftemps + 15:
+                if self.joueurA.state in (State.tombe, State.tombe1):
+                    self.joueurB.animate('rouladeAV-out', self.joueurB.animTick)
             elif self.temps == self.joueurB.reftemps + 14:
                 self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
                 return 'colision'

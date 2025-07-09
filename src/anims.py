@@ -403,6 +403,19 @@ def barb(subdir: str):
             Frame(f'{subdir}/debout.gif',               tick=39,                       ),  # noqa
             # @formatter:on
         ],
+        'rouladeAV-out': [
+            # non-movable roulade out
+            # @formatter:off
+            Frame(f'{subdir}/roulade3.gif',             tick=16),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=19),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=22),  # noqa
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=25),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=28),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=30),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34),  # noqa
+            Frame(f'{subdir}/debout.gif',               tick=39),  # noqa
+            # @formatter:on
+        ],
         'rouladeAR': [
             # @formatter:off
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=2,                         ),  # noqa
@@ -630,6 +643,19 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W * SCALE, 0)),  # noqa
             Frame(f'{subdir}/debout.gif',   xflip=True, tick=39,                        ),  # noqa
+            # @formatter:on
+        ],
+        'rouladeAV-out': [
+            # non-movable roulade out
+            # @formatter:off
+            Frame(f'{subdir}/roulade3.gif',             tick=16),  # noqa
+            Frame(f'{subdir}/roulade3.gif',             tick=19),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=22),  # noqa
+            Frame(f'{subdir}/roulade2.gif',             tick=25),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=28),  # noqa
+            Frame(f'{subdir}/roulade5.gif',             tick=30),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=34),  # noqa
+            Frame(f'{subdir}/debout.gif',   xflip=True, tick=39),  # noqa
             # @formatter:on
         ],
         'rouladeAR': [
