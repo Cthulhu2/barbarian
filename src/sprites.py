@@ -770,7 +770,7 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps:
             self.animate('araignee')
 
-    def gestion_coupdepied(self, temps):
+    def gestion_coupdepied(self, temps, opponent):
         self.reset_xX()
         self.yAtt = self.yM
         self.yM = YM
@@ -784,7 +784,10 @@ class Barbarian(AnimatedSprite):
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
             self.xM = self.x_loc() + (4 if self.rtl else 0)
-            self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+            if opponent.state == State.coupdepied and (7 < temps - opponent.reftemps < 11):
+                pass  # do no attack
+            else:
+                self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
         elif temps > self.reftemps + 1:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
         elif temps == self.reftemps:

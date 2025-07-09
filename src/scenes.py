@@ -1174,7 +1174,7 @@ class Battle(EmptyScene):
                                           self.soncling, self.songrogne)
 
         if self.joueurA.state == State.coupdepied:
-            self.joueurA.gestion_coupdepied(self.temps)
+            self.joueurA.gestion_coupdepied(self.temps, self.joueurB)
 
         if self.joueurA.state == State.coupdetete:
             self.joueurA.gestion_coupdetete(self.temps)
@@ -2183,7 +2183,7 @@ class Battle(EmptyScene):
                                           self.soncling, self.songrogne)
 
         if self.joueurB.state == State.coupdepied:
-            self.joueurB.gestion_coupdepied(self.temps)
+            self.joueurB.gestion_coupdepied(self.temps, self.joueurA)
 
         if self.joueurB.state == State.coupdetete:
             self.joueurB.gestion_coupdetete(self.temps)
