@@ -888,7 +888,7 @@ class Battle(EmptyScene):
                 if self.joueurA.attaque and not Game.Demo:
                     self.joueurA.occupe_state(State.araignee, self.temps)
         if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.hautG:  # hautD ???
+            if self.joueurA.levier == Levier.hautD:
                 if self.joueurA.protegeH:
                     self.joueurA.state = State.protegeH
                     return 'gestion'
@@ -906,7 +906,7 @@ class Battle(EmptyScene):
                 if self.joueurA.attaque and not Game.Demo:
                     self.joueurA.occupe_state(State.coupdetete, self.temps)
         if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.hautD:  # hautG ???
+            if self.joueurA.levier == Levier.hautG:
                 if self.joueurA.protegeD:
                     self.joueurA.state = State.protegeD
                     return 'gestion'
