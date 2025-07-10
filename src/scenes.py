@@ -312,10 +312,11 @@ class Battle(EmptyScene):
             self.jAtemps = Txt.Debug(loc2px(10), self.jAlevier.rect.bottom)
             self.jBtemps = Txt.Debug(loc2px(25), self.jBlevier.rect.bottom)
             self.debugTemps = Txt.Debug(loc2px(18), 0)
+            self.distance = Txt.Debug(loc2px(18), self.jBtemps.rect.top)
             # noinspection PyTypeChecker
             self.add(self.jAstate, self.jAlevier, self.jAtemps,
                      self.jBstate, self.jBlevier, self.jBtemps,
-                     self.debugTemps, layer=99)
+                     self.debugTemps, self.distance, layer=99)
             if self.opts.debug > 2:
                 self.jAframe = Txt.Debug(loc2px(10), self.jAtemps.rect.bottom)
                 self.jBframe = Txt.Debug(loc2px(25), self.jBtemps.rect.bottom)
@@ -345,6 +346,7 @@ class Battle(EmptyScene):
         self.joueurA = Barbarian(opts, loc2px(1), loc2px(14),
                                  'spritesA',
                                  rtl=Game.Rtl)
+        self.joueurA.infoCoup = 3
         self.joueurB = Barbarian(opts, loc2px(36), loc2px(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)
@@ -757,7 +759,7 @@ class Battle(EmptyScene):
                     return 'gestion'
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
-                    self.joueurA.levier = Levier.gauche
+                    self.joueurA.levier = self.joueurA.avance_levier()
                     return 'action'
 
             if distance <= 6:
@@ -800,7 +802,7 @@ class Battle(EmptyScene):
                     return 'gestion'
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
-                    self.joueurA.levier = Levier.gauche
+                    self.joueurA.levier = self.joueurA.avance_levier()
                     return 'action'
 
             if self.sense == 'inverse':
@@ -851,7 +853,6 @@ class Battle(EmptyScene):
             if self.joueurA.assis:
                 self.joueurA.state = State.assis2
                 return 'gestion'
-            # attaque ???
             self.joueurA.occupe_state(State.assis, self.temps)
             return 'gestion'
 
@@ -1780,7 +1781,7 @@ class Battle(EmptyScene):
                         self.joueurB.occupe_state(State.genou, self.temps)
                         self.joueurB.infoCoup += 1
                         return 'gestionB'
-                    if self.joueurB.infoCoup == 6:
+                    if self.joueurB.infoCoup == 5:
                         self.joueurB.levier = self.joueurB.avance_levier()
                         self.joueurB.infoCoup = 0
                         return 'action'
@@ -1788,8 +1789,6 @@ class Battle(EmptyScene):
         if self.joueurB.levier != Levier.neutre:
             return 'actionB'
         # actions si aucune touche n'a ete touchee
-        self.joueurB.spriteAvance = 0
-        self.joueurB.spriteRecule = 0
         self.joueurB.protegeD = False
         self.joueurB.protegeH = False
         self.joueurB.attente += 1
@@ -2499,6 +2498,8 @@ class Battle(EmptyScene):
             self.jBtemps.msg = (f'BT: {self.joueurB.reftemps}'
                                 f' ({self.temps - self.joueurB.reftemps})')
             self.debugTemps.msg = f'T: {self.temps}'
+            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+            self.distance.msg = f'A <- {distance:>2} -> B'
             if self.debugAttArea:
                 self.jAAtt.move_to(loc2px(self.joueurA.xAtt), loc2px(self.joueurA.yAtt))
                 self.jAF.move_to(loc2px(self.joueurA.xF), loc2px(self.joueurA.yF))
