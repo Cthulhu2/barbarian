@@ -1050,6 +1050,14 @@ class Battle(EmptyScene):
                 self.joueurA.occupe = False
                 self.joueurA.state = State.finderoulade
                 # return 'finderoulade'  # vvv
+            elif self.temps > self.joueurA.reftemps + 23:
+                if self.joueurA.anim == 'rouladeAV':
+                    if self.joueurA.rtl:
+                        distance = self.joueurA.x_loc() - self.joueurB.x_loc()
+                    else:
+                        distance = self.joueurB.x_loc() - self.joueurA.x_loc()
+                    if 4 == distance:  # do not rollout at left half opponent
+                        self.joueurA.animate('rouladeAV-out', self.joueurA.animTick)
             elif self.temps == self.joueurA.reftemps + 18:
                 if self.joueurB.state in (State.tombe, State.tombe1):
                     self.joueurA.animate('rouladeAV-out', self.joueurA.animTick)
@@ -2063,6 +2071,14 @@ class Battle(EmptyScene):
                 self.joueurB.occupe = False
                 self.joueurB.state = State.finderoulade
                 # return 'finderouladeB'  # vvv
+            elif self.temps > self.joueurB.reftemps + 23:
+                if self.joueurB.anim == 'rouladeAV':
+                    if self.joueurB.rtl:
+                        distance = self.joueurB.x_loc() - self.joueurA.x_loc()
+                    else:
+                        distance = self.joueurA.x_loc() - self.joueurB.x_loc()
+                    if 4 == distance:  # do not rollout at left half opponent
+                        self.joueurB.animate('rouladeAV-out', self.joueurB.animTick)
             elif self.temps == self.joueurB.reftemps + 18:
                 if self.joueurA.state in (State.tombe, State.tombe1):
                     self.joueurB.animate('rouladeAV-out', self.joueurB.animTick)
@@ -2350,16 +2366,14 @@ class Battle(EmptyScene):
                 and not (ja.state == State.saute and jb.state == State.rouladeAV)
                 and not (jb.state == State.saute and ja.state == State.rouladeAV)):
             # pour empecher que A entre dans B
-            levier = Levier.gauche if ja.rtl else Levier.droite
-            if (ja.levier == levier
+            if (ja.levier == ja.avance_levier()
                     or ja.state in (State.rouladeAV, State.decapite,
                                     State.debout, State.coupdepied)):
                 if ja.xLocPrev != jax:
                     ja.x = loc2px(jax - (-1 if ja.rtl else 1))
 
             # pour empecher que B entre dans A
-            levier = Levier.gauche if jb.rtl else Levier.droite
-            if (jb.levier == levier
+            if (jb.levier == jb.avance_levier()
                     or jb.state in (State.rouladeAV, State.decapite,
                                     State.debout, State.coupdepied)):
                 if jb.xLocPrev != jbx:
@@ -2435,8 +2449,10 @@ class Battle(EmptyScene):
         return None
 
     def update(self, current_time, *args):
-        self.joueurA.xLocPrev = self.joueurA.x_loc()
-        self.joueurB.xLocPrev = self.joueurB.x_loc()
+        ja = self.joueurA
+        jb = self.joueurB
+        ja.xLocPrev = ja.x_loc()
+        jb.xLocPrev = jb.x_loc()
         super(Battle, self).update(current_time, *args)
         if self.chronoOn:
             if self.chrono == 0:
@@ -2448,10 +2464,10 @@ class Battle(EmptyScene):
                     Game.Chronometre = 0
                     self.chronoOn = False
                     if Game.Partie == 'vs':
-                        self.joueurA.sortie = True
-                        self.joueurA.occupe = False
-                        self.joueurB.sortie = True
-                        self.joueurB.occupe = False
+                        ja.sortie = True
+                        ja.occupe = False
+                        jb.sortie = True
+                        jb.occupe = False
                         self.tempsfini = True
                 self.txtChronometre.msg = f'{Game.Chronometre:02}'
 
@@ -2481,7 +2497,7 @@ class Battle(EmptyScene):
             elif goto == 'mortB':
                 goto = self._gestion_mortB()
             elif goto == 'colision':
-                goto = self._colision(self.joueurA, self.joueurB)
+                goto = self._colision(ja, jb)
             elif goto == 'affichage':
                 goto = self._affichage()
             elif goto == 'gnome':
@@ -2489,35 +2505,32 @@ class Battle(EmptyScene):
             else:
                 goto = None
         if self.opts.debug > 1:
-            self.jAstate.msg = f'AS: {self.joueurA.state}'
-            self.jAlevier.msg = f'AL: {self.joueurA.levier}'
-            self.jAtemps.msg = (f'AT: {self.joueurA.reftemps}'
-                                f' ({self.temps - self.joueurA.reftemps})')
-            self.jBstate.msg = f'BS: {self.joueurB.state}'
-            self.jBlevier.msg = f'BL: {self.joueurB.levier}'
-            self.jBtemps.msg = (f'BT: {self.joueurB.reftemps}'
-                                f' ({self.temps - self.joueurB.reftemps})')
+            self.jAstate.msg = f'AS: {ja.state}'
+            self.jAlevier.msg = f'AL: {ja.levier}'
+            self.jAtemps.msg = f'AT: {ja.reftemps} ({self.temps - ja.reftemps})'
+            self.jBstate.msg = f'BS: {jb.state}'
+            self.jBlevier.msg = f'BL: {jb.levier}'
+            self.jBtemps.msg = f'BT: {jb.reftemps} ({self.temps - jb.reftemps})'
             self.debugTemps.msg = f'T: {self.temps}'
-            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+            distance = abs(jb.x_loc() - ja.x_loc())
             self.distance.msg = f'A <- {distance:>2} -> B'
             if self.debugAttArea:
-                self.jAAtt.move_to(loc2px(self.joueurA.xAtt), loc2px(self.joueurA.yAtt))
-                self.jAF.move_to(loc2px(self.joueurA.xF), loc2px(self.joueurA.yF))
-                self.jAT.move_to(loc2px(self.joueurA.xT), loc2px(self.joueurA.yT))
-                self.jAM.move_to(loc2px(self.joueurA.xM), loc2px(self.joueurA.yM))
-                self.jAG.move_to(loc2px(self.joueurA.xG), loc2px(self.joueurA.yG))
-                self.jBAtt.move_to(loc2px(self.joueurB.xAtt), loc2px(self.joueurB.yAtt))
-                self.jBF.move_to(loc2px(self.joueurB.xF), loc2px(self.joueurB.yF))
-                self.jBT.move_to(loc2px(self.joueurB.xT), loc2px(self.joueurB.yT))
-                self.jBM.move_to(loc2px(self.joueurB.xM), loc2px(self.joueurB.yM))
-                self.jBG.move_to(loc2px(self.joueurB.xG), loc2px(self.joueurB.yG))
+                self.jAAtt.move_to(loc2px(ja.xAtt), loc2px(ja.yAtt))
+                self.jAF.move_to(loc2px(ja.xF), loc2px(ja.yF))
+                self.jAT.move_to(loc2px(ja.xT), loc2px(ja.yT))
+                self.jAM.move_to(loc2px(ja.xM), loc2px(ja.yM))
+                self.jAG.move_to(loc2px(ja.xG), loc2px(ja.yG))
+                #
+                self.jBAtt.move_to(loc2px(jb.xAtt), loc2px(jb.yAtt))
+                self.jBF.move_to(loc2px(jb.xF), loc2px(jb.yF))
+                self.jBT.move_to(loc2px(jb.xT), loc2px(jb.yT))
+                self.jBM.move_to(loc2px(jb.xM), loc2px(jb.yM))
+                self.jBG.move_to(loc2px(jb.xG), loc2px(jb.yG))
             if self.opts.debug > 2:
-                self.jAframe.msg = (
-                    f'{self.joueurA.frameNum + 1} / {len(self.joueurA.frames)}'
-                    f' ({self.joueurA.frame.name})')
-                self.jBframe.msg = (
-                    f'{self.joueurB.frameNum + 1} / {len(self.joueurB.frames)}'
-                    f' ({self.joueurB.frame.name})')
+                self.jAframe.msg = (f'{ja.frameNum + 1} / {len(ja.frames)}'
+                                    f' ({ja.frame.name})')
+                self.jBframe.msg = (f'{jb.frameNum + 1} / {len(jb.frames)}'
+                                    f' ({jb.frame.name})')
 
 
 class Version(_MenuBackScene):

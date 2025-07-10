@@ -510,9 +510,9 @@ def barb(subdir: str):
             Frame(f'{subdir}/front2.gif', tick=46),
         ],
         'retourne': [
-            Frame(f'{subdir}/retourne1.gif', tick=5),
-            Frame(f'{subdir}/retourne2.gif', tick=10),
-            Frame(f'{subdir}/retourne3.gif', tick=16),
+            Frame(f'{subdir}/retourne1.gif', tick=5,  mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/retourne2.gif', tick=10, mv=(CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/retourne3.gif', tick=18, mv=(CHAR_W * SCALE, 0)),
         ],
         'vainqueur': [
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=18),
@@ -755,9 +755,9 @@ def barb_rtl(subdir: str):
             # @formatter:on
         ],
         'retourne': [
-            Frame(f'{subdir}/retourne1.gif', xflip=True, tick=5),
-            Frame(f'{subdir}/retourne2.gif', xflip=True, tick=10),
-            Frame(f'{subdir}/retourne3.gif', xflip=True, tick=16),
+            Frame(f'{subdir}/retourne1.gif', xflip=True, tick=5,  mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/retourne2.gif', xflip=True, tick=10, mv=(-CHAR_W * SCALE, 0)),
+            Frame(f'{subdir}/retourne3.gif', xflip=True, tick=18, mv=(-CHAR_W * SCALE, 0)),
         ],
         'vainqueur': [
             # @formatter:off

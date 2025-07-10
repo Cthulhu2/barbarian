@@ -531,8 +531,11 @@ class Barbarian(AnimatedSprite):
 
     def turn_around(self, rtl):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
-        self.animate(self.anim)
+        self.frames = self.anims[self.anim]
+        self.frame = self.frames[self.frameNum]
         self.rtl = rtl
+        self._update_rect()
+        self.dirty = 1
 
     def occupe_state(self, state: State, temps: int):
         self.state = state
