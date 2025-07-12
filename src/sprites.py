@@ -438,6 +438,7 @@ class State(enum.Enum):
     vainqueurKO = enum.auto()
     #
     fini = enum.auto()
+    sorcier = enum.auto()
     marianna = enum.auto()
     mortSORCIER = enum.auto()
     sorcierFINI = enum.auto()
@@ -1022,10 +1023,9 @@ class Barbarian(AnimatedSprite):
 
 
 class Sorcier(AnimatedSprite):
-    def __init__(self, x, y, rtl=False, anim='idle'):
-        super().__init__(
-            (x, y),
-            rtl_anims(anims.sorcier()) if rtl else anims.sorcier())
+    def __init__(self, opts, x, y, rtl=False, anim='idle'):
+        super().__init__((x, y), anims.sorcier())
+        self.opts = opts
         self.rtl = rtl
         self.animate(anim)
         self.ltr_anims = self.anims
@@ -1035,33 +1035,76 @@ class Sorcier(AnimatedSprite):
         self.clavierY = 7
         self.attaque = False
         #
-        self.yAtt = 17
-        self.xAtt = 27 if rtl else 15
+        self.yAtt = YT
+        self.xAtt = 6
         self.yF = YF  # front
         self.yT = YT  # tete
         self.yM = YM  # corps
         self.yG = YG  # genou
-        self.xF = px2loc(self.x) if rtl else px2loc(self.x) + 4
-        self.xT = px2loc(self.x) if rtl else px2loc(self.x) + 4
-        self.xM = px2loc(self.x) if rtl else px2loc(self.x) + 4
-        self.xG = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xF = px2loc(self.x) + 4
+        self.xT = px2loc(self.x) + 4
+        self.xM = px2loc(self.x) + 4
+        self.xG = px2loc(self.x) + 4
         #
+        self.vie = 0
+        self.bonus = False
         self.reftemps = 0
-        self.sang = False
         self.attente = 1
         self.occupe = False
         self.sortie = False
         self.levier: Levier = Levier.neutre
         self.state: State = State.debout
-        self.infoDegatG = 0
-        self.infoDegatT = 0
-        self.bonus = False
+        self.feu = AnimatedSprite(self.top_left, anims.feu())
+
+    def snd_play(self, snd: str):
+        if snd and self.opts.sound:
+            get_snd(snd).play()
 
     def x_loc(self):
         return px2loc(self.x)
 
-    def clavier(self):
-        pass
+    def occupe_state(self, state: State, temps: int):
+        self.state = state
+        self.occupe = True
+        self.reftemps = temps
 
-    def on_pre_action(self, anim, action):
-        pass
+    def gestion_debout(self):
+        if self.anim != 'debout':
+            self.set_anim_frame('debout', 0)
+
+    def gestion_sorcier(self, temps):
+        if temps > self.reftemps + 171:
+            self.reftemps = temps + 1
+
+        elif temps == self.reftemps + 171:
+            self.xAtt = 6
+
+        elif self.reftemps + 135 < temps < self.reftemps + 170:
+            self.xAtt = px2loc(self.feu.x)
+            self.yAtt = px2loc(self.feu.y)
+
+        elif temps == self.reftemps + 131:
+            self.yAtt = YT
+            self.snd_play('feu.ogg')
+            self.feu.add(self.groups())
+            self.feu.top_left = loc(self.xAtt, self.yAtt)
+            self.feu.animate('feu_high', self.animTick)
+
+        elif temps == self.reftemps + 91:
+            self.xAtt = 6
+
+        elif self.reftemps + 55 < temps < self.reftemps + 90:
+            self.xAtt = px2loc(self.feu.x)
+            self.yAtt = px2loc(self.feu.y)
+
+        elif temps == self.reftemps + 51:
+            self.snd_play('feu.ogg')
+            self.feu.add(self.groups())
+            self.feu.top_left = loc(self.xAtt, self.yAtt)
+            self.feu.animate('feu_low', self.animTick)
+
+        elif temps == self.reftemps + 1:
+            if self.is_stopped or self.anim != 'attaque':
+                self.animate('attaque', 1)
+                self.xAtt = self.x_loc()
+                self.yAtt = YT

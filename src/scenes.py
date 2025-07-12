@@ -350,6 +350,7 @@ class Battle(EmptyScene):
         self.joueurB = Barbarian(opts, loc2px(36), loc2px(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)
+        self.sorcier = Sorcier(self.opts, loc2px(7), loc2px(14))
         sz = int(CHAR_H * SCALE)
         if Game.Partie == 'solo' and not Game.Demo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
@@ -520,16 +521,18 @@ class Battle(EmptyScene):
                         else:
                             Game.Sorcier = True
                             self.sense = 'inverse'
-                            self.joueurB = Sorcier(loc2px(8),
-                                                   loc2px(15))
-                            self.add(self.joueurB)
+                            self.add(self.sorcier)
                             self.joueurA.state = State.debout
                             self.joueurA.x = loc2px(36)
+                            if not self.joueurA.rtl:
+                                self.joueurA.turn_around(True)
                             self.entree = False
+                            self.gnome = False
                             self.joueurA.sortie = False
                             self.entreesorcier = True
-                            self.joueurB.occupe = True
-                            self.joueurB.reftemps = self.temps
+                            self.sorcier.occupe_state(State.sorcier, self.temps)
+                            self.serpentA.animate('bite')
+                            self.serpentB.animate('bite')
                     if Game.Partie == 'vs':
                         self.next_stage()
                     return None
@@ -683,6 +686,12 @@ class Battle(EmptyScene):
         if self.joueurA.sortie:
             self.joueurA.attaque = False
             self.joueurA.levier = self.joueurA.recule_levier()
+            return 'action'
+        if self.entreesorcier:
+            if self.joueurA.x_loc() <= 33:
+                self.entreesorcier = False
+                return 'gestion'
+            self.joueurA.levier = Levier.gauche
             return 'action'
         if not Game.Demo:
             self.joueurA.clavier()
@@ -1339,7 +1348,7 @@ class Battle(EmptyScene):
     def _joueur2(self):
         # debut joueur 2
         if Game.Sorcier:
-            if self.joueurA.x_loc() <= self.joueurB.x_loc() + 4:
+            if self.joueurA.x_loc() <= self.sorcier.x_loc() + 4:
                 self.joueurB.occupe_state(State.marianna, self.temps)
                 self.joueurA.occupe_state(State.fini, self.temps)
                 # spriteB$ = "marianna": spriteA$ = "vainqueur3R"
@@ -2326,6 +2335,10 @@ class Battle(EmptyScene):
             self.joueurB.state = State.protegeH
             return 'colision'
 
+        if self.sorcier.state == State.sorcier:
+            self.sorcier.gestion_sorcier(self.temps)
+            return 'colision'
+
         goto = self._gestion_mortB()
 
         return goto
@@ -2497,7 +2510,7 @@ class Battle(EmptyScene):
             elif goto == 'mortB':
                 goto = self._gestion_mortB()
             elif goto == 'colision':
-                goto = self._colision(ja, jb)
+                goto = self._colision(ja, self.sorcier if Game.Sorcier else jb)
             elif goto == 'affichage':
                 goto = self._affichage()
             elif goto == 'gnome':
