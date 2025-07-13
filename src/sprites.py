@@ -997,9 +997,9 @@ class Barbarian(AnimatedSprite):
             # noinspection PyTypeChecker
             gr.add(self.sangSprite, layer=3)
         if self.rtl:
-            self.sangSprite.top_left = (self.x + 2 * CHAR_W * SCALE, y)
-        else:
             self.sangSprite.top_left = (self.x + 1 * CHAR_W * SCALE, y)
+        else:
+            self.sangSprite.top_left = (self.x + 2 * CHAR_W * SCALE, y)
         self.sangSprite.animate('sang_touche')
 
     def animate(self, anim: str, tick=0):
