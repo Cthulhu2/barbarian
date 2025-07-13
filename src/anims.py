@@ -882,15 +882,15 @@ def feu():
         'feu_high': [
             # @formatter:off
             Frame('empty',            tick=135),  # loc 7
-            Frame('sprites/feu1.gif', tick=136, mv=(7    * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 14,    16.0
-            Frame('sprites/feu1.gif', tick=137, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 14.75, 16.5
-            Frame('sprites/feu1.gif', tick=138, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 15.5,  17.0
-            Frame('sprites/feu1.gif', tick=139, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 16.25, 17.5
-            Frame('sprites/feu1.gif', tick=140, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 17.0,  18.0
-            Frame('sprites/feu2.gif', tick=141, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 17.75, 18.5
-            Frame('sprites/feu2.gif', tick=142, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 18.5,  19.0
-            Frame('sprites/feu2.gif', tick=143, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 19.25, 19.5
-            Frame('sprites/feu2.gif', tick=145, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 20.0,  20.0
+            Frame('sprites/feu1.gif', tick=136, mv=(7    * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 14,
+            Frame('sprites/feu1.gif', tick=137, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 14.75,
+            Frame('sprites/feu1.gif', tick=138, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 15.5,
+            Frame('sprites/feu1.gif', tick=139, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 16.25,
+            Frame('sprites/feu1.gif', tick=140, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 17.0,
+            Frame('sprites/feu2.gif', tick=141, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 17.75,
+            Frame('sprites/feu2.gif', tick=142, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 18.5,
+            Frame('sprites/feu2.gif', tick=143, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 19.25,
+            Frame('sprites/feu2.gif', tick=145, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 20.0,
             Frame('sprites/feu3.gif', tick=146, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 20.75
             Frame('sprites/feu3.gif', tick=147, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 21.5
             Frame('sprites/feu3.gif', tick=148, mv=(0.75 * CHAR_W * SCALE, 0), colorkey=(255, 0, 255)),  # noqa loc 22.25

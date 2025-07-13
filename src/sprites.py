@@ -123,10 +123,11 @@ class Txt(DirtySprite):
                  size: int,
                  msg: str,
                  color: Tuple[int, int, int],
-                 loc: Tuple[int, int],
+                 loc: Tuple[int, int] = (0, 0),
                  *groups,
                  fnt: str = FONT,
-                 cached: bool = True):
+                 cached: bool = True,
+                 bgcolor: Tuple[int, int, int] = None):
         super(Txt, self).__init__(*groups)
         self._x = loc[0]
         self._y = loc[1]
@@ -134,6 +135,7 @@ class Txt(DirtySprite):
         self._size = size
         self._font = fnt
         self._color = color
+        self._bgcolor = bgcolor
         self._cached = cached
         self.image, self.rect = self._update_image()
 
@@ -172,14 +174,14 @@ class Txt(DirtySprite):
             Txt.font_cache[font_key] = font_
 
         if not self._cached:
-            img = font_.render(str(self.msg), True, self._color)
+            img = font_.render(str(self.msg), True, self._color, self._bgcolor)
             rect = img.get_rect(topleft=(self._x, self._y))
         else:
             key_ = font_key + hash(self.msg) + hash(self._color)
             if key_ in Txt.cache:
                 img = Txt.cache[key_]
             else:
-                img = font_.render(str(self.msg), True, self._color)
+                img = font_.render(str(self.msg), True, self._color, self._bgcolor)
                 Txt.cache[key_] = img
             rect = img.get_rect(topleft=(self._x, self._y))
         return img, rect
@@ -189,10 +191,11 @@ class StaticSprite(DirtySprite):
     def __init__(self,
                  loc: Tuple[int, int],
                  img: str,
+                 w=0, h=0, fill=None,
                  color: Tuple[int, int, int] = None,
                  *groups: AbstractGroup):
         super().__init__(*groups)
-        self.image = get_img(img, color=color)
+        self.image = get_img(img, w=w, h=h, fill=fill, color=color)
         self.rect = self.image.get_rect()
         self.rect.move_ip(loc[0], loc[1])
 
@@ -904,7 +907,7 @@ class Barbarian(AnimatedSprite):
         if temps == self.reftemps + 75:
             opponent.set_anim_frame('mort', 3)  # mort4
 
-        elif temps == self.reftemps + 70:
+        elif temps == self.reftemps + 72:
             opponent.set_anim_frame('mort', 2)  # mort3
 
         elif temps == self.reftemps + 51:
@@ -913,12 +916,12 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps + 36:
             distance = abs(self.x_loc() - opponent.x_loc())
             rtl = self.rtl
-            if (distance < 5 and rtl) or (distance > 5 and not rtl):
+            if (distance < 6 and rtl) or (distance > 6 and not rtl):
                 self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
-                self.x = loc2px(self.x_loc() + abs(5 - distance))
-            if (distance > 5 and rtl) or (distance < 5 and not rtl):
+                self.x = loc2px(self.x_loc() + abs(6 - distance))
+            if (distance > 6 and rtl) or (distance < 6 and not rtl):
                 self.set_anim_frame('vainqueurKO', 5)  # 'marche3' xflip=True
-                self.x = loc2px(self.x_loc() - abs(5 - distance))
+                self.x = loc2px(self.x_loc() - abs(6 - distance))
 
         elif temps == self.reftemps + 8:
             self.animate('vainqueurKO', 8)
@@ -1067,6 +1070,10 @@ class Sorcier(AnimatedSprite):
         self.state = state
         self.occupe = True
         self.reftemps = temps
+
+    def kill(self):
+        super().kill()
+        self.feu.kill()
 
     def gestion_debout(self):
         if self.anim != 'debout':

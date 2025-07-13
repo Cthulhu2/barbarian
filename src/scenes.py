@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from itertools import cycle
+from typing import Union
 
 from pygame import Surface
 from pygame.locals import *
@@ -349,8 +350,7 @@ class Battle(EmptyScene):
         self.joueurA.infoCoup = 3
         self.joueurB = Barbarian(opts, loc2px(36), loc2px(14),
                                  f'spritesB/spritesB{Game.IA}',
-                                 rtl=not Game.Rtl)
-        self.sorcier = Sorcier(self.opts, loc2px(7), loc2px(14))
+                                 rtl=not Game.Rtl)  # type: Union[Barbarian, Sorcier]
         sz = int(CHAR_H * SCALE)
         if Game.Partie == 'solo' and not Game.Demo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
@@ -391,6 +391,8 @@ class Battle(EmptyScene):
         self.vieA1 = AnimatedSprite((43.3 * SCALE, 11 * SCALE), anims.vie(), self)
         self.vieB0 = AnimatedSprite((276.3 * SCALE, 0), anims.vie(), self)
         self.vieB1 = AnimatedSprite((276.3 * SCALE, 11 * SCALE), anims.vie(), self)
+        self.vieA(self.joueurA.vie)
+        self.vieB(self.joueurB.vie)
         #
         self.gnome = False
         self.gnomeSprite = AnimatedSprite((0, loc2px(20)), anims.gnome())
@@ -521,7 +523,6 @@ class Battle(EmptyScene):
                         else:
                             Game.Sorcier = True
                             self.sense = 'inverse'
-                            self.add(self.sorcier)
                             self.joueurA.state = State.debout
                             self.joueurA.x = loc2px(36)
                             if not self.joueurA.rtl:
@@ -530,7 +531,18 @@ class Battle(EmptyScene):
                             self.gnome = False
                             self.joueurA.sortie = False
                             self.entreesorcier = True
-                            self.sorcier.occupe_state(State.sorcier, self.temps)
+                            self.joueurB = Sorcier(self.opts, loc2px(7), loc2px(14))
+                            self.joueurB.occupe_state(State.sorcier, self.temps)
+                            # noinspection PyTypeChecker
+                            self.add(
+                                self.joueurB,
+                                StaticSprite((114 * SCALE, 95 * SCALE),
+                                             'fill', w=16, h=6, fill=(0, 0, 0)),
+                                StaticSprite((109 * SCALE, 100 * SCALE),
+                                             'fill', w=26, h=15, fill=(0, 0, 0)),
+                                layer=0)
+                            self.vieA(0)
+                            self.vieB(0)
                             self.serpentA.animate('bite')
                             self.serpentB.animate('bite')
                     if Game.Partie == 'vs':
@@ -1251,6 +1263,7 @@ class Battle(EmptyScene):
 
             self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
             self.joueurA.vie -= 1
+            self.vieA(self.joueurA.vie)
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
                 return 'mort'
@@ -1276,6 +1289,7 @@ class Battle(EmptyScene):
                 self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
                 self.serpentA.animate('bite')
                 self.joueurA.vie -= 1
+                self.vieA(self.joueurA.vie)
                 Game.ScoreB += 100
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
 
@@ -1345,16 +1359,29 @@ class Battle(EmptyScene):
 
         return 'joueur2'
 
+    def _win(self):
+        self.joueurB.kill()
+        self.joueurA.occupe_state(State.fini, self.temps)
+        self.joueurA.set_anim_frame('vainqueur', 2)
+        self.joueurA.x = loc2px(17)
+        txt = Txt(int(CHAR_H * SCALE), 'Thanks big boy.',
+                  color=(34, 34, 153), bgcolor=Theme.BLACK)
+        txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2px(12))
+        # noinspection PyTypeChecker
+        self.add(
+            StaticSprite(loc(16.5, 14), 'sprites/marianna.gif'),
+            StaticSprite((186 * SCALE, 95 * SCALE), 'fill',
+                         w=15, h=20, fill=Theme.BLACK),
+            StaticSprite((185 * SCALE, 113 * SCALE), 'fill',
+                         w=17, h=2, fill=Theme.BLACK),
+            txt)
+        self.jeu = 'gagne'
+
     def _joueur2(self):
         # debut joueur 2
         if Game.Sorcier:
-            if self.joueurA.x_loc() <= self.sorcier.x_loc() + 4:
-                self.joueurB.occupe_state(State.marianna, self.temps)
-                self.joueurA.occupe_state(State.fini, self.temps)
-                # spriteB$ = "marianna": spriteA$ = "vainqueur3R"
-                self.joueurB.x = loc2px(13)
-                self.joueurA.x = loc2px(20)
-                self.jeu = 'gagne'
+            if self.joueurA.x_loc() <= self.joueurB.x_loc() + 4:
+                self._win()
                 return None  # 'debut'
             if self.joueurB.occupe:
                 return 'gestionB'
@@ -2270,6 +2297,7 @@ class Battle(EmptyScene):
 
             self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
             self.joueurB.vie -= 1
+            self.vieB(self.joueurB.vie)
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
                 return 'mortB'
@@ -2295,6 +2323,7 @@ class Battle(EmptyScene):
                 self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
                 self.serpentB.animate('bite')
                 self.joueurB.vie -= 1
+                self.vieB(self.joueurB.vie)
                 Game.ScoreA += 100
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
 
@@ -2335,8 +2364,8 @@ class Battle(EmptyScene):
             self.joueurB.state = State.protegeH
             return 'colision'
 
-        if self.sorcier.state == State.sorcier:
-            self.sorcier.gestion_sorcier(self.temps)
+        if self.joueurB.state == State.sorcier:
+            self.joueurB.gestion_sorcier(self.temps)
             return 'colision'
 
         goto = self._gestion_mortB()
@@ -2415,11 +2444,15 @@ class Battle(EmptyScene):
                 jb.x = loc2px(right)
         return 'affichage'
 
+    def vieA(self, num):
+        self.vieA0.set_anim_frame('vie', max(0, min(6, 6 - num)))
+        self.vieA1.set_anim_frame('vie', max(0, min(6, 12 - num)))
+
+    def vieB(self, num):
+        self.vieB0.set_anim_frame('vie_rtl', max(0, min(6, 6 - num)))
+        self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - num)))
+
     def _affichage(self):
-        self.vieA0.set_anim_frame('vie', max(0, min(6, 6 - self.joueurA.vie)))
-        self.vieA1.set_anim_frame('vie', max(0, min(6, 12 - self.joueurA.vie)))
-        self.vieB0.set_anim_frame('vie_rtl', max(0, min(6, 6 - self.joueurB.vie)))
-        self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - self.joueurB.vie)))
         return None
 
     def _gnome(self):
@@ -2467,6 +2500,8 @@ class Battle(EmptyScene):
         ja.xLocPrev = ja.x_loc()
         jb.xLocPrev = jb.x_loc()
         super(Battle, self).update(current_time, *args)
+        if self.jeu == 'gagne':
+            return
         if self.chronoOn:
             if self.chrono == 0:
                 self.chrono = current_time
@@ -2510,7 +2545,7 @@ class Battle(EmptyScene):
             elif goto == 'mortB':
                 goto = self._gestion_mortB()
             elif goto == 'colision':
-                goto = self._colision(ja, self.sorcier if Game.Sorcier else jb)
+                goto = self._colision(ja, jb)
             elif goto == 'affichage':
                 goto = self._affichage()
             elif goto == 'gnome':
