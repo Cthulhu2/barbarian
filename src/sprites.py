@@ -442,7 +442,6 @@ class State(enum.Enum):
     #
     fini = enum.auto()
     sorcier = enum.auto()
-    marianna = enum.auto()
     mortSORCIER = enum.auto()
     sorcierFINI = enum.auto()
 
@@ -1058,6 +1057,7 @@ class Sorcier(AnimatedSprite):
         self.levier: Levier = Levier.neutre
         self.state: State = State.debout
         self.feu = AnimatedSprite(self.top_left, anims.feu())
+        self.feu.layer = 3
 
     def snd_play(self, snd: str):
         if snd and self.opts.sound:
@@ -1088,11 +1088,11 @@ class Sorcier(AnimatedSprite):
 
         elif self.reftemps + 135 < temps < self.reftemps + 170:
             self.xAtt = px2loc(self.feu.x)
-            self.yAtt = px2loc(self.feu.y)
 
         elif temps == self.reftemps + 131:
             self.yAtt = YT
             self.snd_play('feu.ogg')
+            # noinspection PyTypeChecker
             self.feu.add(self.groups())
             self.feu.top_left = loc(self.xAtt, self.yAtt)
             self.feu.animate('feu_high', self.animTick)
@@ -1102,10 +1102,11 @@ class Sorcier(AnimatedSprite):
 
         elif self.reftemps + 55 < temps < self.reftemps + 90:
             self.xAtt = px2loc(self.feu.x)
-            self.yAtt = px2loc(self.feu.y)
+            self.yAtt = YG
 
         elif temps == self.reftemps + 51:
             self.snd_play('feu.ogg')
+            # noinspection PyTypeChecker
             self.feu.add(self.groups())
             self.feu.top_left = loc(self.xAtt, self.yAtt)
             self.feu.animate('feu_low', self.animTick)

@@ -10,7 +10,7 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2px, loc, State, Levier, Sorcier, Rectangle, YG, YT, px2loc
+    loc2px, loc, State, Levier, Sorcier, Rectangle, YG, YT, px2loc, YM
 )
 import anims
 from anims import get_img, rtl_anims
@@ -582,16 +582,14 @@ class Battle(EmptyScene):
         ja = self.joueurA
         jb = self.joueurB
         if Game.Sorcier:
-            if (ja.x_loc() < 29 and (
+            if (ja.x_loc() < 33 and (
                     (jb.yAtt == ja.yT and ja.xT < jb.xAtt <= ja.xT + 2)
                     or (jb.yAtt == ja.yG and ja.xG <= jb.xAtt <= ja.xG + 2)
             )):
-                self.gnome = False
-                if self.jeu == 'perdu':
+                if self.jeu == 'perdu' or ja.state == State.mortSORCIER:
                     return 'gestion'
                 ja.occupe_state(State.mortSORCIER, self.temps)
                 jb.occupe_state(State.sorcierFINI, self.temps)
-                self.jeu = 'perdu'
                 return 'gestion'
             if ja.occupe:
                 return 'gestion'
@@ -1010,6 +1008,7 @@ class Battle(EmptyScene):
             self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
+            self.joueurA.yT = YM
             self.joueurA.set_anim_frame('assis', 0)
             if self.temps > self.joueurA.reftemps + 10:
                 self.joueurA.state = State.assis2
@@ -1042,6 +1041,7 @@ class Battle(EmptyScene):
             self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
             self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
             self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
+            self.joueurA.yT = YT
             self.joueurA.set_anim_frame('releve', 0)
             if self.temps > self.joueurA.reftemps + 10:
                 self.joueurA.state = State.debout
@@ -1357,16 +1357,36 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.vainqueur, self.temps)
                 self.snd_play('mortdecap.ogg')
 
+        if self.joueurA.state == State.mortSORCIER:
+            if self.temps > self.joueurA.reftemps + 86:
+                self.joueurA.state = State.sorcierFINI
+                self._loose()
+            elif self.temps == self.joueurA.reftemps:
+                self.joueurB.is_stopped = True
+                self.joueurA.animate('mortSORCIER')
+
         return 'joueur2'
+
+    @staticmethod
+    def _center_txt(msg):
+        txt = Txt(int(CHAR_H * SCALE), msg,
+                  color=(34, 34, 153), bgcolor=Theme.BLACK)
+        txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2px(11))
+        bg = StaticSprite((0, 0), 'fill',
+                          w=txt.rect.w / SCALE + 2 * CHAR_W,
+                          h=txt.rect.h / SCALE + 2 * CHAR_H,
+                          fill=Theme.BLACK)
+        bg.rect.topleft = (txt.rect.topleft[0] - CHAR_W * SCALE,
+                           txt.rect.topleft[1] - CHAR_H * SCALE)
+        return bg, txt
 
     def _win(self):
         self.joueurB.kill()
+        self.joueurB.occupe_state(State.mortSORCIER, self.temps)
         self.joueurA.occupe_state(State.fini, self.temps)
         self.joueurA.set_anim_frame('vainqueur', 2)
         self.joueurA.x = loc2px(17)
-        txt = Txt(int(CHAR_H * SCALE), 'Thanks big boy.',
-                  color=(34, 34, 153), bgcolor=Theme.BLACK)
-        txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2px(12))
+        bg, txt = self._center_txt('Thanks big boy.')
         # noinspection PyTypeChecker
         self.add(
             StaticSprite(loc(16.5, 14), 'sprites/marianna.gif'),
@@ -1374,8 +1394,14 @@ class Battle(EmptyScene):
                          w=15, h=20, fill=Theme.BLACK),
             StaticSprite((185 * SCALE, 113 * SCALE), 'fill',
                          w=17, h=2, fill=Theme.BLACK),
-            txt)
+            bg, txt)
         self.jeu = 'gagne'
+
+    def _loose(self):
+        bg, txt = self._center_txt('Your end has come!')
+        # noinspection PyTypeChecker
+        self.add(bg, txt)
+        self.jeu = 'perdu'
 
     def _joueur2(self):
         # debut joueur 2
@@ -2500,7 +2526,7 @@ class Battle(EmptyScene):
         ja.xLocPrev = ja.x_loc()
         jb.xLocPrev = jb.x_loc()
         super(Battle, self).update(current_time, *args)
-        if self.jeu == 'gagne':
+        if self.jeu in ('gagne', 'perdu'):
             return
         if self.chronoOn:
             if self.chrono == 0:

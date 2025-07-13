@@ -828,6 +828,14 @@ def barb_rtl(subdir: str):
         'mortdecapgnome': [
             Frame(f'{subdir}/decap4.gif', xflip=True, tick=1, mv=((CHAR_W / 12) * SCALE, 0)),
         ],
+        'mortSORCIER': [
+            # @formatter:off
+            Frame(f'{subdir}/assis1.gif', xflip=True, tick=15),
+            Frame(f'{subdir}/mort2.gif',  xflip=True, tick=70, dx=-1 * CHAR_W * SCALE),
+            Frame(f'{subdir}/mort3.gif',  xflip=True, tick=85),
+            Frame(f'{subdir}/mort4.gif',  xflip=True, tick=87, post_action='stop'),
+            # @formatter:on
+        ],
     }
 
 
