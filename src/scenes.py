@@ -801,7 +801,7 @@ class Battle(EmptyScene):
 
                 if self.joueurA.infoCoup == 0:
                     self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.coupdepied, self.temps)
+                    self.joueurA.occupe_state(State.genou, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 1:
                     self.joueurA.infoCoup += 1
@@ -817,7 +817,7 @@ class Battle(EmptyScene):
                     return 'gestion'
                 if self.joueurA.infoCoup == 4:
                     self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.genou, self.temps)
+                    self.joueurA.occupe_state(State.coupdepied, self.temps)
                     return 'gestion'
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
