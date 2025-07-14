@@ -632,6 +632,33 @@ class Barbarian(AnimatedSprite):
             self.animate('attente', 8)
             self.snd_play('attente.ogg')
 
+    def gestion_saute(self, temps):
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.reset_xX()
+        self.decapite = False
+        self.yG = self.yM
+        self.yAtt = 14
+        if self.attaque:
+            self.occupe_state(State.cou, temps)
+        elif temps > self.reftemps + 45:
+            self.occupe = False
+            self.state = State.debout
+        elif temps > self.reftemps + 40:
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xG = self.x_loc() + (0 if self.rtl else 4)
+        elif temps > self.reftemps + 30:
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xG = self.x_loc() + (3 if self.rtl else 1)
+            self.decapite = True
+        elif temps > self.reftemps + 13:
+            self.xM = self.x_loc() + (3 if self.rtl else 1)
+            self.xG = self.x_loc() + (3 if self.rtl else 1)
+        elif temps > self.reftemps + 2:
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xG = self.x_loc() + (3 if self.rtl else 1)
+        elif self.anim != 'saute':
+            self.animate('saute')
+
     def gestion_protegeH(self, temps):
         self.reset_xX()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)

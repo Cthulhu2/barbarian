@@ -968,38 +968,8 @@ class Battle(EmptyScene):
                 self.joueurA.animate('recule')
 
         if self.joueurA.state == State.saute:
-            rtl = self.joueurA.rtl
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.reset_xX()
-            self.joueurA.decapite = False
-            self.joueurA.yG = self.joueurA.yM
-            self.joueurA.yAtt = 14
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.cou, self.temps)
-                return 'joueur2'
-
-            if self.temps > self.joueurA.reftemps + 45:
-                self.joueurA.occupe = False
-                self.joueurA.state = State.debout
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 40:
-                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 30:
-                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.xG = self.joueurA.x_loc() + (1 if rtl else 1)
-                self.joueurA.decapite = True
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 13:
-                self.joueurA.xM = self.joueurA.x_loc() + (3 if rtl else 1)
-                self.joueurA.xG = self.joueurA.x_loc() + (3 if rtl else 1)
-                return 'joueur2'
-            if self.temps > self.joueurA.reftemps + 2:
-                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.xG = self.joueurA.x_loc() + (3 if rtl else 1)
-            if self.joueurA.anim != 'saute':
-                self.joueurA.animate('saute')
+            self.joueurA.gestion_saute(self.temps)
+            return 'joueur2'
 
         if self.joueurA.state == State.assis:
             rtl = self.joueurA.rtl
@@ -1112,7 +1082,7 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.retourne, self.temps)
                 self.joueurA.yAtt = 14
                 self.joueurB.yAtt = 14
-                return 'affichage'
+                return None
             if (not rtl and jax < jbx) or (rtl and jax > jbx):
                 self.joueurA.state = State.debout
                 self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
@@ -1235,7 +1205,7 @@ class Battle(EmptyScene):
             if self.temps > self.joueurA.reftemps + 230:
                 self.animate_gnome()
                 self.joueurA.reftemps = self.temps
-                return 'affichage'
+                return None
             elif self.temps == self.joueurA.reftemps + 36:
                 return 'colision'
 
@@ -1348,7 +1318,7 @@ class Battle(EmptyScene):
             if self.temps == self.joueurA.reftemps + 126:
                 self.animate_gnome()
                 self.joueurA.reftemps = self.temps
-                return 'affichage'
+                return None
             elif self.temps == self.joueurA.reftemps:
                 self.chronoOn = False
                 # noinspection PyTypeChecker
@@ -2032,38 +2002,8 @@ class Battle(EmptyScene):
                 self.joueurB.animate('recule')
 
         if self.joueurB.state == State.saute:
-            rtl = self.joueurB.rtl
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.reset_xX()
-            self.joueurB.decapite = False
-            self.joueurB.yG = self.joueurB.yM
-            self.joueurB.yAtt = 14
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.cou, self.temps)
-                return 'colision'
-
-            if self.temps > self.joueurB.reftemps + 45:
-                self.joueurB.occupe = False
-                self.joueurB.state = State.debout
-                return 'colision'
-            if self.temps > self.joueurB.reftemps + 40:
-                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
-                return 'colision'
-            if self.temps > self.joueurB.reftemps + 30:
-                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.xG = self.joueurB.x_loc() + (3 if rtl else 3)
-                self.joueurB.decapite = True
-                return 'colision'
-            if self.temps > self.joueurB.reftemps + 13:
-                self.joueurB.xM = self.joueurB.x_loc() + (3 if rtl else 1)
-                self.joueurB.xG = self.joueurB.x_loc() + (3 if rtl else 1)
-                return 'colision'
-            if self.temps > self.joueurB.reftemps + 2:
-                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.xG = self.joueurB.x_loc() + (3 if rtl else 1)
-            if self.joueurB.anim != 'saute':
-                self.joueurB.animate('saute')
+            self.joueurB.gestion_saute(self.temps)
+            return 'colision'
 
         if self.joueurB.state == State.assis:
             rtl = self.joueurB.rtl
@@ -2172,9 +2112,9 @@ class Battle(EmptyScene):
             if (not rtl and jbx > jax - 1) or (rtl and jbx < jax + 1):
                 self.joueurA.occupe_state(State.retourne, self.temps)
                 self.joueurB.occupe_state(State.retourne, self.temps)
+                self.joueurA.yAtt = 14
                 self.joueurB.yAtt = 14
-                self.joueurB.yAtt = 14
-                return 'affichage'
+                return None
             if (not rtl and jbx < jax) or (rtl and jbx > jax):
                 self.joueurB.state = State.debout
                 self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
@@ -2295,7 +2235,7 @@ class Battle(EmptyScene):
             if self.temps > self.joueurB.reftemps + 230:
                 self.animate_gnome()
                 self.joueurB.reftemps = self.temps
-                return 'affichage'
+                return None
             elif self.temps == self.joueurA.reftemps + 36:
                 return 'colision'
 
@@ -2413,7 +2353,7 @@ class Battle(EmptyScene):
             if self.temps == self.joueurB.reftemps + 126:
                 self.animate_gnome()
                 self.joueurB.reftemps = self.temps
-                return 'affichage'
+                return None
             elif self.temps == self.joueurB.reftemps:
                 self.chronoOn = False
                 # noinspection PyTypeChecker
@@ -2468,7 +2408,7 @@ class Battle(EmptyScene):
                 jb.x = loc2px(left)
             if jbx > right:
                 jb.x = loc2px(right)
-        return 'affichage'
+        return None
 
     def vieA(self, num):
         self.vieA0.set_anim_frame('vie', max(0, min(6, 6 - num)))
@@ -2477,9 +2417,6 @@ class Battle(EmptyScene):
     def vieB(self, num):
         self.vieB0.set_anim_frame('vie_rtl', max(0, min(6, 6 - num)))
         self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - num)))
-
-    def _affichage(self):
-        return None
 
     def _gnome(self):
         if self.joueurA.state in (State.mort, State.mortdecap):
@@ -2572,8 +2509,6 @@ class Battle(EmptyScene):
                 goto = self._gestion_mortB()
             elif goto == 'colision':
                 goto = self._colision(ja, jb)
-            elif goto == 'affichage':
-                goto = self._affichage()
             elif goto == 'gnome':
                 goto = self._gnome()
             else:
