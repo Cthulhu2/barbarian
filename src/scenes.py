@@ -697,13 +697,15 @@ class Battle(EmptyScene):
         if self.joueurA.sortie:
             self.joueurA.attaque = False
             self.joueurA.levier = self.joueurA.recule_levier()
-            return 'action'
+            self.joueurA.action(self.temps)
+            return 'gestion'
         if self.entreesorcier:
             if self.joueurA.x_loc() <= 33:
                 self.entreesorcier = False
                 return 'gestion'
             self.joueurA.levier = Levier.gauche
-            return 'action'
+            self.joueurA.action(self.temps)
+            return 'gestion'
         if not Game.Demo:
             self.joueurA.clavier()
         else:
@@ -780,7 +782,6 @@ class Battle(EmptyScene):
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
                     self.joueurA.levier = self.joueurA.avance_levier()
-                    return 'action'
 
             if distance <= 6:
                 if self.joueurB.state == State.devant:
@@ -823,7 +824,6 @@ class Battle(EmptyScene):
                 if self.joueurA.infoCoup == 5:
                     self.joueurA.infoCoup = 0
                     self.joueurA.levier = self.joueurA.avance_levier()
-                    return 'action'
 
             if self.sense == 'inverse':
                 self.on_menu()
@@ -831,7 +831,8 @@ class Battle(EmptyScene):
 
         # redirection suivant les touches
         if self.joueurA.levier != Levier.neutre:
-            return 'action'
+            self.joueurA.action(self.temps)
+            return 'gestion'
 
         self.joueurA.protegeD = False
         self.joueurA.protegeH = False
@@ -847,10 +848,6 @@ class Battle(EmptyScene):
             return 'gestion'
         # etat debout
         self.joueurA.state = State.debout
-        return 'gestion'
-
-    def _action(self):
-        self.joueurA.action(self.temps)
         return 'gestion'
 
     def _gestion(self):
@@ -1388,7 +1385,8 @@ class Battle(EmptyScene):
         if self.joueurB.sortie:
             self.joueurB.attaque = False
             self.joueurB.levier = self.joueurB.recule_levier()
-            return 'actionB'
+            self.joueurB.action(self.temps)
+            return 'gestionB'
         if Game.Partie == 'vs':
             self.joueurB.clavier()
         # *****************************************
@@ -1428,18 +1426,15 @@ class Battle(EmptyScene):
                         self.joueurB.state = State.debout
                         return 'gestionB'
                     self.joueurB.levier = self.joueurB.avance_levier()
-                    return 'actionB'
-                if distance == 9:
+                elif distance == 9:
                     if self.joueurA.attente > 100:
                         self.joueurB.levier = self.joueurB.avance_levier()
-                        return 'actionB'
-                    if self.joueurA.state == State.rouladeAR:
+                    elif self.joueurA.state == State.rouladeAR:
                         self.joueurB.occupe_state(State.devant, self.temps)
                         return 'gestionB'
-                    if self.joueurA.occupe:
+                    elif self.joueurA.occupe:
                         self.joueurB.levier = self.joueurB.avance_levier()
-                        return 'actionB'
-                if 6 < distance < 9:  # distance de combat 1
+                elif 6 < distance < 9:  # distance de combat 1
                     # pour autoriser les croisements
                     if not Game.Demo and self.joueurA.state == State.rouladeAV:
                         self.joueurB.occupe_state(State.saute, self.temps)
@@ -1497,8 +1492,7 @@ class Battle(EmptyScene):
                     if self.joueurB.infoCoup == 6:
                         self.joueurB.levier = self.joueurB.avance_levier()
                         self.joueurB.infoCoup = 0
-                        return 'actionB'
-                if distance <= 6:
+                elif distance <= 6:
                     # pour autoriser les croisements
                     if not Game.Demo and self.joueurA.state == State.saute:
                         self.joueurB.occupe_state(State.rouladeAV, self.temps)
@@ -1568,7 +1562,6 @@ class Battle(EmptyScene):
                     if self.joueurB.infoCoup == 7:
                         self.joueurB.levier = self.joueurB.avance_levier()
                         self.joueurB.infoCoup = 0
-                        return 'actionB'
             elif Game.IA in (4, 5, 7):
                 if distance >= 15:  # quand trop loin
                     self.joueurB.occupe_state(State.rouladeAV, self.temps)
@@ -1586,8 +1579,7 @@ class Battle(EmptyScene):
                         self.joueurB.state = State.debout
                         return 'gestionB'
                     self.joueurB.levier = self.joueurB.avance_levier()
-                    return 'actionB'
-                if distance == 9:
+                elif distance == 9:
                     if self.joueurA.attente > 100:
                         self.joueurB.occupe_state(State.decapite, self.temps)
                         return 'gestionB'
@@ -1610,8 +1602,7 @@ class Battle(EmptyScene):
                     if Game.IA == 7:
                         if self.joueurA.occupe:
                             self.joueurB.levier = self.joueurB.avance_levier()
-                            return 'actionB'
-                if 6 < distance < 9:  # distance de combat 1
+                elif 6 < distance < 9:  # distance de combat 1
                     # pour autoriser les croisements
                     if not Game.Demo and self.joueurA.state == State.rouladeAV:
                         self.joueurB.occupe_state(State.saute, self.temps)
@@ -1671,8 +1662,7 @@ class Battle(EmptyScene):
                     if self.joueurB.infoCoup == 5:
                         self.joueurB.levier = self.joueurB.avance_levier()
                         self.joueurB.infoCoup = 0
-                        return 'actionB'
-                if distance <= 6:
+                elif distance <= 6:
                     # pour autoriser les croisements
                     if not Game.Demo and self.joueurA.state == State.saute:
                         self.joueurB.occupe_state(State.rouladeAV, self.temps)
@@ -1720,10 +1710,10 @@ class Battle(EmptyScene):
                     if self.joueurB.infoCoup == 5:
                         self.joueurB.levier = self.joueurB.avance_levier()
                         self.joueurB.infoCoup = 0
-                        return 'actionB'
         # redirection suivant les touches
         if self.joueurB.levier != Levier.neutre:
-            return 'actionB'
+            self.joueurB.action(self.temps)
+            return 'gestionB'
         # actions si aucune touche n'a ete touchee
         self.joueurB.protegeD = False
         self.joueurB.protegeH = False
@@ -1738,10 +1728,6 @@ class Battle(EmptyScene):
             self.joueurB.occupe_state(State.attente, self.temps)
             return 'gestionB'
         self.joueurB.state = State.debout
-        return 'gestionB'
-
-    def _actionB(self):
-        self.joueurB.action(self.temps)
         return 'gestionB'
 
     def _gestionB(self):
@@ -2243,8 +2229,6 @@ class Battle(EmptyScene):
                 goto = self._degats()
             elif goto == 'clavier':
                 goto = self._clavier()
-            elif goto == 'action':
-                goto = self._action()
             elif goto == 'gestion':
                 goto = self._gestion()
             elif goto == 'mort':
@@ -2253,8 +2237,6 @@ class Battle(EmptyScene):
                 goto = self._joueur2()
             elif goto == 'clavierB':
                 goto = self._clavierB()
-            elif goto == 'actionB':
-                goto = self._actionB()
             elif goto == 'gestionB':
                 goto = self._gestionB()
             elif goto == 'mortB':
