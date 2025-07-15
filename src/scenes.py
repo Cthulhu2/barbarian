@@ -1759,7 +1759,7 @@ class Battle(EmptyScene):
                     if self.joueurB.infoCoup == 5:
                         self.joueurB.levier = self.joueurB.avance_levier()
                         self.joueurB.infoCoup = 0
-                        return 'action'
+                        return 'actionB'
         # redirection suivant les touches
         if self.joueurB.levier != Levier.neutre:
             return 'actionB'
