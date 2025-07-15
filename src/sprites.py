@@ -934,7 +934,7 @@ class Barbarian(AnimatedSprite):
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 50:
             self.yAtt = YT
-            self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
+            self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
         elif temps == self.reftemps + 15:
             self.snd_play('decapite.ogg')
         elif temps == self.reftemps + 2:
