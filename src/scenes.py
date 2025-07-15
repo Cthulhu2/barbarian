@@ -574,7 +574,8 @@ class Battle(EmptyScene):
                         return None
             return 'clavierB'
         if self.gnome:
-            return 'gnome'
+            self._gnome()
+            return None
         return 'degats'
 
     def _degats(self):
@@ -2384,7 +2385,7 @@ class Battle(EmptyScene):
         elif self.joueurB.state in (State.mort, State.mortdecap):
             mort, vainqueur = self.joueurB, self.joueurA
         else:
-            return None
+            return
         gnome = self.gnomeSprite
 
         if mort.state == State.mort:
@@ -2415,7 +2416,6 @@ class Battle(EmptyScene):
                 mort.kill()
                 vainqueur.sortie = True
                 vainqueur.occupe = False
-        return None
 
     def update(self, current_time, *args):
         ja = self.joueurA
@@ -2469,8 +2469,6 @@ class Battle(EmptyScene):
                 goto = self._gestion_mortB()
             elif goto == 'colision':
                 goto = self._colision(ja, jb)
-            elif goto == 'gnome':
-                goto = self._gnome()
             else:
                 goto = None
         if self.opts.debug > 1:
