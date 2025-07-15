@@ -617,7 +617,32 @@ class Barbarian(AnimatedSprite):
         self.protegeD = False
         self.protegeH = False
         self.occupe_state(State.saute, temps)
-        return
+
+    def action_hautX(self, temps, recule):
+        if recule:
+            if self.protegeH:
+                self.state = State.protegeH
+                return
+            self.occupe_state(State.protegeH1, temps)
+            if self.attaque:
+                self.occupe_state(State.araignee, temps)
+        else:
+            if self.protegeD:
+                self.state = State.protegeD
+                return
+            self.occupe_state(State.protegeD1, temps)
+            if self.attaque:
+                self.occupe_state(State.coupdetete, temps)
+
+    def action_basX(self, temps, recule):
+        if recule:
+            self.occupe_state(State.rouladeAR, temps)
+            if self.attaque:
+                self.occupe_state(State.front, temps)
+        else:
+            self.occupe_state(State.rouladeAV, temps)
+            if self.attaque:
+                self.occupe_state(State.coupdepied, temps)
 
     # endregion actions
 

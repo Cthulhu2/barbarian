@@ -877,63 +877,17 @@ class Battle(EmptyScene):
             return 'gestion'
 
         # roulade AV, coup de pied
-        if self.sense == 'normal':
-            if self.joueurA.levier == Levier.basD:
-                self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                if self.joueurA.attaque:
-                    self.joueurA.occupe_state(State.coupdepied, self.temps)
-        if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.basG:
-                self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                if self.joueurA.attaque:
-                    self.joueurA.occupe_state(State.coupdepied, self.temps)
+        if self.joueurA.levier == Levier.basD:
+            self.joueurA.action_basX(self.temps, self.joueurA.rtl)
         # roulade AR, coup sur front
-        if self.sense == 'normal':
-            if self.joueurA.levier == Levier.basG:
-                self.joueurA.occupe_state(State.rouladeAR, self.temps)
-                if self.joueurA.attaque:
-                    self.joueurA.occupe_state(State.front, self.temps)
-        if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.basD:
-                self.joueurA.occupe_state(State.rouladeAR, self.temps)
-                if self.joueurA.attaque:
-                    self.joueurA.occupe_state(State.front, self.temps)
-
+        elif self.joueurA.levier == Levier.basG:
+            self.joueurA.action_basX(self.temps, not self.joueurA.rtl)
         # protection haute, araignee
-        if self.sense == 'normal':
-            if self.joueurA.levier == Levier.hautG:
-                if self.joueurA.protegeH:
-                    self.joueurA.state = State.protegeH
-                    return 'gestion'
-                self.joueurA.occupe_state(State.protegeH1, self.temps)
-                if self.joueurA.attaque and not Game.Demo:
-                    self.joueurA.occupe_state(State.araignee, self.temps)
-        if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.hautD:
-                if self.joueurA.protegeH:
-                    self.joueurA.state = State.protegeH
-                    return 'gestion'
-                self.joueurA.occupe_state(State.protegeH1, self.temps)
-                if self.joueurA.attaque and not Game.Demo:
-                    self.joueurA.occupe_state(State.araignee, self.temps)
-
+        elif self.joueurA.levier == Levier.hautG:
+            self.joueurA.action_hautX(self.temps, not self.joueurA.rtl)
         # protection devant, coup de tete
-        if self.sense == 'normal':
-            if self.joueurA.levier == Levier.hautD:
-                if self.joueurA.protegeD:
-                    self.joueurA.state = State.protegeD
-                    return 'gestion'
-                self.joueurA.occupe_state(State.protegeD1, self.temps)
-                if self.joueurA.attaque and not Game.Demo:
-                    self.joueurA.occupe_state(State.coupdetete, self.temps)
-        if self.sense == 'inverse':
-            if self.joueurA.levier == Levier.hautG:
-                if self.joueurA.protegeD:
-                    self.joueurA.state = State.protegeD
-                    return 'gestion'
-                self.joueurA.occupe_state(State.protegeD1, self.temps)
-                if self.joueurA.attaque and not Game.Demo:
-                    self.joueurA.occupe_state(State.coupdetete, self.temps)
+        elif self.joueurA.levier == Levier.hautD:
+            self.joueurA.action_hautX(self.temps, self.joueurA.rtl)
         return 'gestion'
 
     def _gestion(self):
@@ -1889,65 +1843,18 @@ class Battle(EmptyScene):
             return 'gestionB'
 
         # roulade AV, coup de pied
-        if self.sense == 'normal':
-            if self.joueurB.levier == Levier.basG:
-                self.joueurB.occupe_state(State.rouladeAV, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.coupdepied, self.temps)
-        if self.sense == 'inverse':
-            if self.joueurB.levier == Levier.basD:
-                self.joueurB.occupe_state(State.rouladeAV, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.coupdepied, self.temps)
-
+        elif self.joueurB.levier == Levier.basD:
+            self.joueurB.action_basX(self.temps, self.joueurB.rtl)
         # roulade AR, coup sur front
-        if self.sense == 'normal':
-            if self.joueurB.levier == Levier.basD:
-                self.joueurB.occupe_state(State.rouladeAR, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.front, self.temps)
-        if self.sense == 'inverse':
-            if self.joueurB.levier == Levier.basG:
-                self.joueurB.occupe_state(State.rouladeAR, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.front, self.temps)
-
+        if self.joueurB.levier == Levier.basG:
+            self.joueurB.action_basX(self.temps, not self.joueurB.rtl)
         # protection Haute, araignee
-        if self.sense == 'normal':
-            if self.joueurB.levier == Levier.hautD:
-                if self.joueurB.protegeH:
-                    self.joueurB.state = State.protegeH
-                    return 'gestionB'
-                self.joueurB.occupe_state(State.protegeH1, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.araignee, self.temps)
-
-        if self.sense == 'inverse':
-            if self.joueurB.levier == Levier.hautG:
-                if self.joueurB.protegeH:
-                    self.joueurB.state = State.protegeH
-                    return 'gestionB'
-                self.joueurB.occupe_state(State.protegeH1, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.araignee, self.temps)
-
+        elif self.joueurB.levier == Levier.hautG:
+            self.joueurB.action_hautX(self.temps, not self.joueurB.rtl)
         # protection devant, coup de tete
-        if self.sense == 'normal':
-            if self.joueurB.levier == Levier.hautG:
-                if self.joueurB.protegeD:
-                    self.joueurB.state = State.protegeD
-                    return 'gestionB'
-                self.joueurB.occupe_state(State.protegeD1, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.coupdetete, self.temps)
-        if self.sense == 'inverse':
-            if self.joueurB.levier == Levier.hautD:
-                if self.joueurB.protegeD:
-                    self.joueurB.state = State.protegeD
-                    return 'gestionB'
-                self.joueurB.occupe_state(State.protegeD1, self.temps)
-                if self.joueurB.attaque:
-                    self.joueurB.occupe_state(State.coupdetete, self.temps)
+        elif self.joueurB.levier == Levier.hautD:
+            self.joueurB.action_hautX(self.temps, self.joueurB.rtl)
+
         return 'gestionB'
 
     def _gestionB(self):
