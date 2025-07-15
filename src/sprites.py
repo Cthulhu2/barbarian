@@ -634,6 +634,12 @@ class Barbarian(AnimatedSprite):
             if self.attaque:
                 self.occupe_state(State.coupdetete, temps)
 
+    def action_bas(self, temps):
+        if self.assis:
+            self.state = State.assis2
+            return
+        self.occupe_state(State.assis, temps)
+
     def action_basX(self, temps, recule):
         if recule:
             self.occupe_state(State.rouladeAR, temps)

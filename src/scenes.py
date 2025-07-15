@@ -858,36 +858,34 @@ class Battle(EmptyScene):
         # droite, gauche, decapite, devant
         if self.joueurA.levier == Levier.droite:
             self.joueurA.action_droite(self.temps)
-            return 'gestion'
-        if self.joueurA.levier == Levier.gauche:
+
+        elif self.joueurA.levier == Levier.gauche:
             self.joueurA.action_gauche(self.temps)
-            return 'gestion'
 
         # saute, attaque cou
-        if self.joueurA.levier == Levier.haut:
+        elif self.joueurA.levier == Levier.haut:
             self.joueurA.action_haut(self.temps)
-            return 'gestion'
 
         # assis, attaque genou
-        if self.joueurA.levier == Levier.bas:
-            if self.joueurA.assis:
-                self.joueurA.state = State.assis2
-                return 'gestion'
-            self.joueurA.occupe_state(State.assis, self.temps)
-            return 'gestion'
+        elif self.joueurA.levier == Levier.bas:
+            self.joueurA.action_bas(self.temps)
 
         # roulade AV, coup de pied
-        if self.joueurA.levier == Levier.basD:
+        elif self.joueurA.levier == Levier.basD:
             self.joueurA.action_basX(self.temps, self.joueurA.rtl)
+
         # roulade AR, coup sur front
         elif self.joueurA.levier == Levier.basG:
             self.joueurA.action_basX(self.temps, not self.joueurA.rtl)
+
         # protection haute, araignee
         elif self.joueurA.levier == Levier.hautG:
             self.joueurA.action_hautX(self.temps, not self.joueurA.rtl)
+
         # protection devant, coup de tete
         elif self.joueurA.levier == Levier.hautD:
             self.joueurA.action_hautX(self.temps, self.joueurA.rtl)
+
         return 'gestion'
 
     def _gestion(self):
@@ -938,8 +936,6 @@ class Battle(EmptyScene):
             if self.temps > self.joueurA.reftemps + 10:
                 self.joueurA.state = State.assis2
                 return 'joueur2'
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.genou, self.temps)
 
         if self.joueurA.state == State.assis2:
             self.joueurA.occupe = False
@@ -951,7 +947,7 @@ class Battle(EmptyScene):
             self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
             self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
             self.joueurA.set_anim_frame('assis', 1)
-            if self.joueurA.attaque:
+            if self.joueurA.attaque and self.joueurA.levier == Levier.bas:
                 self.joueurA.occupe_state(State.genou, self.temps)
             if Game.Demo:
                 if self.temps > self.joueurA.reftemps + 20:
@@ -972,7 +968,7 @@ class Battle(EmptyScene):
                 self.joueurA.state = State.debout
                 self.joueurA.occupe = False
                 return 'joueur2'
-            if self.joueurA.attaque:
+            if self.joueurA.attaque and self.joueurA.levier == Levier.bas:
                 self.joueurA.occupe_state(State.genou, self.temps)
 
         if self.joueurA.state == State.rouladeAV:
@@ -1821,36 +1817,30 @@ class Battle(EmptyScene):
         # droite, gauche, decapite, devant
         if self.joueurB.levier == Levier.droite:
             self.joueurB.action_droite(self.temps)
-            return 'gestionB'
-        if self.joueurB.levier == Levier.gauche:
+
+        elif self.joueurB.levier == Levier.gauche:
             self.joueurB.action_gauche(self.temps)
-            return 'gestionB'
 
         # saute, attaque cou
-        if self.joueurB.levier == Levier.haut:
+        elif self.joueurB.levier == Levier.haut:
             self.joueurB.action_haut(self.temps)
-            return 'gestionB'
 
         # assis, attaque genou
-        if self.joueurB.levier == Levier.bas:
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.genou, self.temps)
-                return 'gestionB'
-            if self.joueurB.assis:
-                self.joueurB.state = State.assis2
-                return 'gestionB'
-            self.joueurB.occupe_state(State.assis, self.temps)
-            return 'gestionB'
+        elif self.joueurB.levier == Levier.bas:
+            self.joueurB.action_bas(self.temps)
 
         # roulade AV, coup de pied
         elif self.joueurB.levier == Levier.basD:
             self.joueurB.action_basX(self.temps, self.joueurB.rtl)
+
         # roulade AR, coup sur front
-        if self.joueurB.levier == Levier.basG:
+        elif self.joueurB.levier == Levier.basG:
             self.joueurB.action_basX(self.temps, not self.joueurB.rtl)
+
         # protection Haute, araignee
         elif self.joueurB.levier == Levier.hautG:
             self.joueurB.action_hautX(self.temps, not self.joueurB.rtl)
+
         # protection devant, coup de tete
         elif self.joueurB.levier == Levier.hautD:
             self.joueurB.action_hautX(self.temps, self.joueurB.rtl)
@@ -1904,10 +1894,9 @@ class Battle(EmptyScene):
             if self.temps > self.joueurB.reftemps + 10:
                 self.joueurB.state = State.assis2
                 return 'colision'
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.genou, self.temps)
 
         if self.joueurB.state == State.assis2:
+            self.joueurB.occupe = False
             self.joueurB.assis = True
             rtl = self.joueurB.rtl
             self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
@@ -1916,13 +1905,12 @@ class Battle(EmptyScene):
             self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
             self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
             self.joueurB.set_anim_frame('assis', 1)
-            if self.joueurB.attaque:
+            if self.joueurB.attaque and self.joueurB.levier == Levier.bas:
                 self.joueurB.occupe_state(State.genou, self.temps)
             if Game.Partie == 'solo':
                 if self.temps > self.joueurB.reftemps + 20:
                     self.joueurB.occupe = False
                 return 'colision'
-            self.joueurB.occupe = False
 
         if self.joueurB.state == State.releve:
             rtl = self.joueurB.rtl
@@ -1937,7 +1925,7 @@ class Battle(EmptyScene):
                 self.joueurB.state = State.debout
                 self.joueurB.occupe = False
                 return 'colision'
-            if self.joueurB.attaque:
+            if self.joueurB.attaque and self.joueurB.levier == Levier.bas:
                 self.joueurB.occupe_state(State.genou, self.temps)
 
         if self.joueurB.state == State.rouladeAV:
