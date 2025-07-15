@@ -1933,7 +1933,7 @@ class Battle(EmptyScene):
             self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
             self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
             self.joueurB.set_anim_frame('releve', 0)
-            if self.temps > self.joueurA.reftemps + 10:
+            if self.temps > self.joueurB.reftemps + 10:
                 self.joueurB.state = State.debout
                 self.joueurB.occupe = False
                 return 'colision'
