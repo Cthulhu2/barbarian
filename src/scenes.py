@@ -850,42 +850,7 @@ class Battle(EmptyScene):
         return 'gestion'
 
     def _action(self):
-        self.joueurA.attente = 1  # remise a zero de l'attente
-        # *********************************************************
-        # ***************** ACTIONS suivant clavier ***************
-        # *********************************************************
-
-        # droite, gauche, decapite, devant
-        if self.joueurA.levier == Levier.droite:
-            self.joueurA.action_moveX(self.temps, self.joueurA.rtl)
-
-        elif self.joueurA.levier == Levier.gauche:
-            self.joueurA.action_moveX(self.temps, not self.joueurA.rtl)
-
-        # saute, attaque cou
-        elif self.joueurA.levier == Levier.haut:
-            self.joueurA.action_haut(self.temps)
-
-        # assis, attaque genou
-        elif self.joueurA.levier == Levier.bas:
-            self.joueurA.action_bas(self.temps)
-
-        # roulade AV, coup de pied
-        elif self.joueurA.levier == Levier.basD:
-            self.joueurA.action_basX(self.temps, self.joueurA.rtl)
-
-        # roulade AR, coup sur front
-        elif self.joueurA.levier == Levier.basG:
-            self.joueurA.action_basX(self.temps, not self.joueurA.rtl)
-
-        # protection haute, araignee
-        elif self.joueurA.levier == Levier.hautG:
-            self.joueurA.action_hautX(self.temps, not self.joueurA.rtl)
-
-        # protection devant, coup de tete
-        elif self.joueurA.levier == Levier.hautD:
-            self.joueurA.action_hautX(self.temps, self.joueurA.rtl)
-
+        self.joueurA.action(self.temps)
         return 'gestion'
 
     def _gestion(self):
@@ -1776,42 +1741,7 @@ class Battle(EmptyScene):
         return 'gestionB'
 
     def _actionB(self):
-        # *****************************************
-        # *************actions joueur 2************
-        # *****************************************
-        self.joueurB.attente = 1
-
-        # droite, gauche, decapite, devant
-        if self.joueurB.levier == Levier.droite:
-            self.joueurB.action_moveX(self.temps, self.joueurB.rtl)
-
-        elif self.joueurB.levier == Levier.gauche:
-            self.joueurB.action_moveX(self.temps, not self.joueurB.rtl)
-
-        # saute, attaque cou
-        elif self.joueurB.levier == Levier.haut:
-            self.joueurB.action_haut(self.temps)
-
-        # assis, attaque genou
-        elif self.joueurB.levier == Levier.bas:
-            self.joueurB.action_bas(self.temps)
-
-        # roulade AV, coup de pied
-        elif self.joueurB.levier == Levier.basD:
-            self.joueurB.action_basX(self.temps, self.joueurB.rtl)
-
-        # roulade AR, coup sur front
-        elif self.joueurB.levier == Levier.basG:
-            self.joueurB.action_basX(self.temps, not self.joueurB.rtl)
-
-        # protection Haute, araignee
-        elif self.joueurB.levier == Levier.hautG:
-            self.joueurB.action_hautX(self.temps, not self.joueurB.rtl)
-
-        # protection devant, coup de tete
-        elif self.joueurB.levier == Levier.hautD:
-            self.joueurB.action_hautX(self.temps, self.joueurB.rtl)
-
+        self.joueurB.action(self.temps)
         return 'gestionB'
 
     def _gestionB(self):
