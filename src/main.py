@@ -249,7 +249,7 @@ def option_parser():
     debug.add_option('-d', '--debug',
                      action='count',
                      dest='debug',
-                     default=3,
+                     default=0,
                      help='show debug info (CPU, VMS, RSS, FPS)')
     debug.add_option('-c', '--cpu-time',
                      action='store',

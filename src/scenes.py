@@ -357,7 +357,7 @@ class Battle(EmptyScene):
         elif Game.Partie == 'vs':
             Txt(sz, 'TWO PLAYERS', Theme.TXT, loc(16, 25), self)
         elif Game.Demo:
-            Txt(sz, 'DEMONSTRATION', Theme.TXT, loc(14, 25), self)
+            Txt(sz, 'DEMO', Theme.TXT, loc(18, 25), self)
 
         self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8), self)
         self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8), self)
