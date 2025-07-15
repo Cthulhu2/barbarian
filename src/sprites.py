@@ -766,12 +766,12 @@ class Barbarian(AnimatedSprite):
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
 
         elif temps == self.reftemps + 31:
-            if opponent.state == State.cou:
-                distance = abs(self.x_loc() - opponent.x_loc())
-                if (distance < 12
-                        and (15 < temps - opponent.reftemps <= 30)
-                        # cycle and play cling-sound once (for one player only)
-                        and not self.rtl):
+            if (opponent.state == State.cou
+                    and abs(self.x_loc() - opponent.x_loc()) < 12
+                    and (30 < temps - opponent.reftemps <= 45)):
+                # do not attack in same state
+                # cycle and play cling-sound once (for one player only)
+                if not self.rtl:
                     self.snd_play(next(soncling))
             else:
                 self.xT = self.x_loc() + (4 if self.rtl else 0)
