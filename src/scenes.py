@@ -1092,29 +1092,9 @@ class Battle(EmptyScene):
                 return 'joueur2'
 
         if self.joueurA.state == State.rouladeAR:
-            rtl = self.joueurA.rtl
-            self.joueurA.xF = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xG = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = YG
-            self.joueurA.yAtt = self.joueurA.yG
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.front, self.temps)
-                return 'gestion'
-            if self.temps > self.joueurA.reftemps + 33:
-                self.joueurA.xT = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.occupe = False
-                self.joueurA.state = State.debout
-                return 'joueur2'
-            elif self.temps == self.joueurA.reftemps + 2:
-                self.snd_play('roule.ogg')
-                self.joueurA.animate('rouladeAR', 2)
-                return 'joueur2'
-            else:
-                return 'joueur2'
+            self.joueurA.gestion_rouladeAR(self.temps, self.joueurB,
+                                           self.soncling, self.songrogne)
+            return 'joueur2'
 
         if self.joueurA.state == State.protegeH1:
             rtl = self.joueurA.rtl
@@ -2124,29 +2104,9 @@ class Battle(EmptyScene):
                 return 'colision'
 
         if self.joueurB.state == State.rouladeAR:
-            rtl = self.joueurB.rtl
-            self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xG = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = YG
-            self.joueurB.yAtt = self.joueurB.yG
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.front, self.temps)
-                return 'gestionB'
-            if self.temps > self.joueurB.reftemps + 33:
-                self.joueurB.xT = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.occupe = False
-                self.joueurB.state = State.debout
-                return 'colision'
-            elif self.temps == self.joueurB.reftemps + 2:
-                self.snd_play('roule.ogg')
-                self.joueurB.animate('rouladeAR', 2)
-                return 'colision'
-            else:
-                return 'colision'
+            self.joueurB.gestion_rouladeAR(self.temps, self.joueurB,
+                                           self.soncling, self.songrogne)
+            return 'colision'
 
         if self.joueurB.state == State.protegeH1:
             rtl = self.joueurB.rtl

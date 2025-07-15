@@ -659,6 +659,27 @@ class Barbarian(AnimatedSprite):
         elif self.anim != 'saute':
             self.animate('saute')
 
+    def gestion_rouladeAR(self, temps, opponent: 'Barbarian',
+                          soncling: iter, songrogne: iter):
+        self.xF = self.x_loc() + (4 if self.rtl else 0)
+        self.xT = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xG = self.x_loc() + (4 if self.rtl else 0)
+        self.yG = YG
+        self.yAtt = self.yG
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        if self.attaque:
+            self.occupe_state(State.front, temps)
+            self.gestion_front(temps, opponent, soncling, songrogne)
+        elif temps > self.reftemps + 33:
+            self.xT = self.x_loc() + (0 if self.rtl else 4)
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.occupe = False
+            self.state = State.debout
+        elif temps == self.reftemps + 2:
+            self.snd_play('roule.ogg')
+            self.animate('rouladeAR', 2)
+
     def gestion_protegeH(self, temps):
         self.reset_xX()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
