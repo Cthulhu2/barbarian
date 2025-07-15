@@ -591,21 +591,13 @@ class Barbarian(AnimatedSprite):
             self.levier = Levier.haut
 
     # region actions
-    def action_droite(self, temps):
-        self.protegeD = False
-        state = State.recule if self.rtl else State.avance
-        attack = State.decapite if self.rtl else State.devant
-        if self.state == state:
-            return
-        self.state = state
-        self.reftemps = temps
-        if self.attaque:
-            self.occupe_state(attack, temps)
-
-    def action_gauche(self, temps):
-        self.protegeH = False
-        state = State.avance if self.rtl else State.recule
-        attack = State.devant if self.rtl else State.decapite
+    def action_moveX(self, temps, recule):
+        if recule:
+            self.protegeH = False
+            state, attack = State.recule, State.decapite
+        else:
+            self.protegeD = False
+            state, attack = State.avance, State.devant
         if self.state == state:
             return
         self.state = state

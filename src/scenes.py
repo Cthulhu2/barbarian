@@ -857,10 +857,10 @@ class Battle(EmptyScene):
 
         # droite, gauche, decapite, devant
         if self.joueurA.levier == Levier.droite:
-            self.joueurA.action_droite(self.temps)
+            self.joueurA.action_moveX(self.temps, self.joueurA.rtl)
 
         elif self.joueurA.levier == Levier.gauche:
-            self.joueurA.action_gauche(self.temps)
+            self.joueurA.action_moveX(self.temps, not self.joueurA.rtl)
 
         # saute, attaque cou
         elif self.joueurA.levier == Levier.haut:
@@ -1780,46 +1780,13 @@ class Battle(EmptyScene):
         # *************actions joueur 2************
         # *****************************************
         self.joueurB.attente = 1
-        if Game.Partie == 'solo':  # ****** IA mode ******
-            # droite,gauche, decapite, devant (normal)  IA
-            if self.sense == 'normal':
-                if self.joueurB.levier == Levier.gauche:
-                    self.joueurB.protegeD = False
-                    if self.joueurB.state == State.avance:
-                        return 'gestionB'
-                    self.joueurB.state = State.avance
-                    self.joueurB.reftemps = self.temps
-
-                if self.joueurB.levier == Levier.droite:
-                    self.joueurB.protegeH = False
-                    if self.joueurB.state == State.recule:
-                        return 'gestionB'
-                    self.joueurB.state = State.recule
-                    self.joueurB.reftemps = self.temps
-            # droite, gauche, decapite, devant (inverse)  ******* IA mode ********
-            if self.sense == 'inverse':
-                if self.joueurB.levier == Levier.droite:
-                    self.joueurB.protegeD = False
-                    if self.joueurB.state == State.avance:
-                        return 'gestionB'
-                    self.joueurB.state = State.avance
-                    self.joueurB.reftemps = self.temps
-
-                if self.joueurB.levier == Levier.gauche:
-                    self.joueurB.protegeH = False
-                    if self.joueurB.state == State.recule:
-                        return 'gestionB'
-                    self.joueurB.state = State.recule
-                    self.joueurB.reftemps = self.temps
-
-            return 'gestionB'
 
         # droite, gauche, decapite, devant
         if self.joueurB.levier == Levier.droite:
-            self.joueurB.action_droite(self.temps)
+            self.joueurB.action_moveX(self.temps, self.joueurB.rtl)
 
         elif self.joueurB.levier == Levier.gauche:
-            self.joueurB.action_gauche(self.temps)
+            self.joueurB.action_moveX(self.temps, not self.joueurB.rtl)
 
         # saute, attaque cou
         elif self.joueurB.levier == Levier.haut:
