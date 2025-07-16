@@ -88,6 +88,8 @@ class BarbarianMain(object):
         self.scene = self.menu()
 
     def start_battle_demo(self):
+        scenes.Game.ScoreA = 0
+        scenes.Game.ScoreB = 0
         scenes.Game.Decor = 'foret'
         scenes.Game.Demo = True
         scenes.Game.IA = 4
@@ -96,6 +98,8 @@ class BarbarianMain(object):
         self.start_battle()
 
     def start_battle_solo(self):
+        scenes.Game.ScoreA = 0
+        scenes.Game.ScoreB = 0
         scenes.Game.Decor = 'foret'
         scenes.Game.Demo = False
         scenes.Game.IA = 0
@@ -104,6 +108,8 @@ class BarbarianMain(object):
         self.start_battle()
 
     def start_battle_duel(self):
+        scenes.Game.ScoreA = 0
+        scenes.Game.ScoreB = 0
         scenes.Game.Demo = False
         scenes.Game.IA = 0
         scenes.Game.Partie = "vs"

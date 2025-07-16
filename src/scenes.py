@@ -469,6 +469,31 @@ class Battle(EmptyScene):
             self.add(self.gnomeSprite, layer=4)
             self.gnomeSprite.animate('gnome')
 
+    def start_sorcier(self):
+        Game.Sorcier = True
+        self.sense = 'inverse'
+        self.joueurA.state = State.debout
+        self.joueurA.x = loc2px(36)
+        if not self.joueurA.rtl:
+            self.joueurA.turn_around(True)
+        self.entree = False
+        self.gnome = False
+        self.joueurA.sortie = False
+        self.entreesorcier = True
+        self.joueurB = Sorcier(self.opts, loc2px(7), loc2px(14))
+        self.joueurB.occupe_state(State.sorcier, self.temps)
+        # noinspection PyTypeChecker
+        self.add(self.joueurB,
+                 StaticSprite((114 * SCALE, 95 * SCALE),
+                              'fill', w=16, h=6, fill=Theme.BLACK),
+                 StaticSprite((109 * SCALE, 100 * SCALE),
+                              'fill', w=27, h=15.1, fill=Theme.BLACK),
+                 layer=0)
+        self.vieA(0)
+        self.vieB(0)
+        self.serpentA.animate('bite')
+        self.serpentB.animate('bite')
+
     def _debut(self):
         jax = self.joueurA.x_loc()
         jbx = self.joueurB.x_loc()
@@ -517,40 +542,15 @@ class Battle(EmptyScene):
                     if Game.Partie == 'solo':
                         if Game.Demo:
                             self.finish()
-                            return None
-                        if Game.IA < 7:
+                        elif Game.IA < 7:
                             self.next_stage()
                         else:
-                            Game.Sorcier = True
-                            self.sense = 'inverse'
-                            self.joueurA.state = State.debout
-                            self.joueurA.x = loc2px(36)
-                            if not self.joueurA.rtl:
-                                self.joueurA.turn_around(True)
-                            self.entree = False
-                            self.gnome = False
-                            self.joueurA.sortie = False
-                            self.entreesorcier = True
-                            self.joueurB = Sorcier(self.opts, loc2px(7), loc2px(14))
-                            self.joueurB.occupe_state(State.sorcier, self.temps)
-                            # noinspection PyTypeChecker
-                            self.add(
-                                self.joueurB,
-                                StaticSprite((114 * SCALE, 95 * SCALE),
-                                             'fill', w=16, h=6, fill=(0, 0, 0)),
-                                StaticSprite((109 * SCALE, 100 * SCALE),
-                                             'fill', w=27, h=15.1, fill=(0, 0, 0)),
-                                layer=0)
-                            self.vieA(0)
-                            self.vieB(0)
-                            self.serpentA.animate('bite')
-                            self.serpentB.animate('bite')
-                    if Game.Partie == 'vs':
+                            self.start_sorcier()
+                    elif Game.Partie == 'vs':
                         self.next_stage()
                     return None
             elif ((self.sense == 'normal' and jax < 2 and jbx >= 37)
                   or (self.sense == 'inverse' and jbx < 2 and jax >= 37)):
-                Game.Chronometre = 60
                 # SLEEP 1
                 self.next_stage()
                 return None
@@ -560,18 +560,10 @@ class Battle(EmptyScene):
                 if jax >= 35 and (jbx <= 0 or 38 <= jbx):
                     # SLEEP 1
                     if Game.Partie == 'solo':  # ********** partie solo finie
-                        if Game.Demo:
-                            self.finish()
-                            return None
-                        Game.IA = 0
-                        Game.ScoreA = 0
-                        Game.ScoreB = 0
-                        Game.Decor = 'foret'
                         self.finish()
-                        return None
-                    if Game.Partie == 'vs':
+                    elif Game.Partie == 'vs':
                         self.next_stage()
-                        return None
+                    return None
             return 'clavierB'
         if self.gnome:
             self._gnome()
