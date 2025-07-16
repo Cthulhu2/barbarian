@@ -12,8 +12,7 @@ import anims
 from main import BarbarianMain, option_parser
 from scenes import EmptyScene
 from settings import SCREEN_SIZE, Theme
-from sprites import (
-    Barbarian, Rectangle, Txt, )
+from sprites import Barbarian, Rectangle, Txt
 
 BACKGROUND = Surface(SCREEN_SIZE)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())

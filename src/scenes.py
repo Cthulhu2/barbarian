@@ -279,7 +279,7 @@ class Menu(_MenuBackScene):
 
 
 def area(color, lbl, border_width=2):
-    return Rectangle(0, 0, CHAR_W * SCALE, CHAR_H * SCALE, color, border_width, lbl)
+    return Rectangle(0, 0, CHAR_W, CHAR_H, color, border_width, lbl)
 
 
 class Battle(EmptyScene):
@@ -351,7 +351,7 @@ class Battle(EmptyScene):
         self.joueurB = Barbarian(opts, loc2px(36), loc2px(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)  # type: Union[Barbarian, Sorcier]
-        sz = int(CHAR_H * SCALE)
+        sz = CHAR_H
         if Game.Partie == 'solo' and not Game.Demo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
         elif Game.Partie == 'vs':
@@ -387,10 +387,10 @@ class Battle(EmptyScene):
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
-        self.vieA0 = AnimatedSprite((43.3 * SCALE, 0), anims.vie(), self)
-        self.vieA1 = AnimatedSprite((43.3 * SCALE, 11 * SCALE), anims.vie(), self)
-        self.vieB0 = AnimatedSprite((276.3 * SCALE, 0), anims.vie(), self)
-        self.vieB1 = AnimatedSprite((276.3 * SCALE, 11 * SCALE), anims.vie(), self)
+        self.vieA0 = AnimatedSprite((43 * SCALE, 0), anims.vie(), self)
+        self.vieA1 = AnimatedSprite((43 * SCALE, 11 * SCALE), anims.vie(), self)
+        self.vieB0 = AnimatedSprite((276 * SCALE, 0), anims.vie(), self)
+        self.vieB1 = AnimatedSprite((276 * SCALE, 11 * SCALE), anims.vie(), self)
         self.vieA(self.joueurA.vie)
         self.vieB(self.joueurB.vie)
         #
@@ -539,7 +539,7 @@ class Battle(EmptyScene):
                                 StaticSprite((114 * SCALE, 95 * SCALE),
                                              'fill', w=16, h=6, fill=(0, 0, 0)),
                                 StaticSprite((109 * SCALE, 100 * SCALE),
-                                             'fill', w=26, h=15, fill=(0, 0, 0)),
+                                             'fill', w=27, h=15.1, fill=(0, 0, 0)),
                                 layer=0)
                             self.vieA(0)
                             self.vieB(0)
@@ -1232,15 +1232,15 @@ class Battle(EmptyScene):
 
     @staticmethod
     def _center_txt(msg):
-        txt = Txt(int(CHAR_H * SCALE), msg,
+        txt = Txt(CHAR_H, msg,
                   color=(34, 34, 153), bgcolor=Theme.BLACK)
         txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2px(11))
         bg = StaticSprite((0, 0), 'fill',
-                          w=txt.rect.w / SCALE + 2 * CHAR_W,
-                          h=txt.rect.h / SCALE + 2 * CHAR_H,
+                          w=(txt.rect.w + 2 * CHAR_W) / SCALE,
+                          h=(txt.rect.h + 2 * CHAR_H) / SCALE,
                           fill=Theme.BLACK)
-        bg.rect.topleft = (txt.rect.topleft[0] - CHAR_W * SCALE,
-                           txt.rect.topleft[1] - CHAR_H * SCALE)
+        bg.rect.topleft = (txt.rect.topleft[0] - CHAR_W,
+                           txt.rect.topleft[1] - CHAR_H)
         return bg, txt
 
     def _win(self):
@@ -1256,7 +1256,7 @@ class Battle(EmptyScene):
             StaticSprite((186 * SCALE, 95 * SCALE), 'fill',
                          w=15, h=20, fill=Theme.BLACK),
             StaticSprite((185 * SCALE, 113 * SCALE), 'fill',
-                         w=17, h=2, fill=Theme.BLACK),
+                         w=18, h=2.1, fill=Theme.BLACK),
             bg, txt)
         self.jeu = 'gagne'
 
@@ -2167,12 +2167,12 @@ class Battle(EmptyScene):
         gnome = self.gnomeSprite
 
         if mort.state == State.mort:
-            if (gnome.rect.right >= mort.rect.right + CHAR_W * SCALE
+            if (gnome.rect.right >= mort.rect.right + CHAR_W
                     and mort.anim != 'mortgnome'):
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortgnome')
         elif mort.state == State.mortdecap:
-            if (gnome.rect.right >= mort.rect.right + CHAR_W * SCALE
+            if (gnome.rect.right >= mort.rect.right + CHAR_W
                     and mort.anim != 'mortdecapgnome'):
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortdecapgnome')
@@ -2340,7 +2340,7 @@ class ControlsKeys(_MenuBackScene):
     def __init__(self, opts, *, on_next):
         super(ControlsKeys, self).__init__(opts, 'menu/titre2.png')
         self.on_next = on_next
-        sz = 8 * SCALE
+        sz = CHAR_H
         self.add([
             StaticSprite((0, 0), 'menu/playerA.png',
                          color=(255, 255, 255)),
@@ -2379,7 +2379,7 @@ class ControlsMoves(EmptyScene):
     def __init__(self, opts, *, on_next):
         super(ControlsMoves, self).__init__(opts)
         self.on_next = on_next
-        sz = 8 * SCALE
+        sz = CHAR_H
         self.add([
             StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls1.gif'),
             Txt(sz, 'MOVING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
@@ -2411,7 +2411,7 @@ class ControlsFight(EmptyScene):
     def __init__(self, opts, *, on_next):
         super(ControlsFight, self).__init__(opts)
         self.on_next = on_next
-        sz = 8 * SCALE
+        sz = CHAR_H
         self.add([
             StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls2.gif'),
             Txt(sz, 'FIGHTING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
@@ -2444,7 +2444,7 @@ class Credits(EmptyScene):
     def __init__(self, opts, *, on_back):
         super(Credits, self).__init__(opts)
         self.on_back = on_back
-        sz = 8 * SCALE
+        sz = CHAR_H
         col = Theme.OPTS_TXT
         self.add([
             StaticSprite((0, 0), 'menu/team.png'),
@@ -2484,7 +2484,7 @@ class History(EmptyScene):
     def __init__(self, opts, *, on_back):
         super(History, self).__init__(opts)
         self.on_back = on_back
-        sz = 8 * SCALE
+        sz = CHAR_H
         col = Theme.OPTS_TXT
         self.add([
             Txt(sz, 'The evil sorcerer Drax desires        ', col, loc(2, 2)),

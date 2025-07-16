@@ -190,6 +190,8 @@ class BarbarianMain(object):
         #
         settings.SCREEN_SIZE = size
         settings.SCALE = sc
+        settings.CHAR_W = int(320 / 40 * sc)
+        settings.CHAR_H = int(200 / 25 * sc)
         #
         importlib.reload(anims)
         importlib.reload(sprites)

@@ -8,8 +8,8 @@ SND_PATH = os.path.abspath(BASE_PATH + '/../resources/snd') + '/'
 
 SCALE = 3
 SCREEN_SIZE = (320 * SCALE, 200 * SCALE)
-CHAR_W = 320 / 40  # 8
-CHAR_H = 200 / 25  # 8
+CHAR_W = int(320 / 40 * SCALE)  # 24
+CHAR_H = int(200 / 25 * SCALE)  # 24
 FRAME_RATE = 60
 
 FONT = FONT_PATH + 'PressStart2P-Regular.ttf'

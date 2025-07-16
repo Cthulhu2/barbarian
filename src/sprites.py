@@ -13,7 +13,7 @@ from pygame.transform import scale
 
 import anims
 from anims import get_img, rtl_anims
-from settings import SCALE, FONT, SND_PATH, Theme, CHAR_W
+from settings import FONT, SND_PATH, Theme, CHAR_W
 
 snd_cache: Dict[int, Sound] = {}
 
@@ -35,7 +35,7 @@ def px2loc(x: int) -> int:
     :param x: 0..959
     :return: 1..40
     """
-    return int(((x / SCALE) / CHAR_W) + 1)
+    return int(x / CHAR_W + 1)
 
 
 def loc2px(x: int) -> int:
@@ -44,7 +44,7 @@ def loc2px(x: int) -> int:
     :param x: 1..40
     :return:
     """
-    return (x - 1) * CHAR_W * SCALE
+    return (x - 1) * CHAR_W
 
 
 def loc(x: int, y: int) -> Tuple[int, int]:
@@ -1102,9 +1102,9 @@ class Barbarian(AnimatedSprite):
             # noinspection PyTypeChecker
             gr.add(self.sangSprite, layer=3)
         if self.rtl:
-            self.sangSprite.top_left = (self.x + 1 * CHAR_W * SCALE, y)
+            self.sangSprite.top_left = (self.x + 1 * CHAR_W, y)
         else:
-            self.sangSprite.top_left = (self.x + 2 * CHAR_W * SCALE, y)
+            self.sangSprite.top_left = (self.x + 2 * CHAR_W, y)
         self.sangSprite.animate('sang_touche')
 
     def animate(self, anim: str, tick=0):
