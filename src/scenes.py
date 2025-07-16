@@ -815,24 +815,16 @@ class Battle(EmptyScene):
             if Game.Demo and self.joueurA.state == State.debout:
                 if self.temps > self.joueurA.reftemps + 20:
                     self.joueurA.occupe = False
+            return 'joueur2'
 
         if self.joueurA.state == State.avance:
-            self.joueurA.reset_xX()
-            self.joueurA.xAtt = self.joueurA.x_loc()
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.devant, self.temps)
-                return 'gestion'
-            if self.joueurA.anim != 'avance':
-                self.joueurA.animate('avance')
+            self.joueurA.gestion_avance(self.temps, self.joueurB,
+                                        self.soncling, self.songrogne)
+            return 'joueur2'
 
         if self.joueurA.state == State.recule:
-            self.joueurA.reset_xX()
-            self.joueurA.xAtt = self.joueurA.x_loc()
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.decapite, self.temps)
-                return 'gestion'
-            if self.joueurA.anim != 'recule':
-                self.joueurA.animate('recule')
+            self.joueurA.gestion_recule(self.temps)
+            return 'joueur2'
 
         if self.joueurA.state == State.saute:
             self.joueurA.gestion_saute(self.temps)
@@ -1684,28 +1676,20 @@ class Battle(EmptyScene):
             if Game.Partie == 'solo':
                 if self.temps > self.joueurB.reftemps + 20:
                     self.joueurB.occupe = False
+            return 'colision'
 
         if self.joueurB.state == State.attente:
             self.joueurB.gestion_attente(self.temps)
             return 'colision'
 
         if self.joueurB.state == State.avance:
-            self.joueurB.reset_xX()
-            self.joueurB.xAtt = self.joueurB.x_loc() + 4
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.devant, self.temps)
-                return 'gestionB'
-            if self.joueurB.anim != 'avance':
-                self.joueurB.animate('avance')
+            self.joueurB.gestion_avance(self.temps, self.joueurA,
+                                        self.soncling, self.songrogne)
+            return 'colision'
 
         if self.joueurB.state == State.recule:
-            self.joueurB.reset_xX()
-            self.joueurB.xAtt = self.joueurB.x_loc() + 4
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.decapite, self.temps)
-                return 'gestionB'
-            if self.joueurB.anim != 'recule':
-                self.joueurB.animate('recule')
+            self.joueurB.gestion_recule(self.temps)
+            return 'colision'
 
         if self.joueurB.state == State.saute:
             self.joueurB.gestion_saute(self.temps)

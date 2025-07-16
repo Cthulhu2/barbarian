@@ -689,6 +689,25 @@ class Barbarian(AnimatedSprite):
             self.animate('attente', 8)
             self.snd_play('attente.ogg')
 
+    def gestion_avance(self, temps, opponent: 'Barbarian',
+                       soncling: iter, songrogne: iter):
+        self.reset_xX()
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        if self.attaque:
+            self.occupe_state(State.devant, temps)
+            self.gestion_devant(temps, opponent, soncling, songrogne)
+        elif self.anim != 'avance':
+            self.animate('avance')
+
+    def gestion_recule(self, temps):
+        self.reset_xX()
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        if self.attaque:
+            self.occupe_state(State.decapite, temps)
+            self.gestion_decapite(temps)
+        elif self.anim != 'recule':
+            self.animate('recule')
+
     def gestion_saute(self, temps):
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.reset_xX()
@@ -984,7 +1003,6 @@ class Barbarian(AnimatedSprite):
         if self.anim != 'debout':
             self.set_anim_frame('debout', 0)
         self.decapite = True
-        self.sang = False
         self.xAtt = self.x_loc() + (0 if self.rtl else 4)
         self.yAtt = 14
         self.reset_yX()
