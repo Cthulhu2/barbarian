@@ -735,8 +735,7 @@ class Barbarian(AnimatedSprite):
         elif self.anim != 'saute':
             self.animate('saute')
 
-    def gestion_rouladeAR(self, temps, opponent: 'Barbarian',
-                          soncling: iter, songrogne: iter):
+    def gestion_rouladeAR(self, temps):
         self.xF = self.x_loc() + (4 if self.rtl else 0)
         self.xT = self.x_loc() + (4 if self.rtl else 0)
         self.xM = self.x_loc() + (4 if self.rtl else 0)
@@ -744,10 +743,7 @@ class Barbarian(AnimatedSprite):
         self.yG = YG
         self.yAtt = self.yG
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-        if self.attaque:
-            self.occupe_state(State.front, temps)
-            self.gestion_front(temps, opponent, soncling, songrogne)
-        elif temps > self.reftemps + 33:
+        if temps > self.reftemps + 33:
             self.xT = self.x_loc() + (0 if self.rtl else 4)
             self.xM = self.x_loc() + (0 if self.rtl else 4)
             self.occupe = False
@@ -756,13 +752,27 @@ class Barbarian(AnimatedSprite):
             self.snd_play('roule.ogg')
             self.animate('rouladeAR', 2)
 
-    def gestion_protegeH(self, temps):
+    def gestion_protegeH1(self, temps):
+        self.reset_xX()
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yG = YG
+        if temps > self.reftemps + 5:
+            self.protegeH = True
+            self.state = State.protegeH
+            self.occupe = False
+        elif temps == self.reftemps + 2:
+            self.snd_play('protege.ogg')
+            self.animate('protegeH', 2)
+
+    def gestion_protegeH(self, temps, opponent: 'Barbarian',
+                         soncling: iter, songrogne: iter):
         self.reset_xX()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
         self.set_anim_frame('protegeH', 1)
         if self.attaque:
             self.occupe_state(State.araignee, temps)
+            self.gestion_araignee(temps, opponent, soncling, songrogne)
 
     def gestion_protegeD(self, temps):
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
