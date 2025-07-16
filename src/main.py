@@ -1,6 +1,7 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 import gc
+import importlib
 import sys
 from optparse import OptionParser, OptionGroup
 from os import getpid
@@ -10,7 +11,10 @@ import pygame
 from psutil import Process
 from pygame import display, event, mixer, init, time, image
 
+import anims
 import scenes
+import settings
+import sprites
 from settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
 from sprites import Txt, loc2px
 
@@ -19,10 +23,12 @@ class BarbarianMain(object):
     _scene: scenes.EmptyScene = None
 
     def __init__(self, opts):
+        init()
+        pgdi = display.Info()
+        self.desktopSize = (pgdi.current_w, pgdi.current_h)
         self.screen = display.set_mode(SCREEN_SIZE)
         if opts.sound:
             mixer.pre_init(44100, -16, 1, 4096)
-        init()
         display.set_caption('BARBARIAN AMIGA (PyGame)', 'BARBARIAN')
         icon = image.load(join(IMG_PATH, 'menu/icone.gif')).convert_alpha()
         display.set_icon(icon)
@@ -175,12 +181,34 @@ class BarbarianMain(object):
     def show_history(self):
         self.scene = scenes.History(self.opts, on_back=self.show_menu)
 
+    # noinspection PyTypeChecker
+    @staticmethod
+    def reinit(size=settings.SCREEN_SIZE, sc=settings.SCALE):
+        anims.img_cache.clear()
+        Txt.cache.clear()
+        gc.collect(generation=0)
+        #
+        settings.SCREEN_SIZE = size
+        settings.SCALE = sc
+        #
+        importlib.reload(anims)
+        importlib.reload(sprites)
+        importlib.reload(scenes)
+
     def on_fullscreen(self):
         # TODO: Toggle fullscreen with multi-display
+        if not pygame.display.is_fullscreen():
+            sc = min(self.desktopSize[0] / 320, self.desktopSize[1] / 200)
+            self.reinit(self.desktopSize, sc)
+            pygame.display.set_mode(self.desktopSize)
+            pygame.display.toggle_fullscreen()
         self.show_logo()
 
     def on_window(self):
-        # TODO: Toggle fullscreen with multi-display
+        if pygame.display.is_fullscreen():
+            self.reinit()
+            pygame.display.toggle_fullscreen()
+            pygame.display.set_mode(SCREEN_SIZE)
         self.show_logo()
 
     def main(self):
@@ -196,12 +224,13 @@ class BarbarianMain(object):
             for evt in event.get():
                 if evt.type == pygame.QUIT:
                     self.quit()
-                if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKSPACE:
-                    slowmo = True
-                    self.lblSlowmo.msg = 'SlowMo'
-                if evt.type == pygame.KEYUP and evt.key == pygame.K_BACKSPACE:
-                    slowmo = False
-                    self.lblSlowmo.msg = ''
+                if self.opts.debug:
+                    if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKSPACE:
+                        slowmo = True
+                        self.lblSlowmo.msg = 'SlowMo'
+                    if evt.type == pygame.KEYUP and evt.key == pygame.K_BACKSPACE:
+                        slowmo = False
+                        self.lblSlowmo.msg = ''
                 self.scene.process_event(evt)
 
             current_time = time.get_ticks()
@@ -249,7 +278,7 @@ def option_parser():
     debug.add_option('-d', '--debug',
                      action='count',
                      dest='debug',
-                     default=0,
+                     default=3,
                      help='show debug info (CPU, VMS, RSS, FPS)')
     debug.add_option('-c', '--cpu-time',
                      action='store',

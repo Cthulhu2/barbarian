@@ -128,7 +128,7 @@ class Txt(DirtySprite):
                  fnt: str = FONT,
                  cached: bool = True,
                  bgcolor: Tuple[int, int, int] = None):
-        super(Txt, self).__init__(*groups)
+        super().__init__(*groups)
         self._x = loc[0]
         self._y = loc[1]
         self._msg = msg
