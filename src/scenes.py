@@ -283,6 +283,11 @@ def area(color, lbl, border_width=2):
 
 
 class Battle(EmptyScene):
+    chrono: int = 0
+    chronoOn: bool = False
+    entree: bool = True
+    lancerintro: bool = True
+
     def __init__(self, opts, *, on_esc, on_next, on_menu):
         super(Battle, self).__init__(opts)
         self.on_esc = on_esc
@@ -362,8 +367,6 @@ class Battle(EmptyScene):
         self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8), self)
         self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8), self)
 
-        self.chrono = 0
-        self.chronoOn = False
         if Game.Partie == 'vs':
             self.txtChronometre = Txt(sz, f'{Game.Chronometre:02}',
                                       Theme.TXT, loc(20, 8))
@@ -378,9 +381,7 @@ class Battle(EmptyScene):
                                        anims.serpent(), self)
         self.serpentB = AnimatedSprite((275 * SCALE, 22 * SCALE),
                                        rtl_anims(anims.serpent()), self)
-        self.entree = True
         self.entreesorcier = False
-        self.lancerintro = True
         self.temps = 0
         self.tempsfini = False
         self.sense = 'normal'  # inverse
@@ -466,6 +467,7 @@ class Battle(EmptyScene):
     def animate_gnome(self):
         if not self.gnome:
             self.gnome = True
+            # noinspection PyTypeChecker
             self.add(self.gnomeSprite, layer=4)
             self.gnomeSprite.animate('gnome')
 
@@ -476,7 +478,6 @@ class Battle(EmptyScene):
         self.joueurA.x = loc2px(36)
         if not self.joueurA.rtl:
             self.joueurA.turn_around(True)
-        self.entree = False
         self.gnome = False
         self.joueurA.sortie = False
         self.entreesorcier = True
@@ -497,44 +498,6 @@ class Battle(EmptyScene):
     def _debut(self):
         jax = self.joueurA.x_loc()
         jbx = self.joueurB.x_loc()
-        if self.joueurA.bonus:
-            if Game.Chronometre > 0:
-                Game.ScoreA += 10
-                Game.Chronometre -= 1
-                self.txtChronometre.msg = f'{Game.Chronometre:02}'
-                self.txtScoreA.msg = f'{Game.ScoreA:05}'
-            elif jbx >= 37:
-                self.joueurA.sortie = True
-                self.joueurA.occupe = False
-        if self.joueurB.bonus:
-            if Game.Chronometre > 0:
-                Game.ScoreB += 10
-                Game.Chronometre -= 1
-                self.txtChronometre.msg = f'{Game.Chronometre:02}'
-                self.txtScoreB.msg = f'{Game.ScoreB:05}'
-            elif jax >= 37:
-                self.joueurB.sortie = True
-                self.joueurB.occupe = False
-
-        if self.lancerintro:
-            self.snd_play('prepare.ogg')
-            self.lancerintro = False
-
-        if self.entree:
-            if self.serpentA.anim == 'idle' and jax >= 3:
-                self.serpentA.animate('bite')
-                self.serpentB.animate('bite')
-            if jax >= 13:
-                self.joueurA.x = loc2px(13)
-            if jbx <= 22:
-                self.joueurB.x = loc2px(22)
-            if jax >= 13 or jbx <= 22:
-                self.joueurA.set_anim_frame('debout', 0)
-                self.joueurB.set_anim_frame('debout', 0)
-                self.entree = False
-                if Game.Partie == 'vs':
-                    self.chronoOn = True
-            return None
 
         if self.joueurA.sortie:
             if not self.tempsfini:
@@ -2177,32 +2140,88 @@ class Battle(EmptyScene):
                 vainqueur.sortie = True
                 vainqueur.occupe = False
 
+    def tick_chrono(self, current_time, ja: Barbarian, jb: Barbarian):
+        if self.chrono == 0:
+            self.chrono = current_time
+        elif current_time > self.chrono:
+            self.chrono += 1000
+            Game.Chronometre -= 1
+            if Game.Chronometre < 1:
+                Game.Chronometre = 0
+                self.chronoOn = False
+                if Game.Partie == 'vs':
+                    ja.sortie = jb.sortie = True
+                    ja.occupe = jb.occupe = False
+                    self.tempsfini = True
+            self.txtChronometre.msg = f'{Game.Chronometre:02}'
+
+    def joueurA_bonus(self, jbx):
+        if Game.Chronometre > 0:
+            Game.ScoreA += 10
+            Game.Chronometre -= 1
+            self.txtChronometre.msg = f'{Game.Chronometre:02}'
+            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+        elif jbx >= 37:
+            self.joueurA.sortie = True
+            self.joueurA.occupe = False
+
+    def joueurB_bonus(self, jax):
+        if Game.Chronometre > 0:
+            Game.ScoreB += 10
+            Game.Chronometre -= 1
+            self.txtChronometre.msg = f'{Game.Chronometre:02}'
+            self.txtScoreB.msg = f'{Game.ScoreB:05}'
+        elif jax >= 37:
+            self.joueurB.sortie = True
+            self.joueurB.occupe = False
+
+    def do_entree(self, jax, jbx):
+        if self.serpentA.anim == 'idle' and jax >= 3:
+            self.serpentA.animate('bite')
+            self.serpentB.animate('bite')
+        if jax >= 13:
+            self.joueurA.x = loc2px(13)
+        if jbx <= 22:
+            self.joueurB.x = loc2px(22)
+        if jax >= 13 or jbx <= 22:
+            self.joueurA.set_anim_frame('debout', 0)
+            self.joueurB.set_anim_frame('debout', 0)
+            self.entree = False
+            if Game.Partie == 'vs':
+                self.chronoOn = True
+
     def update(self, current_time, *args):
         ja = self.joueurA
         jb = self.joueurB
-        ja.xLocPrev = ja.x_loc()
-        jb.xLocPrev = jb.x_loc()
+        jax = self.joueurA.x_loc()
+        jbx = self.joueurB.x_loc()
+        ja.xLocPrev = jax  # for collision
+        jb.xLocPrev = jbx  # for collision
         super(Battle, self).update(current_time, *args)
         if self.jeu in ('gagne', 'perdu'):
             return
         if self.chronoOn:
-            if self.chrono == 0:
-                self.chrono = current_time
-            elif current_time > self.chrono + 1000:
-                self.chrono += 1000
-                Game.Chronometre -= 1
-                if Game.Chronometre < 1:
-                    Game.Chronometre = 0
-                    self.chronoOn = False
-                    if Game.Partie == 'vs':
-                        ja.sortie = True
-                        ja.occupe = False
-                        jb.sortie = True
-                        jb.occupe = False
-                        self.tempsfini = True
-                self.txtChronometre.msg = f'{Game.Chronometre:02}'
-
+            self.tick_chrono(current_time, ja, jb)
+        #
         self.temps += 1
+        self.update_internal(ja, jax, jb, jbx)
+        #
+        if self.opts.debug > 1:
+            self.debug(ja, jb)
+
+    def update_internal(self, ja, jax, jb, jbx):
+        if ja.bonus:
+            self.joueurA_bonus(jbx)
+        if jb.bonus:
+            self.joueurB_bonus(jax)
+        if self.lancerintro:
+            self.lancerintro = False
+            self.snd_play('prepare.ogg')
+
+        if self.entree:
+            self.do_entree(jax, jbx)
+            return
+
         goto = 'debut'
         while goto:
             if goto == 'debut':
@@ -2227,33 +2246,34 @@ class Battle(EmptyScene):
                 goto = self._colision(ja, jb)
             else:
                 goto = None
-        if self.opts.debug > 1:
-            self.jAstate.msg = f'AS: {ja.state}'
-            self.jAlevier.msg = f'AL: {ja.levier}'
-            self.jAtemps.msg = f'AT: {ja.reftemps} ({self.temps - ja.reftemps})'
-            self.jBstate.msg = f'BS: {jb.state}'
-            self.jBlevier.msg = f'BL: {jb.levier}'
-            self.jBtemps.msg = f'BT: {jb.reftemps} ({self.temps - jb.reftemps})'
-            self.debugTemps.msg = f'T: {self.temps}'
-            distance = abs(jb.x_loc() - ja.x_loc())
-            self.distance.msg = f'A <- {distance:>2} -> B'
-            if self.debugAttArea:
-                self.jAAtt.move_to(loc2px(ja.xAtt), loc2px(ja.yAtt))
-                self.jAF.move_to(loc2px(ja.xF), loc2px(ja.yF))
-                self.jAT.move_to(loc2px(ja.xT), loc2px(ja.yT))
-                self.jAM.move_to(loc2px(ja.xM), loc2px(ja.yM))
-                self.jAG.move_to(loc2px(ja.xG), loc2px(ja.yG))
-                #
-                self.jBAtt.move_to(loc2px(jb.xAtt), loc2px(jb.yAtt))
-                self.jBF.move_to(loc2px(jb.xF), loc2px(jb.yF))
-                self.jBT.move_to(loc2px(jb.xT), loc2px(jb.yT))
-                self.jBM.move_to(loc2px(jb.xM), loc2px(jb.yM))
-                self.jBG.move_to(loc2px(jb.xG), loc2px(jb.yG))
-            if self.opts.debug > 2:
-                self.jAframe.msg = (f'{ja.frameNum + 1} / {len(ja.frames)}'
-                                    f' ({ja.frame.name})')
-                self.jBframe.msg = (f'{jb.frameNum + 1} / {len(jb.frames)}'
-                                    f' ({jb.frame.name})')
+
+    def debug(self, ja, jb):
+        self.jAstate.msg = f'AS: {ja.state}'
+        self.jAlevier.msg = f'AL: {ja.levier}'
+        self.jAtemps.msg = f'AT: {ja.reftemps} ({self.temps - ja.reftemps})'
+        self.jBstate.msg = f'BS: {jb.state}'
+        self.jBlevier.msg = f'BL: {jb.levier}'
+        self.jBtemps.msg = f'BT: {jb.reftemps} ({self.temps - jb.reftemps})'
+        self.debugTemps.msg = f'T: {self.temps}'
+        distance = abs(jb.x_loc() - ja.x_loc())
+        self.distance.msg = f'A <- {distance:>2} -> B'
+        if self.debugAttArea:
+            self.jAAtt.move_to(loc2px(ja.xAtt), loc2px(ja.yAtt))
+            self.jAF.move_to(loc2px(ja.xF), loc2px(ja.yF))
+            self.jAT.move_to(loc2px(ja.xT), loc2px(ja.yT))
+            self.jAM.move_to(loc2px(ja.xM), loc2px(ja.yM))
+            self.jAG.move_to(loc2px(ja.xG), loc2px(ja.yG))
+            #
+            self.jBAtt.move_to(loc2px(jb.xAtt), loc2px(jb.yAtt))
+            self.jBF.move_to(loc2px(jb.xF), loc2px(jb.yF))
+            self.jBT.move_to(loc2px(jb.xT), loc2px(jb.yT))
+            self.jBM.move_to(loc2px(jb.xM), loc2px(jb.yM))
+            self.jBG.move_to(loc2px(jb.xG), loc2px(jb.yG))
+        if self.opts.debug > 2:
+            self.jAframe.msg = (f'{ja.frameNum + 1} / {len(ja.frames)}'
+                                f' ({ja.frame.name})')
+            self.jBframe.msg = (f'{jb.frameNum + 1} / {len(jb.frames)}'
+                                f' ({jb.frame.name})')
 
 
 class Version(_MenuBackScene):
