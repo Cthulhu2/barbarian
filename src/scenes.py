@@ -512,9 +512,7 @@ class Battle(EmptyScene):
                     elif Game.Partie == 'vs':
                         self.next_stage()
                     return None
-            elif ((self.sense == 'normal' and jax < 2 and jbx >= 37)
-                  or (self.sense == 'inverse' and jbx < 2 and jax >= 37)):
-                # SLEEP 1
+            elif (jax < 2 and 38 < jbx) or (jbx < 2 and 38 < jax):
                 self.next_stage()
                 return None
             return 'clavier'
@@ -727,9 +725,6 @@ class Battle(EmptyScene):
 
         if self.joueurA.state == State.debout:
             self.joueurA.gestion_debout()
-            if Game.Demo and self.joueurA.state == State.debout:
-                if self.temps > self.joueurA.reftemps + 20:
-                    self.joueurA.occupe = False
             return 'joueur2'
 
         if self.joueurA.state == State.avance:
@@ -746,17 +741,8 @@ class Battle(EmptyScene):
             return 'joueur2'
 
         if self.joueurA.state == State.assis:
-            rtl = self.joueurA.rtl
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xF = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xM = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
-            self.joueurA.yT = YM
-            self.joueurA.set_anim_frame('assis', 0)
-            if self.temps > self.joueurA.reftemps + 10:
-                self.joueurA.state = State.assis2
-                return 'joueur2'
+            self.joueurA.gestion_assis(self.temps)
+            return 'joueur2'
 
         if self.joueurA.state == State.assis2:
             self.joueurA.occupe = False
@@ -1487,9 +1473,6 @@ class Battle(EmptyScene):
         # ***********************************
         if self.joueurB.state == State.debout:
             self.joueurB.gestion_debout()
-            if Game.Partie == 'solo':
-                if self.temps > self.joueurB.reftemps + 20:
-                    self.joueurB.occupe = False
             return 'colision'
 
         if self.joueurB.state == State.attente:
@@ -1510,16 +1493,8 @@ class Battle(EmptyScene):
             return 'colision'
 
         if self.joueurB.state == State.assis:
-            rtl = self.joueurB.rtl
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xM = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
-            self.joueurB.set_anim_frame('assis', 0)
-            if self.temps > self.joueurB.reftemps + 10:
-                self.joueurB.state = State.assis2
-                return 'colision'
+            self.joueurB.gestion_assis(self.temps)
+            return 'colision'
 
         if self.joueurB.state == State.assis2:
             self.joueurB.occupe = False

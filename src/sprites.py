@@ -781,6 +781,17 @@ class Barbarian(AnimatedSprite):
         elif self.anim != 'saute':
             self.animate('saute')
 
+    def gestion_assis(self, temps):
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xF = self.x_loc() + (4 if self.rtl else 0)
+        self.xT = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.yT = YM
+        self.set_anim_frame('assis', 0)
+        if temps > self.reftemps + 10:
+            self.state = State.assis2
+
     def gestion_rouladeAR(self, temps):
         self.xF = self.x_loc() + (4 if self.rtl else 0)
         self.xT = self.x_loc() + (4 if self.rtl else 0)
