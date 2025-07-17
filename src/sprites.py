@@ -480,10 +480,10 @@ class Barbarian(AnimatedSprite):
         self.yT = YT  # tete
         self.yM = YM  # corps
         self.yG = YG  # genou
-        self.xF = px2loc(self.x) if rtl else px2loc(self.x) + 4
-        self.xT = px2loc(self.x) if rtl else px2loc(self.x) + 4
-        self.xM = px2loc(self.x) if rtl else px2loc(self.x) + 4
-        self.xG = px2loc(self.x) if rtl else px2loc(self.x) + 4
+        self.xF = 0
+        self.xT = 0
+        self.xM = 0
+        self.xG = 0
         #
         self.reftemps = 0
         self.attente = 1
@@ -517,11 +517,17 @@ class Barbarian(AnimatedSprite):
         if snd and self.opts.sound:
             get_snd(snd).play()
 
-    def reset_xX(self):
-        self.xF = self.x_loc() + (0 if self.rtl else 4)
-        self.xT = self.x_loc() + (0 if self.rtl else 4)
-        self.xM = self.x_loc() + (0 if self.rtl else 4)
-        self.xG = self.x_loc() + (0 if self.rtl else 4)
+    def reset_xX(self, offset):
+        self.xF = self.x_loc() + offset
+        self.xT = self.xF
+        self.xM = self.xF
+        self.xG = self.xF
+
+    def reset_xX_front(self):
+        self.reset_xX(0 if self.rtl else 4)
+
+    def reset_xX_back(self):
+        self.reset_xX(4 if self.rtl else 0)
 
     def reset_yX(self):
         self.yF = YF
@@ -726,7 +732,7 @@ class Barbarian(AnimatedSprite):
 
     # region gestions
     def gestion_attente(self, temps):
-        self.reset_xX()
+        self.reset_xX_front()
         if temps > self.reftemps + 50:
             self.occupe = False
             self.attente = 1
@@ -737,7 +743,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_avance(self, temps, opponent: 'Barbarian',
                        soncling: iter, songrogne: iter):
-        self.reset_xX()
+        self.reset_xX_front()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         if self.attaque:
             self.occupe_state(State.devant, temps)
@@ -746,7 +752,7 @@ class Barbarian(AnimatedSprite):
             self.animate('avance')
 
     def gestion_recule(self, temps):
-        self.reset_xX()
+        self.reset_xX_front()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         if self.attaque:
             self.occupe_state(State.decapite, temps)
@@ -756,7 +762,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_saute(self, temps):
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-        self.reset_xX()
+        self.reset_xX_front()
         self.decapite = False
         self.yG = self.yM
         self.yAtt = 14
@@ -793,10 +799,7 @@ class Barbarian(AnimatedSprite):
             self.state = State.assis2
 
     def gestion_rouladeAR(self, temps):
-        self.xF = self.x_loc() + (4 if self.rtl else 0)
-        self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (4 if self.rtl else 0)
-        self.xG = self.x_loc() + (4 if self.rtl else 0)
+        self.reset_xX_back()
         self.yG = YG
         self.yAtt = self.yG
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
@@ -810,7 +813,7 @@ class Barbarian(AnimatedSprite):
             self.animate('rouladeAR', 2)
 
     def gestion_protegeH1(self, temps):
-        self.reset_xX()
+        self.reset_xX_front()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
         if temps > self.reftemps + 5:
@@ -823,7 +826,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_protegeH(self, temps, opponent: 'Barbarian',
                          soncling: iter, songrogne: iter):
-        self.reset_xX()
+        self.reset_xX_front()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
         self.set_anim_frame('protegeH', 1)
@@ -834,7 +837,7 @@ class Barbarian(AnimatedSprite):
     def gestion_protegeD(self, temps):
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
-        self.reset_xX()
+        self.reset_xX_front()
         self.decapite = False
         self.set_anim_frame('protegeD', 1)
         if self.attaque:
@@ -842,7 +845,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_cou(self, temps, opponent: 'Barbarian',
                     soncling: iter, songrogne: iter):
-        self.reset_xX()
+        self.reset_xX_front()
         self.yG = YG
         if temps > self.reftemps + 45:
             self.occupe = False
@@ -874,7 +877,7 @@ class Barbarian(AnimatedSprite):
     def gestion_devant(self, temps, opponent: 'Barbarian',
                        soncling: iter, songrogne: iter):
 
-        self.reset_xX()
+        self.reset_xX_front()
         self.yG = YG
         if temps > self.reftemps + 45:
             self.occupe = False
@@ -968,7 +971,7 @@ class Barbarian(AnimatedSprite):
             self.animate('araignee')
 
     def gestion_coupdepied(self, temps, opponent):
-        self.reset_xX()
+        self.reset_xX_front()
         self.yAtt = self.yM
         self.yM = YM
         if temps > self.reftemps + 50:
@@ -991,7 +994,7 @@ class Barbarian(AnimatedSprite):
             self.animate('coupdepied')
 
     def gestion_coupdetete(self, temps):
-        self.reset_xX()
+        self.reset_xX_front()
         self.yG = YG
         if temps > self.reftemps + 37:
             self.occupe = False
@@ -1028,7 +1031,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_front(self, temps, opponent: 'Barbarian',
                       soncling: iter, songrogne: iter):
-        self.reset_xX()
+        self.reset_xX_front()
         self.yG = YG
         if temps > self.reftemps + 45:
             self.occupe = False
@@ -1057,7 +1060,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_retourne(self, temps):
         self.xAtt = self.x_loc()
-        self.reset_xX()
+        self.reset_xX_front()
         self.yAtt = 14
         if temps > self.reftemps + 15:
             self.state = State.debout
@@ -1073,25 +1076,21 @@ class Barbarian(AnimatedSprite):
         self.xAtt = self.x_loc() + (0 if self.rtl else 4)
         self.yAtt = 14
         self.reset_yX()
-        self.reset_xX()
+        self.reset_xX_front()
 
-    def gestion_vainqueur(self, temps):
-        self.decapite = True
-        self.sang = False
+    def gestion_vainqueur(self):
         self.xAtt = self.x_loc()
         self.yG = YG
         self.yAtt = 14
-        self.reset_xX()
+        self.reset_xX_front()
         if self.anim != 'vainqueur':
             self.animate('vainqueur')
 
     def gestion_vainqueurKO(self, temps, opponent: 'Barbarian'):
-        self.decapite = True
-        self.sang = False
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
         self.yAtt = 14
-        self.reset_xX()
+        self.reset_xX_front()
 
         if temps == self.reftemps + 75:
             opponent.set_anim_frame('mort', 3)  # mort4
@@ -1118,25 +1117,17 @@ class Barbarian(AnimatedSprite):
     def gestion_touche1(self, temps):
         self.attente = 0
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-        self.xF = self.x_loc() + (4 if self.rtl else 0)
-        self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (4 if self.rtl else 0)
-        self.xG = self.x_loc() + (4 if self.rtl else 0)
+        self.reset_xX_back()
         if temps > self.reftemps + 20:
             self.occupe = False
             self.state = State.debout
-        elif temps == self.reftemps + 11:
-            self.sang = False
         elif temps == self.reftemps:
             self.animate('touche1')
 
     def gestion_tombe1(self, temps, opponent: 'Barbarian'):
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.attente = 0
-        self.xF = self.x_loc() + (4 if self.rtl else 0)
-        self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (4 if self.rtl else 0)
-        self.xG = self.x_loc() + (4 if self.rtl else 0)
+        self.reset_xX_back()
         if temps == self.reftemps + 25:
             self.state = State.debout
             self.occupe = False
