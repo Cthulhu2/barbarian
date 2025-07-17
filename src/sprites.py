@@ -532,6 +532,52 @@ class Barbarian(AnimatedSprite):
     def x_loc(self):
         return px2loc(self.x)
 
+    def degat(self, opponent: 'Barbarian'):
+        ltr = not self.rtl and self.x_loc() < opponent.x_loc()
+        rtl = self.rtl and self.x_loc() > opponent.x_loc()
+        yAtt = opponent.yAtt
+        xAtt = opponent.xAtt
+        if yAtt == self.yF and (ltr and xAtt <= self.xF
+                                or rtl and xAtt >= self.xF):
+            if self.state == State.protegeH:
+                self.state = State.clingH
+            else:
+                self.state = State.tombe
+                self.infoDegatF += 1
+            return True, 0
+
+        if yAtt == self.yT and (ltr and xAtt <= self.xT
+                                or rtl and xAtt >= self.xT):
+            if opponent.state == State.coupdetete:
+                self.state = State.tombe
+            else:
+                self.state = State.touche
+                self.infoDegatT += 1
+            return True, 250
+
+        if yAtt == self.yM and (ltr and xAtt <= self.xM
+                                or rtl and xAtt >= self.xM):
+            if self.state == State.protegeD:
+                self.state = State.clingD
+            else:
+                self.state = State.touche
+            return True, 250
+
+        if yAtt == self.yG and (ltr and xAtt <= self.xG
+                                or rtl and xAtt >= self.xG):
+            if opponent.state in (State.araignee, State.rouladeAV):
+                self.state = State.tombe
+            elif self.state == State.protegeD:
+                self.state = State.clingD
+            elif opponent.state == State.coupdepied:
+                self.state = State.tombe
+                self.infoDegatG += 1
+            else:
+                self.state = State.touche
+                self.infoDegatG += 1
+            return True, 100
+        return False, 0
+
     def turn_around(self, rtl):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
         self.frames = self.anims[self.anim]
