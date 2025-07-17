@@ -453,6 +453,11 @@ YG = 21
 
 
 class Barbarian(AnimatedSprite):
+    xF: int = 0
+    xT: int = 0
+    xM: int = 0
+    xG: int = 0
+
     def __init__(self, opts, x, y, subdir: str, rtl=False, anim='debout'):
         super().__init__((x, y), anims.barb(subdir))
         self.opts = opts
@@ -480,10 +485,7 @@ class Barbarian(AnimatedSprite):
         self.yT = YT  # tete
         self.yM = YM  # corps
         self.yG = YG  # genou
-        self.xF = 0
-        self.xT = 0
-        self.xM = 0
-        self.xG = 0
+        self.reset_xX_front()
         #
         self.reftemps = 0
         self.attente = 1

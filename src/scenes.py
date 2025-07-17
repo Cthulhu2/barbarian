@@ -725,6 +725,9 @@ class Battle(EmptyScene):
 
         if self.joueurA.state == State.debout:
             self.joueurA.gestion_debout()
+            if Game.Demo and self.joueurA.state == State.debout:
+                if self.temps > self.joueurA.reftemps + 20:
+                    self.joueurA.occupe = False
             return 'joueur2'
 
         if self.joueurA.state == State.avance:
@@ -1464,6 +1467,9 @@ class Battle(EmptyScene):
         # ***********************************
         if self.joueurB.state == State.debout:
             self.joueurB.gestion_debout()
+            if Game.Partie == 'solo':
+                if self.temps > self.joueurB.reftemps + 20:
+                    self.joueurB.occupe = False
             return 'colision'
 
         if self.joueurB.state == State.attente:
