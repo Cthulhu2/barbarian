@@ -715,21 +715,9 @@ class Battle(EmptyScene):
             return 'joueur2'
 
         if self.joueurA.state == State.releve:
-            rtl = self.joueurA.rtl
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yAtt = 14
-            self.joueurA.xF = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xT = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-            self.joueurA.xG = self.joueurA.x_loc() + (0 if rtl else 4)
-            self.joueurA.yT = YT
-            self.joueurA.set_anim_frame('releve', 0)
-            if self.temps > self.joueurA.reftemps + 10:
-                self.joueurA.state = State.debout
-                self.joueurA.occupe = False
-                return 'joueur2'
-            if self.joueurA.attaque and self.joueurA.levier == Levier.bas:
-                self.joueurA.occupe_state(State.genou, self.temps)
+            self.joueurA.gestion_releve(self.temps, self.joueurB,
+                                        self.soncling, self.songrogne)
+            return 'joueur2'
 
         if self.joueurA.state == State.rouladeAV:
             self.joueurA.gestion_rouladeAV(self.temps, self.joueurB)

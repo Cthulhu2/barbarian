@@ -824,6 +824,7 @@ class Barbarian(AnimatedSprite):
         self.xT = self.x_loc() + (4 if self.rtl else 0)
         self.xM = self.x_loc() + (0 if self.rtl else 4)
         self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.yT = YT
         self.set_anim_frame('releve', 0)
         if temps > self.reftemps + 10:
             self.state = State.debout
