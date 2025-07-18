@@ -818,21 +818,10 @@ class Battle(EmptyScene):
                 return 'joueur2'
 
         if self.joueurA.state == State.finderoulade:
-            rtl = self.joueurA.rtl
-            jax = self.joueurA.x_loc()
-            jbx = self.joueurB.x_loc()
-            if (not rtl and jax > jbx - 1) or (rtl and jax < jbx + 1):
-                self.joueurA.occupe_state(State.retourne, self.temps)
-                self.joueurB.occupe_state(State.retourne, self.temps)
-                self.joueurA.yAtt = 14
-                self.joueurB.yAtt = 14
+            self.joueurA.gestion_finderoulade(self.temps, self.joueurB)
+            if self.joueurA.state == State.retourne:
                 return None
-            if (not rtl and jax < jbx) or (rtl and jax > jbx):
-                self.joueurA.state = State.debout
-                self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-                self.joueurA.yAtt = 17
-                self.joueurA.reset_xX_front()
-                self.joueurA.reset_yX()
+            else:
                 return 'joueur2'
 
         if self.joueurA.state == State.rouladeAR:
@@ -1524,21 +1513,10 @@ class Battle(EmptyScene):
                 return 'colision'
 
         if self.joueurB.state == State.finderoulade:
-            rtl = self.joueurB.rtl
-            jax = self.joueurA.x_loc()
-            jbx = self.joueurB.x_loc()
-            if (not rtl and jbx > jax - 1) or (rtl and jbx < jax + 1):
-                self.joueurA.occupe_state(State.retourne, self.temps)
-                self.joueurB.occupe_state(State.retourne, self.temps)
-                self.joueurA.yAtt = 14
-                self.joueurB.yAtt = 14
+            self.joueurB.gestion_finderoulade(self.temps, self.joueurA)
+            if self.joueurB.state == State.retourne:
                 return None
-            if (not rtl and jbx < jax) or (rtl and jbx > jax):
-                self.joueurB.state = State.debout
-                self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-                self.joueurB.yAtt = 17
-                self.joueurB.reset_xX_front()
-                self.joueurB.reset_yX()
+            else:
                 return 'colision'
 
         if self.joueurB.state == State.rouladeAR:

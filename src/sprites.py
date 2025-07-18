@@ -833,6 +833,22 @@ class Barbarian(AnimatedSprite):
             self.occupe_state(State.genou, temps)
             self.gestion_genou(temps, opponent, soncling, songrogne)
 
+    def gestion_finderoulade(self, temps, opponent: 'Barbarian'):
+        rtl = self.rtl
+        jax = self.x_loc()
+        jbx = opponent.x_loc()
+        if (not rtl and jax > jbx - 1) or (rtl and jax < jbx + 1):
+            self.occupe_state(State.retourne, temps)
+            opponent.occupe_state(State.retourne, temps)
+            self.yAtt = 14
+            opponent.yAtt = 14
+        elif (not rtl and jax < jbx) or (rtl and jax > jbx):
+            self.state = State.debout
+            self.xAtt = self.x_loc() + (4 if rtl else 0)
+            self.yAtt = 17
+            self.reset_xX_front()
+            self.reset_yX()
+
     def gestion_rouladeAR(self, temps):
         self.reset_xX_back()
         self.yG = YG
