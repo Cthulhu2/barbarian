@@ -417,7 +417,6 @@ class State(enum.Enum):
     debout = enum.auto()
     decapite = enum.auto()
     devant = enum.auto()
-    finderoulade = enum.auto()
     retourne = enum.auto()
     front = enum.auto()
     genou = enum.auto()
@@ -833,21 +832,68 @@ class Barbarian(AnimatedSprite):
             self.occupe_state(State.genou, temps)
             self.gestion_genou(temps, opponent, soncling, songrogne)
 
-    def gestion_finderoulade(self, temps, opponent: 'Barbarian'):
-        rtl = self.rtl
-        jax = self.x_loc()
-        jbx = opponent.x_loc()
-        if (not rtl and jax > jbx - 1) or (rtl and jax < jbx + 1):
-            self.occupe_state(State.retourne, temps)
-            opponent.occupe_state(State.retourne, temps)
-            self.yAtt = 14
-            opponent.yAtt = 14
-        elif (not rtl and jax < jbx) or (rtl and jax > jbx):
-            self.state = State.debout
-            self.xAtt = self.x_loc() + (4 if rtl else 0)
-            self.yAtt = 17
-            self.reset_xX_front()
-            self.reset_yX()
+    def gestion_rouladeAV(self, temps, opponent):
+        self.reset_xX_back()
+        self.yG = YG
+        self.yAtt = self.yG
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yT = self.yG
+        if self.attaque:
+            self.yT = YT
+            self.occupe_state(State.coupdepied, temps)
+
+        elif temps > self.reftemps + 38:
+            self.xT = self.x_loc() + (0 if self.rtl else 4)
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.yT = YT
+            self.occupe = False
+            # finderoulade
+            jax = self.x_loc()
+            jbx = opponent.x_loc()
+            if (not self.rtl and jax >= jbx - 3) or (self.rtl and jax <= jbx + 3):
+                self.occupe_state(State.retourne, temps)
+                opponent.occupe_state(State.retourne, temps)
+                self.yAtt = 14
+                opponent.yAtt = 14
+            elif (not self.rtl and jax < jbx) or (self.rtl and jax > jbx):
+                self.state = State.debout
+                self.xAtt = jax + (4 if self.rtl else 0)
+                self.yAtt = 17
+                self.reset_xX_front()
+                self.reset_yX()
+
+        elif temps > self.reftemps + 23:
+            if self.anim == 'rouladeAV':
+                if self.rtl:
+                    distance = self.x_loc() - opponent.x_loc()
+                else:
+                    distance = opponent.x_loc() - self.x_loc()
+                if 4 == distance:  # do not rollout at left half opponent
+                    self.animate('rouladeAV-out', self.animTick)
+
+        elif temps == self.reftemps + 18:
+            if opponent.state in (State.tombe, State.tombe1):
+                self.animate('rouladeAV-out', self.animTick)
+
+        elif temps == self.reftemps + 17:
+            self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+
+        elif temps == self.reftemps + 15:
+            if opponent.state in (State.tombe, State.tombe1):
+                self.animate('rouladeAV-out', self.animTick)
+
+        elif temps == self.reftemps + 14:
+            self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+
+        elif temps > self.reftemps + 10:
+            pass  # do not update xM after reftemps+10
+        elif temps > self.reftemps + 2:
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
+
+        elif temps == self.reftemps + 2:
+            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.snd_play('roule.ogg')
+            self.animate('rouladeAV', 2)
 
     def gestion_rouladeAR(self, temps):
         self.reset_xX_back()

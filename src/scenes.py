@@ -10,7 +10,7 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2px, loc, State, Levier, Sorcier, Rectangle, YG, YT, px2loc
+    loc2px, loc, State, Levier, Sorcier, Rectangle, YT, px2loc
 )
 import anims
 from anims import get_img, rtl_anims
@@ -768,61 +768,8 @@ class Battle(EmptyScene):
                 self.joueurA.occupe_state(State.genou, self.temps)
 
         if self.joueurA.state == State.rouladeAV:
-            rtl = self.joueurA.rtl
-            self.joueurA.reset_xX_back()
-            self.joueurA.yG = YG
-            self.joueurA.yAtt = self.joueurA.yG
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yT = self.joueurA.yG
-            if self.joueurA.attaque:
-                self.joueurA.yT = YT
-                self.joueurA.occupe_state(State.coupdepied, self.temps)
-                return 'gestion'
-            elif self.temps > self.joueurA.reftemps + 38:
-                self.joueurA.xT = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.joueurA.yT = YT
-                self.joueurA.occupe = False
-                self.joueurA.state = State.finderoulade
-                # return 'finderoulade'  # vvv
-            elif self.temps > self.joueurA.reftemps + 23:
-                if self.joueurA.anim == 'rouladeAV':
-                    if self.joueurA.rtl:
-                        distance = self.joueurA.x_loc() - self.joueurB.x_loc()
-                    else:
-                        distance = self.joueurB.x_loc() - self.joueurA.x_loc()
-                    if 4 == distance:  # do not rollout at left half opponent
-                        self.joueurA.animate('rouladeAV-out', self.joueurA.animTick)
-            elif self.temps == self.joueurA.reftemps + 18:
-                if self.joueurB.state in (State.tombe, State.tombe1):
-                    self.joueurA.animate('rouladeAV-out', self.joueurA.animTick)
-            elif self.temps == self.joueurA.reftemps + 17:
-                self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
-                return 'joueur2'
-            elif self.temps == self.joueurA.reftemps + 15:
-                if self.joueurB.state in (State.tombe, State.tombe1):
-                    self.joueurA.animate('rouladeAV-out', self.joueurA.animTick)
-            elif self.temps == self.joueurA.reftemps + 14:
-                self.joueurA.xAtt = self.joueurA.x_loc() + (-1 if rtl else 5)
-                return 'joueur2'
-            elif self.temps > self.joueurA.reftemps + 10:
-                pass
-            elif self.temps > self.joueurA.reftemps + 2:
-                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-            elif self.temps == self.joueurA.reftemps + 2:
-                self.joueurA.xM = self.joueurA.x_loc() + (0 if rtl else 4)
-                self.snd_play('roule.ogg')
-                self.joueurA.animate('rouladeAV', 2)
-                return 'joueur2'
-            else:
-                return 'joueur2'
-
-        if self.joueurA.state == State.finderoulade:
-            self.joueurA.gestion_finderoulade(self.temps, self.joueurB)
-            if self.joueurA.state == State.retourne:
-                return None
-            else:
-                return 'joueur2'
+            self.joueurA.gestion_rouladeAV(self.temps, self.joueurB)
+            return 'joueur2'
 
         if self.joueurA.state == State.rouladeAR:
             self.joueurA.gestion_rouladeAR(self.temps)
@@ -1084,9 +1031,6 @@ class Battle(EmptyScene):
         # *****************************************
         # ******* Intelligence Artificielle *******
         # *****************************************
-        if State.finderoulade in (self.joueurA.state, self.joueurB.state):
-            return 'gestionB'
-
         if Game.Partie == 'solo':
             distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
             # ***************************IA de 1,2,3,6
@@ -1463,61 +1407,8 @@ class Battle(EmptyScene):
             return 'colision'
 
         if self.joueurB.state == State.rouladeAV:
-            rtl = self.joueurB.rtl
-            self.joueurB.reset_xX_back()
-            self.joueurB.yG = YG
-            self.joueurB.yAtt = self.joueurB.yG
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yT = self.joueurB.yG
-            if self.joueurB.attaque:
-                self.joueurB.yT = YT
-                self.joueurB.occupe_state(State.coupdepied, self.temps)
-                return 'colision'
-            elif self.temps > self.joueurB.reftemps + 38:
-                self.joueurB.xT = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.joueurB.yT = YT
-                self.joueurB.occupe = False
-                self.joueurB.state = State.finderoulade
-                # return 'finderouladeB'  # vvv
-            elif self.temps > self.joueurB.reftemps + 23:
-                if self.joueurB.anim == 'rouladeAV':
-                    if self.joueurB.rtl:
-                        distance = self.joueurB.x_loc() - self.joueurA.x_loc()
-                    else:
-                        distance = self.joueurA.x_loc() - self.joueurB.x_loc()
-                    if 4 == distance:  # do not rollout at left half opponent
-                        self.joueurB.animate('rouladeAV-out', self.joueurB.animTick)
-            elif self.temps == self.joueurB.reftemps + 18:
-                if self.joueurA.state in (State.tombe, State.tombe1):
-                    self.joueurB.animate('rouladeAV-out', self.joueurB.animTick)
-            elif self.temps == self.joueurB.reftemps + 17:
-                self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
-                return 'colision'
-            elif self.temps == self.joueurB.reftemps + 15:
-                if self.joueurA.state in (State.tombe, State.tombe1):
-                    self.joueurB.animate('rouladeAV-out', self.joueurB.animTick)
-            elif self.temps == self.joueurB.reftemps + 14:
-                self.joueurB.xAtt = self.joueurB.x_loc() + (-1 if rtl else 5)
-                return 'colision'
-            elif self.temps > self.joueurB.reftemps + 10:
-                pass
-            elif self.temps > self.joueurB.reftemps + 2:
-                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-            elif self.temps == self.joueurB.reftemps + 2:
-                self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-                self.snd_play('roule.ogg')
-                self.joueurB.animate('rouladeAV', 2)
-                return 'colision'
-            else:
-                return 'colision'
-
-        if self.joueurB.state == State.finderoulade:
-            self.joueurB.gestion_finderoulade(self.temps, self.joueurA)
-            if self.joueurB.state == State.retourne:
-                return None
-            else:
-                return 'colision'
+            self.joueurB.gestion_rouladeAV(self.temps, self.joueurA)
+            return 'colision'
 
         if self.joueurB.state == State.rouladeAR:
             self.joueurB.gestion_rouladeAR(self.temps)
@@ -1728,28 +1619,25 @@ class Battle(EmptyScene):
                 if jb.xLocPrev != jbx:
                     jb.x = loc2px(jbx - (-1 if jb.rtl else 1))
 
-        # sortie du cadre
-        if any((self.entree, self.entreesorcier, ja.sortie, jb.sortie)):
-            if jax < 0:
-                ja.x = loc2px(0)
-            if jbx < 0:
-                jb.x = loc2px(0)
-            if jax > 40:
-                ja.x = loc2px(40)
-            if jbx > 40:
-                jb.x = loc2px(40)
-        else:
-            left, right = (9, 32) if ja.rtl else (5, 28)
-            if jax < left:
-                ja.x = loc2px(left)
-            if jax > right:
-                ja.x = loc2px(right)
-            left, right = (9, 32) if jb.rtl else (5, 28)
-            if jbx < left:
-                jb.x = loc2px(left)
-            if jbx > right:
-                jb.x = loc2px(right)
+        left, right = self._colision_borders(ja, jb)
+        if jax < left:
+            ja.x = loc2px(left)
+        elif jax > right:
+            ja.x = loc2px(right)
+        #
+        left, right = self._colision_borders(jb, ja)
+        if jbx < left:
+            jb.x = loc2px(left)
+        elif jbx > right:
+            jb.x = loc2px(right)
         return None
+
+    def _colision_borders(self, joueur: Barbarian, opponent: Barbarian):
+        return ((0, 40) if any((self.entree, self.entreesorcier,
+                                joueur.sortie, opponent.sortie)) else
+                (5, 32) if joueur.state == State.retourne else
+                (9, 32) if joueur.rtl else
+                (5, 28))
 
     def vieA(self, num):
         self.vieA0.set_anim_frame('vie', max(0, min(6, 6 - num)))
