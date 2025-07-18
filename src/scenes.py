@@ -787,10 +787,7 @@ class Battle(EmptyScene):
             self.joueurA.gestion_vainqueurKO(self.temps, self.joueurB)
             if self.temps > self.joueurA.reftemps + 230:
                 self.animate_gnome()
-                self.joueurA.reftemps = self.temps
-                return None
-            elif self.temps == self.joueurA.reftemps + 36:
-                return 'colision'
+            return 'joueur2'
 
         # ******degats******
         if self.joueurA.state == State.touche:
@@ -1415,10 +1412,7 @@ class Battle(EmptyScene):
             self.joueurB.gestion_vainqueurKO(self.temps, self.joueurA)
             if self.temps > self.joueurB.reftemps + 230:
                 self.animate_gnome()
-                self.joueurB.reftemps = self.temps
-                return None
-            elif self.temps == self.joueurA.reftemps + 36:
-                return 'colision'
+            return 'colision'
 
         # ******degats B ******
         if self.joueurB.state == State.touche:
