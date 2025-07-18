@@ -850,12 +850,12 @@ class Barbarian(AnimatedSprite):
             # finderoulade
             jax = self.x_loc()
             jbx = opponent.x_loc()
-            if (not self.rtl and jax >= jbx - 3) or (self.rtl and jax <= jbx + 3):
+            if (not self.rtl and jax >= jbx - 2) or (self.rtl and jax <= jbx + 2):
                 self.occupe_state(State.retourne, temps)
                 opponent.occupe_state(State.retourne, temps)
                 self.yAtt = 14
                 opponent.yAtt = 14
-            elif (not self.rtl and jax < jbx) or (self.rtl and jax > jbx):
+            else:
                 self.state = State.debout
                 self.xAtt = jax + (4 if self.rtl else 0)
                 self.yAtt = 17
