@@ -814,8 +814,24 @@ class Barbarian(AnimatedSprite):
         if self.attaque and self.levier == Levier.bas:
             self.occupe_state(State.genou, temps)
             self.gestion_genou(temps, opponent, soncling, songrogne)
-        if is_ai and temps > self.reftemps + 20:
+        elif is_ai and temps > self.reftemps + 20:
             self.occupe = False
+
+    def gestion_releve(self, temps, opponent: 'Barbarian',
+                       soncling: iter, songrogne: iter):
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yAtt = 14
+        self.xF = self.x_loc() + (4 if self.rtl else 0)
+        self.xT = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (0 if self.rtl else 4)
+        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.set_anim_frame('releve', 0)
+        if temps > self.reftemps + 10:
+            self.state = State.debout
+            self.occupe = False
+        elif self.attaque and self.levier == Levier.bas:
+            self.occupe_state(State.genou, temps)
+            self.gestion_genou(temps, opponent, soncling, songrogne)
 
     def gestion_rouladeAR(self, temps):
         self.reset_xX_back()

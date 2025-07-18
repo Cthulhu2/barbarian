@@ -1469,20 +1469,9 @@ class Battle(EmptyScene):
             return 'colision'
 
         if self.joueurB.state == State.releve:
-            rtl = self.joueurB.rtl
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yAtt = 14
-            self.joueurB.xF = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xT = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.xM = self.joueurB.x_loc() + (0 if rtl else 4)
-            self.joueurB.xG = self.joueurB.x_loc() + (0 if rtl else 4)
-            self.joueurB.set_anim_frame('releve', 0)
-            if self.temps > self.joueurB.reftemps + 10:
-                self.joueurB.state = State.debout
-                self.joueurB.occupe = False
-                return 'colision'
-            if self.joueurB.attaque and self.joueurB.levier == Levier.bas:
-                self.joueurB.occupe_state(State.genou, self.temps)
+            self.joueurB.gestion_releve(self.temps, self.joueurA,
+                                        self.soncling, self.songrogne)
+            return 'colision'
 
         if self.joueurB.state == State.rouladeAV:
             rtl = self.joueurB.rtl
