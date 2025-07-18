@@ -836,6 +836,22 @@ class Barbarian(AnimatedSprite):
             self.occupe_state(State.araignee, temps)
             self.gestion_araignee(temps, opponent, soncling, songrogne)
 
+    def gestion_protegeD1(self, temps):
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.yG = YG
+        self.reset_xX_front()
+        self.decapite = False
+        self.set_anim_frame('protegeD', 0)
+        if self.attaque:
+            self.occupe_state(State.coupdetete, temps)
+            self.gestion_coupdetete(temps)
+        elif temps > self.reftemps + 5:
+            self.state = State.protegeD
+            self.protegeD = True
+            self.occupe = False
+        elif temps == self.reftemps + 2:
+            self.snd_play('protege.ogg')
+
     def gestion_protegeD(self, temps):
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
@@ -844,6 +860,7 @@ class Barbarian(AnimatedSprite):
         self.set_anim_frame('protegeD', 1)
         if self.attaque:
             self.occupe_state(State.coupdetete, temps)
+            self.gestion_coupdetete(temps)
 
     def gestion_cou(self, temps, opponent: 'Barbarian',
                     soncling: iter, songrogne: iter):

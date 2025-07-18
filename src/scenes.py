@@ -863,26 +863,12 @@ class Battle(EmptyScene):
             return 'joueur2'
 
         if self.joueurA.state == State.protegeD1:
-            rtl = self.joueurA.rtl
-            self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-            self.joueurA.yG = YG
-            self.joueurA.reset_xX_front()
-            self.joueurA.decapite = False
-            self.joueurA.set_anim_frame('protegeD', 0)
-            if self.joueurA.attaque:
-                self.joueurA.occupe_state(State.coupdetete, self.temps)
-                return 'gestion'
-            if self.temps > self.joueurA.reftemps + 5:
-                self.joueurA.state = State.protegeD
-                self.joueurA.protegeD = True
-                self.joueurA.occupe = False
-            if self.temps > self.joueurA.reftemps + 2:
-                return 'joueur2'
-            elif self.temps == self.joueurA.reftemps + 2:
-                self.snd_play('protege.ogg')
+            self.joueurA.gestion_protegeD1(self.temps)
+            return 'joueur2'
 
         if self.joueurA.state == State.protegeD:
             self.joueurA.gestion_protegeD(self.temps)
+            return 'joueur2'
 
         if self.joueurA.state == State.cou:  # ****attention au temps sinon il saute
             self.joueurA.gestion_cou(self.temps, self.joueurB,
@@ -1608,26 +1594,12 @@ class Battle(EmptyScene):
             return 'colision'
 
         if self.joueurB.state == State.protegeD1:
-            rtl = self.joueurB.rtl
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.yG = YG
-            self.joueurB.reset_xX_front()
-            self.joueurB.decapite = False
-            self.joueurB.set_anim_frame('protegeD', 0)
-            if self.joueurB.attaque:
-                self.joueurB.occupe_state(State.coupdetete, self.temps)
-                return 'gestionB'
-            if self.temps > self.joueurB.reftemps + 5:
-                self.joueurB.state = State.protegeD
-                self.joueurB.protegeD = True
-                self.joueurB.occupe = False
-            if self.temps > self.joueurB.reftemps + 2:
-                return 'colision'
-            elif self.temps == self.joueurB.reftemps + 2:
-                self.snd_play('protege.ogg')
+            self.joueurB.gestion_protegeD1(self.temps)
+            return 'colision'
 
         if self.joueurB.state == State.protegeD:
             self.joueurB.gestion_protegeD(self.temps)
+            return 'colision'
 
         if self.joueurB.state == State.cou:  # ****attention au temps sinon il saute
             self.joueurB.gestion_cou(self.temps, self.joueurA,
