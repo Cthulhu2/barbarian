@@ -874,10 +874,7 @@ class Battle(EmptyScene):
             return 'joueur2'
 
         if self.joueurA.state == State.clingH:
-            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
-            if distance < 12:
-                self.snd_play(next(self.soncling))
-            self.joueurA.state = State.protegeH
+            self.joueurA.gestion_clingH(self.joueurB, self.soncling)
             return 'joueur2'
 
         self._gestion_mort()
@@ -909,7 +906,8 @@ class Battle(EmptyScene):
         elif self.joueurA.state == State.mortSORCIER:
             if self.temps > self.joueurA.reftemps + 86:
                 self.joueurA.state = State.sorcierFINI
-                self._loose()
+                self.add(self._center_txt('Your end has come!'))
+                self.jeu = 'perdu'
             elif self.temps == self.joueurA.reftemps:
                 self.joueurB.is_stopped = True
                 self.joueurA.animate('mortSORCIER')
@@ -933,7 +931,6 @@ class Battle(EmptyScene):
         self.joueurA.occupe_state(State.fini, self.temps)
         self.joueurA.set_anim_frame('vainqueur', 2)
         self.joueurA.x = loc2px(17)
-        bg, txt = self._center_txt('Thanks big boy.')
         # noinspection PyTypeChecker
         self.add(
             StaticSprite(loc(16.5, 14), 'sprites/marianna.gif'),
@@ -941,14 +938,8 @@ class Battle(EmptyScene):
                          w=15, h=20, fill=Theme.BLACK),
             StaticSprite((185 * SCALE, 113 * SCALE), 'fill',
                          w=18, h=2.1, fill=Theme.BLACK),
-            bg, txt)
+            self._center_txt('Thanks big boy.'))
         self.jeu = 'gagne'
-
-    def _loose(self):
-        bg, txt = self._center_txt('Your end has come!')
-        # noinspection PyTypeChecker
-        self.add(bg, txt)
-        self.jeu = 'perdu'
 
     def _joueur2(self):
         # debut joueur 2
@@ -1511,10 +1502,7 @@ class Battle(EmptyScene):
             return 'colision'
 
         if self.joueurB.state == State.clingH:
-            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
-            if distance < 12:
-                self.snd_play(next(self.soncling))
-            self.joueurB.state = State.protegeH
+            self.joueurB.gestion_clingH(self.joueurA, self.soncling)
             return 'colision'
 
         if self.joueurB.state == State.sorcier:

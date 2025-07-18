@@ -1261,6 +1261,12 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps:
             self.animate('tombe1')
 
+    def gestion_clingH(self, opponent: 'Barbarian', soncling: iter):
+        distance = abs(self.x_loc() - opponent.x_loc())
+        if distance < 12:
+            self.snd_play(next(soncling))
+        self.state = State.protegeH
+
     # endregion gestions
 
     @AnimatedSprite.speed.getter
