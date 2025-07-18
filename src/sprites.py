@@ -800,6 +800,23 @@ class Barbarian(AnimatedSprite):
         if temps > self.reftemps + 10:
             self.state = State.assis2
 
+    def gestion_assis2(self, temps, opponent: 'Barbarian',
+                       soncling: iter, songrogne: iter,
+                       is_ai: bool):
+        self.occupe = False
+        self.assis = True
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xF = self.x_loc() + (4 if self.rtl else 0)
+        self.xT = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (0 if self.rtl else 4)
+        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.set_anim_frame('assis', 1)
+        if self.attaque and self.levier == Levier.bas:
+            self.occupe_state(State.genou, temps)
+            self.gestion_genou(temps, opponent, soncling, songrogne)
+        if is_ai and temps > self.reftemps + 20:
+            self.occupe = False
+
     def gestion_rouladeAR(self, temps):
         self.reset_xX_back()
         self.yG = YG
@@ -1095,7 +1112,7 @@ class Barbarian(AnimatedSprite):
         elif self.anim != 'retourne':
             self.animate('retourne')
 
-    def gestion_debout(self):
+    def gestion_debout(self, temps, is_ai):
         if self.anim != 'debout':
             self.set_anim_frame('debout', 0)
         self.decapite = True
@@ -1103,6 +1120,8 @@ class Barbarian(AnimatedSprite):
         self.yAtt = 14
         self.reset_yX()
         self.reset_xX_front()
+        if is_ai and temps > self.reftemps + 20:
+            self.occupe = False
 
     def gestion_vainqueur(self):
         self.xAtt = self.x_loc()
