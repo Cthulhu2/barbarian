@@ -974,14 +974,19 @@ class Barbarian(AnimatedSprite):
 
     def gestion_coupdepied(self, temps, opponent):
         self.reset_xX_front()
+        self.xF = self.x_loc() + 2
+        self.xT = self.x_loc() + 2
         self.yAtt = self.yM
         self.yM = YM
         if temps > self.reftemps + 50:
             self.occupe = False
             self.state = State.debout
+            self.xF = self.x_loc() + (0 if self.rtl else 4)
+            self.xT = self.x_loc() + (0 if self.rtl else 4)
         elif temps > self.reftemps + 30:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
         elif temps > self.reftemps + 10:
+            self.xG = self.x_loc() + (3 if self.rtl else 1)
             self.xM = self.x_loc() + (0 if self.rtl else 4)
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
