@@ -849,6 +849,8 @@ class Barbarian(AnimatedSprite):
                     soncling: iter, songrogne: iter):
         self.reset_xX_front()
         self.yG = YG
+        self.yT = YT
+        self.yAtt = YT
         if temps > self.reftemps + 45:
             self.occupe = False
             self.state = State.debout
