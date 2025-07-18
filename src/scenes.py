@@ -10,7 +10,7 @@ from pygame.time import get_ticks
 from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
 from sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2px, loc, State, Levier, Sorcier, Rectangle, YT, px2loc
+    loc2px, loc, State, Levier, Sorcier, Rectangle, px2loc
 )
 import anims
 from anims import get_img, rtl_anims
@@ -809,14 +809,16 @@ class Battle(EmptyScene):
                 self.joueurA.occupe_state(State.mortdecap, self.temps)
                 Game.ScoreB += 250
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                return 'mort'
+                self._gestion_mort()
+                return 'joueur2'
 
             self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
             self.joueurA.vie -= 1
             self.vieA(self.joueurA.vie)
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
-                return 'mort'
+                self._gestion_mort()
+                return 'joueur2'
 
             self.snd_play(next(self.sontouche))
 
@@ -842,7 +844,8 @@ class Battle(EmptyScene):
 
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
-                return 'mort'
+                self._gestion_mort()
+                return 'joueur2'
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreB += 150
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
@@ -877,9 +880,9 @@ class Battle(EmptyScene):
             self.joueurA.state = State.protegeH
             return 'joueur2'
 
-        goto = self._gestion_mort()
+        self._gestion_mort()
 
-        return goto
+        return 'joueur2'
 
     def _gestion_mort(self):
         if self.joueurA.state == State.mort:
@@ -891,11 +894,10 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.vainqueurKO, self.temps)
                 self.snd_play('mortKO.ogg')
 
-        if self.joueurA.state == State.mortdecap:
+        elif self.joueurA.state == State.mortdecap:
             if self.temps == self.joueurA.reftemps + 126:
                 self.animate_gnome()
                 self.joueurA.reftemps = self.temps
-                return None
             elif self.temps == self.joueurA.reftemps:
                 self.chronoOn = False
                 # noinspection PyTypeChecker
@@ -904,15 +906,13 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.vainqueur, self.temps)
                 self.snd_play('mortdecap.ogg')
 
-        if self.joueurA.state == State.mortSORCIER:
+        elif self.joueurA.state == State.mortSORCIER:
             if self.temps > self.joueurA.reftemps + 86:
                 self.joueurA.state = State.sorcierFINI
                 self._loose()
             elif self.temps == self.joueurA.reftemps:
                 self.joueurB.is_stopped = True
                 self.joueurA.animate('mortSORCIER')
-
-        return 'joueur2'
 
     @staticmethod
     def _center_txt(msg):
@@ -1446,14 +1446,16 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.mortdecap, self.temps)
                 Game.ScoreA += 250
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                return 'mortB'
+                self._gestion_mortB()
+                return 'colision'
 
             self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
             self.joueurB.vie -= 1
             self.vieB(self.joueurB.vie)
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
-                return 'mortB'
+                self._gestion_mortB()
+                return 'colision'
 
             self.snd_play(next(self.sontouche))
 
@@ -1479,7 +1481,8 @@ class Battle(EmptyScene):
 
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
-                return 'mortB'
+                self._gestion_mortB()
+                return 'colision'
             if self.joueurA.state == State.coupdetete:
                 Game.ScoreA += 150
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
@@ -1518,13 +1521,12 @@ class Battle(EmptyScene):
             self.joueurB.gestion_sorcier(self.temps)
             return 'colision'
 
-        goto = self._gestion_mortB()
+        self._gestion_mortB()
 
-        return goto
+        return 'colision'
 
     def _gestion_mortB(self):
         if self.joueurB.state == State.mort:
-            self.joueurB.reset_xX_front()
             if self.temps == self.joueurB.reftemps:
                 self.chronoOn = False
                 # noinspection PyTypeChecker
@@ -1533,11 +1535,10 @@ class Battle(EmptyScene):
                 self.joueurA.occupe_state(State.vainqueurKO, self.temps)
                 self.snd_play('mortKO.ogg')
 
-        if self.joueurB.state == State.mortdecap:
+        elif self.joueurB.state == State.mortdecap:
             if self.temps == self.joueurB.reftemps + 126:
                 self.animate_gnome()
                 self.joueurB.reftemps = self.temps
-                return None
             elif self.temps == self.joueurB.reftemps:
                 self.chronoOn = False
                 # noinspection PyTypeChecker
@@ -1545,8 +1546,6 @@ class Battle(EmptyScene):
                 self.joueurB.animate('mortdecap')
                 self.joueurA.occupe_state(State.vainqueur, self.temps)
                 self.snd_play('mortdecap.ogg')
-
-        return 'colision'
 
     def _colision(self, ja: Barbarian, jb: Barbarian):
         # ***************************************
@@ -1766,16 +1765,12 @@ class Battle(EmptyScene):
                 goto = self._clavier()
             elif goto == 'gestion':
                 goto = self._gestion()
-            elif goto == 'mort':
-                goto = self._gestion_mort()
             elif goto == 'joueur2':
                 goto = self._joueur2()
             elif goto == 'clavierB':
                 goto = self._clavierB()
             elif goto == 'gestionB':
                 goto = self._gestionB()
-            elif goto == 'mortB':
-                goto = self._gestion_mortB()
             elif goto == 'colision':
                 goto = self._colision(ja, jb)
             else:
