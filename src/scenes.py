@@ -495,42 +495,6 @@ class Battle(EmptyScene):
         self.serpentA.animate('bite')
         self.serpentB.animate('bite')
 
-    def _debut(self):
-        jax = self.joueurA.x_loc()
-        jbx = self.joueurB.x_loc()
-
-        if self.joueurA.sortie:
-            if not self.tempsfini:
-                if jbx >= 35 and (jax <= 0 or 38 <= jax):
-                    if Game.Partie == 'solo':
-                        if Game.Demo:
-                            self.finish()
-                        elif Game.IA < 7:
-                            self.next_stage()
-                        else:
-                            self.start_sorcier()
-                    elif Game.Partie == 'vs':
-                        self.next_stage()
-                    return None
-            elif (jax < 2 and 38 < jbx) or (jbx < 2 and 38 < jax):
-                self.next_stage()
-                return None
-            return 'clavier'
-        if self.joueurB.sortie:
-            if not self.tempsfini:
-                if jax >= 35 and (jbx <= 0 or 38 <= jbx):
-                    # SLEEP 1
-                    if Game.Partie == 'solo':  # ********** partie solo finie
-                        self.finish()
-                    elif Game.Partie == 'vs':
-                        self.next_stage()
-                    return None
-            return 'clavierB'
-        if self.gnome:
-            self._gnome()
-            return None
-        return 'degats'
-
     def _degats(self):
         # degats sur joueurA
         ja = self.joueurA
@@ -1735,6 +1699,34 @@ class Battle(EmptyScene):
             if Game.Partie == 'vs':
                 self.chronoOn = True
 
+    def is_sortiedA(self, jax, jbx):
+        if not self.tempsfini:
+            if jbx >= 35 and (jax <= 0 or 38 <= jax):
+                if Game.Partie == 'solo':
+                    if Game.Demo:
+                        self.finish()
+                    elif Game.IA < 7:
+                        self.next_stage()
+                    else:
+                        self.start_sorcier()
+                elif Game.Partie == 'vs':
+                    self.next_stage()
+                return True  #
+        elif (jax < 2 and 38 < jbx) or (jbx < 2 and 38 < jax):
+            self.next_stage()
+            return True  #
+        return False  #
+
+    def is_sortiedB(self, jax, jbx):
+        if not self.tempsfini:
+            if jax >= 35 and (jbx <= 0 or 38 <= jbx):
+                if Game.Partie == 'solo':
+                    self.finish()
+                elif Game.Partie == 'vs':
+                    self.next_stage()
+                return True  #
+        return False  #
+
     def update(self, current_time, *args):
         ja = self.joueurA
         jb = self.joueurB
@@ -1765,15 +1757,24 @@ class Battle(EmptyScene):
 
         if self.entree:
             self.do_entree(jax, jbx)
-            return
+            return  #
 
-        goto = 'debut'
+        if ja.sortie:
+            if self.is_sortiedA(jax, jbx):
+                return  #
+            goto = 'clavier'
+        elif jb.sortie:
+            if self.is_sortiedB(jax, jbx):
+                return  #
+            goto = 'clavierB'
+        elif self.gnome:
+            self._gnome()
+            return  #
+        else:
+            goto = self._degats()
+
         while goto:
-            if goto == 'debut':
-                goto = self._debut()
-            elif goto == 'degats':
-                goto = self._degats()
-            elif goto == 'clavier':
+            if goto == 'clavier':
                 goto = self._clavier()
             elif goto == 'gestion':
                 goto = self._gestion()
