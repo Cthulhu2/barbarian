@@ -1125,7 +1125,7 @@ class Battle(EmptyScene):
                         self.joueurB.occupe_state(State.genou, self.temps)
                         self.joueurB.infoCoup += 1
                         return 'gestionB'
-                    if self.joueurB.infoCoup == 6:
+                    if self.joueurB.infoCoup in (6, 7):
                         self.joueurB.levier = self.joueurB.avance_levier()
                         self.joueurB.infoCoup = 0
                 elif distance <= 6:
