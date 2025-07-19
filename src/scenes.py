@@ -806,7 +806,7 @@ class Battle(EmptyScene):
                 self.joueurA.occupe_state(State.mortdecap, self.temps)
                 Game.ScoreB += 250
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
-                self._gestion_mort()
+                self._gestion_mortedecapX(self.joueurA, self.joueurB)
                 return 'joueur2'
 
             self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
@@ -814,7 +814,7 @@ class Battle(EmptyScene):
             self.vieA(self.joueurA.vie)
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
-                self._gestion_mort()
+                self._gestion_mortX(self.joueurA, self.joueurB)
                 return 'joueur2'
 
             self.snd_play(next(self.sontouche))
@@ -841,7 +841,7 @@ class Battle(EmptyScene):
 
             if self.joueurA.vie <= 0:
                 self.joueurA.occupe_state(State.mort, self.temps)
-                self._gestion_mort()
+                self._gestion_mortX(self.joueurA, self.joueurB)
                 return 'joueur2'
             if self.joueurB.state == State.coupdetete:
                 Game.ScoreB += 150
@@ -874,33 +874,11 @@ class Battle(EmptyScene):
             self.joueurA.gestion_clingH(self.joueurB, self.soncling)
             return 'joueur2'
 
-        self._gestion_mort()
+        if self.joueurA.state == State.mortdecap:
+            self._gestion_mortedecapX(self.joueurA, self.joueurB)
+            return 'joueur2'
 
-        return 'joueur2'
-
-    def _gestion_mort(self):
-        if self.joueurA.state == State.mort:
-            if self.temps == self.joueurA.reftemps:
-                self.chronoOn = False
-                # noinspection PyTypeChecker
-                self.change_layer(self.joueurA, 2)
-                self.joueurA.animate('mort')
-                self.joueurB.occupe_state(State.vainqueurKO, self.temps)
-                self.snd_play('mortKO.ogg')
-
-        elif self.joueurA.state == State.mortdecap:
-            if self.temps == self.joueurA.reftemps + 126:
-                self.animate_gnome()
-                self.joueurA.reftemps = self.temps
-            elif self.temps == self.joueurA.reftemps:
-                self.chronoOn = False
-                # noinspection PyTypeChecker
-                self.change_layer(self.joueurA, 2)
-                self.joueurA.animate('mortdecap')
-                self.joueurB.occupe_state(State.vainqueur, self.temps)
-                self.snd_play('mortdecap.ogg')
-
-        elif self.joueurA.state == State.mortSORCIER:
+        if self.joueurA.state == State.mortSORCIER:
             if self.temps > self.joueurA.reftemps + 86:
                 self.joueurA.state = State.sorcierFINI
                 self.add(self._center_txt('Your end has come!'))
@@ -908,6 +886,27 @@ class Battle(EmptyScene):
             elif self.temps == self.joueurA.reftemps:
                 self.joueurB.is_stopped = True
                 self.joueurA.animate('mortSORCIER')
+
+        return 'joueur2'
+
+    def _gestion_mortX(self, mort: Barbarian, vainqueur: Barbarian):
+        self.chronoOn = False
+        # noinspection PyTypeChecker
+        self.change_layer(mort, 2)
+        mort.animate('mort')
+        vainqueur.occupe_state(State.vainqueurKO, self.temps)
+        self.snd_play('mortKO.ogg')
+
+    def _gestion_mortedecapX(self, mort: Barbarian, vainqueur: Barbarian):
+        if self.temps == mort.reftemps + 126:
+            self.animate_gnome()
+        elif self.temps == mort.reftemps:
+            self.chronoOn = False
+            # noinspection PyTypeChecker
+            self.change_layer(mort, 2)
+            mort.animate('mortdecap')
+            vainqueur.occupe_state(State.vainqueur, self.temps)
+            self.snd_play('mortdecap.ogg')
 
     @staticmethod
     def _center_txt(msg):
@@ -1431,7 +1430,7 @@ class Battle(EmptyScene):
                 self.joueurB.occupe_state(State.mortdecap, self.temps)
                 Game.ScoreA += 250
                 self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                self._gestion_mortB()
+                self._gestion_mortedecapX(self.joueurB, self.joueurA)
                 return 'colision'
 
             self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
@@ -1439,7 +1438,7 @@ class Battle(EmptyScene):
             self.vieB(self.joueurB.vie)
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
-                self._gestion_mortB()
+                self._gestion_mortX(self.joueurB, self.joueurA)
                 return 'colision'
 
             self.snd_play(next(self.sontouche))
@@ -1466,7 +1465,7 @@ class Battle(EmptyScene):
 
             if self.joueurB.vie <= 0:
                 self.joueurB.occupe_state(State.mort, self.temps)
-                self._gestion_mortB()
+                self._gestion_mortX(self.joueurB, self.joueurA)
                 return 'colision'
             if self.joueurA.state == State.coupdetete:
                 Game.ScoreA += 150
@@ -1503,31 +1502,10 @@ class Battle(EmptyScene):
             self.joueurB.gestion_sorcier(self.temps)
             return 'colision'
 
-        self._gestion_mortB()
+        if self.joueurB.state == State.mortdecap:
+            self._gestion_mortedecapX(self.joueurB, self.joueurA)
 
         return 'colision'
-
-    def _gestion_mortB(self):
-        if self.joueurB.state == State.mort:
-            if self.temps == self.joueurB.reftemps:
-                self.chronoOn = False
-                # noinspection PyTypeChecker
-                self.change_layer(self.joueurB, 2)
-                self.joueurB.animate('mort')
-                self.joueurA.occupe_state(State.vainqueurKO, self.temps)
-                self.snd_play('mortKO.ogg')
-
-        elif self.joueurB.state == State.mortdecap:
-            if self.temps == self.joueurB.reftemps + 126:
-                self.animate_gnome()
-                self.joueurB.reftemps = self.temps
-            elif self.temps == self.joueurB.reftemps:
-                self.chronoOn = False
-                # noinspection PyTypeChecker
-                self.change_layer(self.joueurB, 2)
-                self.joueurB.animate('mortdecap')
-                self.joueurA.occupe_state(State.vainqueur, self.temps)
-                self.snd_play('mortdecap.ogg')
 
     def _colision(self, ja: Barbarian, jb: Barbarian):
         # ***************************************
