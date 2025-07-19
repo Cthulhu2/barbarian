@@ -11,9 +11,9 @@ from pygame.surface import Surface
 from pygame.time import get_ticks
 from pygame.transform import scale
 
-import anims
-from anims import get_img, rtl_anims
-from settings import FONT, SND_PATH, Theme, CHAR_W
+import barbariantuw.anims as anims
+from barbariantuw.anims import get_img, rtl_anims
+from barbariantuw.settings import FONT, SND_PATH, Theme, CHAR_W
 
 snd_cache: Dict[int, Sound] = {}
 

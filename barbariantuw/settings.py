@@ -2,9 +2,9 @@
 import os
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-FONT_PATH = os.path.abspath(BASE_PATH + '/res/font') + '/'
-IMG_PATH = os.path.abspath(BASE_PATH + '/res/img') + '/'
-SND_PATH = os.path.abspath(BASE_PATH + '/res/snd') + '/'
+FONT_PATH = os.path.abspath(BASE_PATH + '/font') + '/'
+IMG_PATH = os.path.abspath(BASE_PATH + '/img') + '/'
+SND_PATH = os.path.abspath(BASE_PATH + '/snd') + '/'
 
 SCALE = 3
 SCREEN_SIZE = (320 * SCALE, 200 * SCALE)

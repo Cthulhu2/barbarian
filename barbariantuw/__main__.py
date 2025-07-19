@@ -11,12 +11,12 @@ import pygame
 from psutil import Process
 from pygame import display, event, mixer, init, time, image
 
-import anims
-import scenes
-import settings
-import sprites
-from settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
-from sprites import Txt, loc2px
+import barbariantuw.anims as anims
+import barbariantuw.scenes as scenes
+import barbariantuw.settings as settings
+import barbariantuw.sprites as sprites
+from barbariantuw.settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
+from barbariantuw.sprites import Txt, loc2px
 
 
 class BarbarianMain(object):

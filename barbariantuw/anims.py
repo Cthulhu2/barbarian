@@ -4,7 +4,7 @@ from typing import Dict, List
 from pygame import Surface, image
 from pygame.transform import scale, rotate, flip
 
-from settings import IMG_PATH, SCALE, CHAR_W, CHAR_H
+from barbariantuw.settings import IMG_PATH, SCALE, CHAR_W, CHAR_H
 
 img_cache: Dict[int, Surface] = {}
 

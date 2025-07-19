@@ -7,13 +7,15 @@ from pygame.locals import *
 from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
 
-from settings import Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H
-from sprites import (
-    get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2px, loc, State, Levier, Sorcier, Rectangle, px2loc
+from barbariantuw.settings import (
+    Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H,
 )
-import anims
-from anims import get_img, rtl_anims
+from barbariantuw.sprites import (
+    get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
+    loc2px, loc, State, Levier, Sorcier, Rectangle, px2loc,
+)
+import barbariantuw.anims as anims
+from barbariantuw.anims import get_img, rtl_anims
 
 
 class Game:  # Mutable options

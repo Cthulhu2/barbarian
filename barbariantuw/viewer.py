@@ -8,11 +8,11 @@ from typing import Any
 from pygame import key, Surface, display
 from pygame.locals import *
 
-import anims
-from main import BarbarianMain, option_parser
-from scenes import EmptyScene
-from settings import SCREEN_SIZE, Theme
-from sprites import Barbarian, Rectangle, Txt
+import barbariantuw.anims as anims
+from barbariantuw.main import BarbarianMain, option_parser
+from barbariantuw.scenes import EmptyScene
+from barbariantuw.settings import SCREEN_SIZE, Theme
+from barbariantuw.sprites import Barbarian, Rectangle, Txt
 
 BACKGROUND = Surface(SCREEN_SIZE)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
