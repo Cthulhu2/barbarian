@@ -1054,19 +1054,16 @@ class Barbarian(AnimatedSprite):
                          soncling: iter, songrogne: iter):
         self.xF = self.x_loc() + (0 if self.rtl else 4)
         self.xT = self.x_loc() + (0 if self.rtl else 4)
-        self.xM = self.x_loc() + (4 if self.rtl else 0)
+        self.xM = self.x_loc() + (0 if self.rtl else 4)
         self.xG = self.x_loc() + (0 if self.rtl else 4)
         self.yAtt = YM
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
-        if temps > self.reftemps + 24:
+        if temps > self.reftemps + 31:
             self.occupe = False
             self.state = State.debout
 
-        elif temps > self.reftemps + 19:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-
-        elif temps > self.reftemps + 18:
+        elif temps == self.reftemps + 21:
             self.snd_play('epee.ogg')
             if opponent.state == State.araignee:
                 distance = abs(self.x_loc() - opponent.x_loc())
@@ -1076,13 +1073,9 @@ class Barbarian(AnimatedSprite):
             else:
                 self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
 
-        elif temps > self.reftemps + 12:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-
-        elif temps == self.reftemps + 7:
+        elif temps == self.reftemps + 8:
             self.snd_play(next(songrogne))
             self.snd_play('epee.ogg')
-            self.xAtt = self.x_loc()
 
         elif temps == self.reftemps:
             self.animate('araignee')

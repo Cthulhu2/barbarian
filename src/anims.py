@@ -466,10 +466,10 @@ def barb(subdir: str):
         ],
         'araignee': [
             # @formatter:off
-            Frame(f'{subdir}/toile1.gif', tick=7),
-            Frame(f'{subdir}/toile2.gif', tick=12),
-            Frame(f'{subdir}/toile3.gif', tick=18),
-            Frame(f'{subdir}/toile4.gif', tick=25),
+            Frame(f'{subdir}/toile1.gif', tick=8),
+            Frame(f'{subdir}/toile2.gif', tick=15),
+            Frame(f'{subdir}/toile3.gif', tick=20),
+            Frame(f'{subdir}/toile4.gif', tick=32),
             # @formatter:on
         ],
         'coupdepied': [
@@ -709,10 +709,10 @@ def barb_rtl(subdir: str):
         ],
         'araignee': [
             # @formatter:off
-            Frame(f'{subdir}/toile1.gif', xflip=True, tick=7,  dx=-CHAR_W),
-            Frame(f'{subdir}/toile2.gif', xflip=True, tick=12, dx=-CHAR_W),
-            Frame(f'{subdir}/toile3.gif', xflip=True, tick=18, dx=-CHAR_W),
-            Frame(f'{subdir}/toile4.gif', xflip=True, tick=25, dx=-3 * CHAR_W),
+            Frame(f'{subdir}/toile1.gif', xflip=True, tick=8,  dx=-CHAR_W),
+            Frame(f'{subdir}/toile2.gif', xflip=True, tick=15, dx=-CHAR_W),
+            Frame(f'{subdir}/toile3.gif', xflip=True, tick=20, dx=-CHAR_W),
+            Frame(f'{subdir}/toile4.gif', xflip=True, tick=32, dx=-3 * CHAR_W),
             # @formatter:on
         ],
         'coupdepied': [
