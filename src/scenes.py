@@ -519,6 +519,98 @@ class Battle(EmptyScene):
             return 'gestion'
         return 'clavier'
 
+    @staticmethod
+    def _ai_clavierA(ja, jb, temps):
+        distance = abs(ja.x_loc() - jb.x_loc())
+        if distance >= 15:  # quand trop loin
+            ja.occupe_state(State.rouladeAV, temps)
+
+        elif distance == 12 and jb.anims == 'debout':
+            ja.occupe_state(State.decapite, temps)
+
+        elif distance == 9:
+            if jb.attente > 100:
+                ja.occupe_state(State.decapite, temps)
+            elif jb.state == State.rouladeAR:
+                ja.occupe_state(State.genou, temps)
+            elif jb.occupe:
+                ja.occupe_state(State.rouladeAV, temps)
+            else:
+                return False
+
+        elif 6 < distance < 9:  # distance de combat 1
+            # pour se rapprocher
+            if jb.state == State.rouladeAR:
+                ja.occupe_state(State.genou, temps)
+            elif jb.levier == Levier.gauche:
+                ja.occupe_state(State.araignee, temps)
+            elif jb.state == State.front:
+                ja.state = State.protegeH
+                ja.reftemps = temps
+            # pour eviter les degats repetitifs
+            elif ja.infoDegatG > 4 and jb.state in (State.assis2, State.genou):
+                ja.occupe_state(State.genou, temps)
+            elif ja.infoDegatG > 2 and jb.state in (State.assis2, State.genou):
+                ja.occupe_state(State.rouladeAV, temps)
+            elif ja.infoDegatT > 2 and jb.state == State.cou:
+                ja.occupe_state(State.genou, temps)
+            elif ja.infoDegatF > 2 and jb.state == State.front:
+                ja.occupe_state(State.rouladeAV, temps)
+            # pour alterner les attaques
+            elif ja.infoCoup == 0:
+                ja.infoCoup += 1
+                ja.occupe_state(State.devant, temps)
+            elif ja.infoCoup == 1:
+                ja.infoCoup += 1
+                ja.occupe_state(State.front, temps)
+            elif ja.infoCoup == 2:
+                ja.infoCoup += 1
+                ja.occupe_state(State.araignee, temps)
+            elif ja.infoCoup == 3:
+                ja.infoCoup += 1
+                ja.occupe_state(State.araignee, temps)
+            elif ja.infoCoup == 4:
+                ja.infoCoup += 1
+                ja.occupe_state(State.cou, temps)
+            elif ja.infoCoup == 5:
+                ja.infoCoup = 0
+                ja.levier = ja.avance_levier()
+                ja.action(temps)
+            else:
+                return False
+
+        elif distance <= 6:
+            if jb.state == State.devant:
+                ja.state = State.protegeD
+                ja.reftemps = temps
+            elif ja.infoDegatG > 4 and jb.state in (State.assis2, State.genou):
+                ja.occupe_state(State.genou, temps)
+            elif ja.infoDegatG > 2 and jb.state in (State.assis2, State.genou,
+                                                    State.coupdepied):
+                ja.occupe_state(State.rouladeAV, temps)
+            elif ja.infoCoup == 0:
+                ja.infoCoup += 1
+                ja.occupe_state(State.genou, temps)
+            elif ja.infoCoup == 1:
+                ja.infoCoup += 1
+                ja.occupe_state(State.coupdetete, temps)
+            elif ja.infoCoup == 2:
+                ja.infoCoup += 1
+                ja.occupe_state(State.araignee, temps)
+            elif ja.infoCoup == 3:
+                ja.infoCoup += 1
+                ja.occupe_state(State.genou, temps)
+            elif ja.infoCoup == 4:
+                ja.infoCoup += 1
+                ja.occupe_state(State.coupdepied, temps)
+            elif ja.infoCoup == 5:
+                ja.infoCoup = 0
+                ja.levier = ja.avance_levier()
+                ja.action(temps)
+            else:
+                return False
+        return True
+
     def _clavier(self):
         self.joueurA.clavierX = 7
         self.joueurA.clavierY = 7
@@ -538,121 +630,8 @@ class Battle(EmptyScene):
         if not Game.Demo:
             self.joueurA.clavier()
         else:
-            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
-            if distance >= 15:  # quand trop loin
-                self.joueurA.occupe_state(State.rouladeAV, self.temps)
+            if self._ai_clavierA(self.joueurA, self.joueurB, self.temps):
                 return 'gestion'
-            if distance == 12 and self.joueurB.anim == 'debout':
-                self.joueurA.occupe_state(State.decapite, self.temps)
-                return 'gestion'
-
-            if distance == 9:
-                if self.joueurB.attente > 100:
-                    self.joueurA.occupe_state(State.decapite, self.temps)
-                    return 'gestion'
-                if self.joueurB.state == State.rouladeAR:
-                    self.joueurA.occupe_state(State.genou, self.temps)
-                    return 'gestion'
-                if self.joueurB.occupe:
-                    self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                    return 'gestion'
-
-            if 6 < distance < 9:  # distance de combat 1
-                # pour se rapprocher
-                if self.joueurB.state == State.rouladeAR:
-                    self.joueurA.occupe_state(State.genou, self.temps)
-                    return 'gestion'
-                if self.joueurB.levier == Levier.gauche:
-                    self.joueurA.occupe_state(State.araignee, self.temps)
-                    return 'gestion'
-                if self.joueurB.state == State.front:
-                    self.joueurA.state = State.protegeH
-                    self.joueurA.reftemps = self.temps
-                    return 'gestion'
-                # pour eviter les degats repetitifs
-                if self.joueurA.infoDegatG > 4:
-                    if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.occupe_state(State.genou, self.temps)
-                        return 'gestion'
-                if self.joueurA.infoDegatG > 2:
-                    if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                        return 'gestion'
-                if self.joueurA.infoDegatT > 2:
-                    if self.joueurB.state == State.cou:
-                        self.joueurA.occupe_state(State.genou, self.temps)
-                        return 'gestion'
-                if self.joueurA.infoDegatF > 2:
-                    if self.joueurB.state == State.front:
-                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                        return 'gestion'
-
-                # pour alterner les attaques
-                if self.joueurA.infoCoup == 0:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.devant, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 1:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.front, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 2:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.araignee, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 3:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.araignee, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 4:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.cou, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 5:
-                    self.joueurA.infoCoup = 0
-                    self.joueurA.levier = self.joueurA.avance_levier()
-
-            if distance <= 6:
-                if self.joueurB.state == State.devant:
-                    self.joueurA.state = State.protegeD
-                    self.joueurA.reftemps = self.temps
-                    return 'gestion'
-
-                if self.joueurA.infoDegatG > 4:
-                    if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.occupe_state(State.genou, self.temps)
-                        return 'gestion'
-                if self.joueurA.infoDegatG > 2:
-                    if self.joueurB.state == State.coupdepied:
-                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                        return 'gestion'
-                    if self.joueurB.state in (State.assis2, State.genou):
-                        self.joueurA.occupe_state(State.rouladeAV, self.temps)
-                        return 'gestion'
-
-                if self.joueurA.infoCoup == 0:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.genou, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 1:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.coupdetete, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 2:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.araignee, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 3:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.genou, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 4:
-                    self.joueurA.infoCoup += 1
-                    self.joueurA.occupe_state(State.coupdepied, self.temps)
-                    return 'gestion'
-                if self.joueurA.infoCoup == 5:
-                    self.joueurA.infoCoup = 0
-                    self.joueurA.levier = self.joueurA.avance_levier()
 
             if self.sense == 'inverse':
                 self.on_menu()
