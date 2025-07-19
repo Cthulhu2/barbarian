@@ -1059,7 +1059,7 @@ class Barbarian(AnimatedSprite):
         self.yAtt = YM
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
-        if temps > self.reftemps + 31:
+        if temps > self.reftemps + 32:
             self.occupe = False
             self.state = State.debout
 
