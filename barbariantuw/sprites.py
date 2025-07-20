@@ -580,6 +580,8 @@ class Barbarian(AnimatedSprite):
                                 or rtl and xAtt >= self.xM):
             if self.state == State.protegeD:
                 self.state = State.clingD
+            elif opponent.state == State.coupdepied:
+                self.state = State.tombe
             else:
                 self.state = State.touche
                 opponent.on_score(250)
@@ -591,9 +593,6 @@ class Barbarian(AnimatedSprite):
                 self.state = State.tombe
             elif self.state == State.protegeD:
                 self.state = State.clingD
-            elif opponent.state == State.coupdepied:
-                self.state = State.tombe
-                self.infoDegatG += 1
             else:
                 self.state = State.touche
                 self.infoDegatG += 1
