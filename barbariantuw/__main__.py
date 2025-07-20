@@ -11,6 +11,7 @@ import pygame
 from psutil import Process
 from pygame import display, event, mixer, init, time, image
 
+import barbariantuw.ai as ai
 import barbariantuw.anims as anims
 import barbariantuw.scenes as scenes
 import barbariantuw.settings as settings
@@ -201,22 +202,27 @@ class BarbarianMain(object):
         #
         importlib.reload(anims)
         importlib.reload(sprites)
+        importlib.reload(ai)
         importlib.reload(scenes)
 
     def on_fullscreen(self):
         # TODO: Toggle fullscreen with multi-display
         if not pygame.display.is_fullscreen():
+            country = scenes.Game.Country
             sc = min(self.desktopSize[0] / 320, self.desktopSize[1] / 200)
             self.reinit(self.desktopSize, sc)
             pygame.display.set_mode(self.desktopSize)
             pygame.display.toggle_fullscreen()
+            scenes.Game.Country = country
         self.show_logo()
 
     def on_window(self):
         if pygame.display.is_fullscreen():
+            country = scenes.Game.Country
             self.reinit()
             pygame.display.toggle_fullscreen()
             pygame.display.set_mode(SCREEN_SIZE)
+            scenes.Game.Country = country
         self.show_logo()
 
     def main(self):
