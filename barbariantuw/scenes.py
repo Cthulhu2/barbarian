@@ -367,8 +367,10 @@ class Battle(EmptyScene):
         elif Game.Demo:
             Txt(sz, 'DEMO', Theme.TXT, loc(18, 25), self)
 
-        self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8), self)
-        self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8), self)
+        self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8),
+                             self, cached=False)
+        self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8),
+                             self, cached=False)
 
         if Game.Partie == 'vs':
             self.txtChronometre = Txt(sz, f'{Game.Chronometre:02}',
@@ -377,6 +379,7 @@ class Battle(EmptyScene):
 
         elif Game.Partie == 'solo':
             Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8), self)
+        # noinspection PyTypeChecker
         self.add(self.joueurA, self.joueurB, layer=1)
         self.joueurA.animate('avance')
         self.joueurB.animate('avance')
@@ -396,7 +399,9 @@ class Battle(EmptyScene):
         self.vieB0 = AnimatedSprite((276 * SCALE, 0), anims.vie(), self)
         self.vieB1 = AnimatedSprite((276 * SCALE, 11 * SCALE), anims.vie(), self)
         self.joueurA.on_vie_changed = self.on_vieA_changed
+        self.joueurA.on_score = self.on_scoreA
         self.joueurB.on_vie_changed = self.on_vieB_changed
+        self.joueurB.on_score = self.on_scoreB
         #
         self.gnome = False
         self.gnomeSprite = AnimatedSprite((0, loc2px(20)), anims.gnome())
@@ -512,10 +517,7 @@ class Battle(EmptyScene):
                 jb.occupe_state(State.sorcierFINI, self.temps)
                 return
         else:
-            degat, score = ja.degat(jb)
-            if score:
-                Game.ScoreB += score
-                self.txtScoreB.msg = f'{Game.ScoreB:05}'
+            degat = ja.degat(jb)
         if not degat and not ja.occupe:
             self._clavier()
 
@@ -561,8 +563,7 @@ class Battle(EmptyScene):
         if self.joueurB.state == State.decapite and self.joueurA.decapite:
             self.joueurA.vie = 0
             self.joueurA.occupe_state(State.mortdecap, self.temps)
-            Game.ScoreB += 250
-            self.txtScoreB.msg = f'{Game.ScoreB:05}'
+            self.joueurB.on_score(250)
             self._gestion_mortedecapX(self.joueurA, self.joueurB)
             return
 
@@ -588,20 +589,17 @@ class Battle(EmptyScene):
         if self.joueurB.state != State.rouladeAV:
             self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
             self.joueurA.vie -= 1
-            Game.ScoreB += 100
-            self.txtScoreB.msg = f'{Game.ScoreB:05}'
+            self.joueurB.on_score(100)
 
         if self.joueurA.vie <= 0:
             self.joueurA.occupe_state(State.mort, self.temps)
             self._gestion_mortX(self.joueurA, self.joueurB)
             return
         if self.joueurB.state == State.coupdetete:
-            Game.ScoreB += 150
-            self.txtScoreB.msg = f'{Game.ScoreB:05}'
+            self.joueurB.on_score(150)
             self.snd_play('coupdetete.ogg')
         if self.joueurB.state == State.coupdepied:
-            Game.ScoreB += 150
-            self.txtScoreB.msg = f'{Game.ScoreB:05}'
+            self.joueurB.on_score(150)
             self.snd_play('coupdepied.ogg')
         self.joueurA.occupe_state(State.tombe1, self.temps)
         self.joueurA.gestion_tombe1(self.temps, self.joueurB)
@@ -714,18 +712,15 @@ class Battle(EmptyScene):
 
         # bruit des epees  et decapitations loupees
         elif self.joueurA.state == State.clingD:
-            if self.joueurB.state == State.decapite and not self.joueurA.decapite:
+            if (self.joueurB.state == State.decapite and not self.joueurA.decapite
+                    or self.joueurB.state == State.genou):
                 self.joueurA.occupe_state(State.touche, self.temps)
                 self._gestionA_touche()
-                return
-            if self.joueurB.state == State.genou:
-                self.joueurA.occupe_state(State.touche, self.temps)
-                self._gestionA_touche()
-                return
-            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
-            if distance < 12:
-                self.snd_play(next(self.soncling))
-            self.joueurA.state = State.protegeD
+            else:
+                distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+                if distance < 12:
+                    self.snd_play(next(self.soncling))
+                self.joueurA.state = State.protegeD
 
         elif self.joueurA.state == State.clingH:
             self.joueurA.gestion_clingH(self.joueurB, self.soncling)
@@ -800,10 +795,7 @@ class Battle(EmptyScene):
                 self._win()
                 return None
         else:
-            degat, score = jb.degat(ja)
-            if score:
-                Game.ScoreA += score
-                self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            degat = jb.degat(ja)
 
         if not degat and not jb.occupe:
             self._clavierB()
@@ -843,8 +835,7 @@ class Battle(EmptyScene):
         if self.joueurA.state == State.decapite and self.joueurB.decapite:
             self.joueurB.vie = 0
             self.joueurB.occupe_state(State.mortdecap, self.temps)
-            Game.ScoreA += 250
-            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            self.joueurA.on_score(250)
             self._gestion_mortedecapX(self.joueurB, self.joueurA)
             return
 
@@ -870,20 +861,17 @@ class Battle(EmptyScene):
         if self.joueurA.state != State.rouladeAV:
             self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
             self.joueurB.vie -= 1
-            Game.ScoreA += 100
-            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            self.joueurA.on_score(100)
 
         if self.joueurB.vie <= 0:
             self.joueurB.occupe_state(State.mort, self.temps)
             self._gestion_mortX(self.joueurB, self.joueurA)
             return
         if self.joueurA.state == State.coupdetete:
-            Game.ScoreA += 150
-            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            self.joueurA.on_score(150)
             self.snd_play('coupdetete.ogg')
         if self.joueurA.state == State.coupdepied:
-            Game.ScoreA += 150
-            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            self.joueurA.on_score(150)
             self.snd_play('coupdepied.ogg')
         self.joueurB.occupe_state(State.tombe1, self.temps)
         self.joueurB.gestion_tombe1(self.temps, self.joueurA)
@@ -994,18 +982,15 @@ class Battle(EmptyScene):
 
         # bruit des epees  et decapitations loupees
         elif self.joueurB.state == State.clingD:
-            if self.joueurA.state == State.decapite and not self.joueurB.decapite:
+            if (self.joueurA.state == State.decapite and not self.joueurB.decapite
+                    or self.joueurA.state == State.genou):
                 self.joueurB.occupe_state(State.touche, self.temps)
                 self._gestionB_touche()
-                return
-            if self.joueurA.state == State.genou:
-                self.joueurB.occupe_state(State.touche, self.temps)
-                self._gestionB_touche()
-                return
-            distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
-            if distance < 12:
-                self.snd_play(next(self.soncling))
-            self.joueurB.state = State.protegeD
+            else:
+                distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
+                if distance < 12:
+                    self.snd_play(next(self.soncling))
+                self.joueurB.state = State.protegeD
 
         elif self.joueurB.state == State.clingH:
             self.joueurB.gestion_clingH(self.joueurA, self.soncling)
@@ -1068,6 +1053,14 @@ class Battle(EmptyScene):
         self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - num)))
         self.serpentB.animate('bite')
 
+    def on_scoreA(self, increment):
+        Game.ScoreA += increment
+        self.txtScoreA.msg = f'{Game.ScoreA:05}'
+
+    def on_scoreB(self, increment):
+        Game.ScoreB += increment
+        self.txtScoreB.msg = f'{Game.ScoreB:05}'
+
     def _gnome(self):
         if self.joueurA.state in (State.mort, State.mortdecap):
             mort, vainqueur = self.joueurA, self.joueurB
@@ -1123,20 +1116,18 @@ class Battle(EmptyScene):
 
     def joueurA_bonus(self, jbx):
         if Game.Chronometre > 0:
-            Game.ScoreA += 10
+            self.joueurA.on_score(10)
             Game.Chronometre -= 1
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
-            self.txtScoreA.msg = f'{Game.ScoreA:05}'
         elif jbx >= 37:
             self.joueurA.sortie = True
             self.joueurA.occupe = False
 
     def joueurB_bonus(self, jax):
         if Game.Chronometre > 0:
-            Game.ScoreB += 10
+            self.joueurB.on_score(10)
             Game.Chronometre -= 1
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
-            self.txtScoreB.msg = f'{Game.ScoreB:05}'
         elif jax >= 37:
             self.joueurB.sortie = True
             self.joueurB.occupe = False

@@ -458,6 +458,7 @@ class Barbarian(AnimatedSprite):
     xG: int = 0
     _vie: int = 12
     on_vie_changed: Callable[[int], None]
+    on_score: Callable[[int], None]
 
     def __init__(self, opts, x, y, subdir: str, rtl=False, anim='debout'):
         super().__init__((x, y), anims.barb(subdir))
@@ -563,26 +564,26 @@ class Barbarian(AnimatedSprite):
             else:
                 self.state = State.tombe
                 self.infoDegatF += 1
-            return True, 0
+            return True
 
         if yAtt == self.yT and (ltr and xAtt <= self.xT
                                 or rtl and xAtt >= self.xT):
             if opponent.state == State.coupdetete:
                 self.state = State.tombe
-                return True, 0  #
             else:
                 self.state = State.touche
                 self.infoDegatT += 1
-                return True, 250  #
+                opponent.on_score(250)
+            return True
 
         if yAtt == self.yM and (ltr and xAtt <= self.xM
                                 or rtl and xAtt >= self.xM):
             if self.state == State.protegeD:
                 self.state = State.clingD
-                return True, 0
             else:
                 self.state = State.touche
-                return True, 250
+                opponent.on_score(250)
+            return True
 
         if yAtt == self.yG and (ltr and xAtt <= self.xG
                                 or rtl and xAtt >= self.xG):
@@ -596,10 +597,10 @@ class Barbarian(AnimatedSprite):
             else:
                 self.state = State.touche
                 self.infoDegatG += 1
-                return True, 100  #
-            return True, 0  #
+                opponent.on_score(100)
+            return True
 
-        return False, 0
+        return False
 
     def turn_around(self, rtl):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
