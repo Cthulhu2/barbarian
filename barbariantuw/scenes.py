@@ -557,7 +557,7 @@ class Battle(EmptyScene):
         self.joueurA.reset_yX()
         if self.joueurB.state == State.coupdepied:
             self.joueurA.state = State.tombe
-            self._gestionA_tombe()
+            self._gestion_tombeX(self.joueurA, self.joueurB, self.temps)
             return
 
         if self.joueurB.state == State.decapite and self.joueurA.decapite:
@@ -580,29 +580,28 @@ class Battle(EmptyScene):
         self.joueurA.decapite = True
         self.joueurA.gestion_touche1(self.temps)
 
-    def _gestionA_tombe(self):
-        rtl = self.joueurA.rtl
-        self.joueurA.xAttA = self.joueurA.x_loc() + (4 if rtl else 0)
-        self.joueurA.attente = 0
-        self.joueurA.reset_xX_back()
-        self.joueurA.reset_yX()
-        if self.joueurB.state != State.rouladeAV:
-            self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
-            self.joueurA.vie -= 1
-            self.joueurB.on_score(100)
+    def _gestion_tombeX(self, joueur: Barbarian, opponent: Barbarian, temps):
+        joueur.xAttA = joueur.x_loc() + (4 if joueur.rtl else 0)
+        joueur.attente = 0
+        joueur.reset_xX_back()
+        joueur.reset_yX()
+        if opponent.state != State.rouladeAV:
+            joueur.animate_sang(loc2px(opponent.yAtt))
+            joueur.vie -= 1
+            opponent.on_score(100)
 
-        if self.joueurA.vie <= 0:
-            self.joueurA.occupe_state(State.mort, self.temps)
-            self._gestion_mortX(self.joueurA, self.joueurB)
+        if joueur.vie <= 0:
+            joueur.occupe_state(State.mort, self.temps)
+            self._gestion_mortX(joueur, opponent)
             return
-        if self.joueurB.state == State.coupdetete:
-            self.joueurB.on_score(150)
+        if opponent.state == State.coupdetete:
+            opponent.on_score(150)
             self.snd_play('coupdetete.ogg')
-        if self.joueurB.state == State.coupdepied:
-            self.joueurB.on_score(150)
+        if opponent.state == State.coupdepied:
+            opponent.on_score(150)
             self.snd_play('coupdepied.ogg')
-        self.joueurA.occupe_state(State.tombe1, self.temps)
-        self.joueurA.gestion_tombe1(self.temps, self.joueurB)
+        joueur.occupe_state(State.tombe1, temps)
+        joueur.gestion_tombe1(temps, opponent)
 
     def _gestion(self):
         # ********************************************
@@ -705,7 +704,7 @@ class Battle(EmptyScene):
             self.joueurA.gestion_touche1(self.temps)
 
         elif self.joueurA.state == State.tombe:
-            self._gestionA_tombe()
+            self._gestion_tombeX(self.joueurA, self.joueurB, self.temps)
 
         elif self.joueurA.state == State.tombe1:
             self.joueurA.gestion_tombe1(self.temps, self.joueurB)
@@ -829,7 +828,7 @@ class Battle(EmptyScene):
         self.joueurB.reset_yX()
         if self.joueurA.state == State.coupdepied:
             self.joueurB.state = State.tombe
-            self._gestionB_tombe()
+            self._gestion_tombeX(self.joueurB, self.joueurA, self.temps)
             return
 
         if self.joueurA.state == State.decapite and self.joueurB.decapite:
@@ -851,30 +850,6 @@ class Battle(EmptyScene):
         self.joueurB.occupe_state(State.touche1, self.temps)
         self.joueurB.decapite = True
         self.joueurB.gestion_touche1(self.temps)
-
-    def _gestionB_tombe(self):
-        rtl = self.joueurB.rtl
-        self.joueurB.xAttA = self.joueurB.x_loc() + (4 if rtl else 0)
-        self.joueurB.attente = 0
-        self.joueurB.reset_xX_back()
-        self.joueurB.reset_yX()
-        if self.joueurA.state != State.rouladeAV:
-            self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
-            self.joueurB.vie -= 1
-            self.joueurA.on_score(100)
-
-        if self.joueurB.vie <= 0:
-            self.joueurB.occupe_state(State.mort, self.temps)
-            self._gestion_mortX(self.joueurB, self.joueurA)
-            return
-        if self.joueurA.state == State.coupdetete:
-            self.joueurA.on_score(150)
-            self.snd_play('coupdetete.ogg')
-        if self.joueurA.state == State.coupdepied:
-            self.joueurA.on_score(150)
-            self.snd_play('coupdepied.ogg')
-        self.joueurB.occupe_state(State.tombe1, self.temps)
-        self.joueurB.gestion_tombe1(self.temps, self.joueurA)
 
     def _gestionB(self):
         # ***********************************
@@ -975,7 +950,7 @@ class Battle(EmptyScene):
             self.joueurB.gestion_touche1(self.temps)
 
         elif self.joueurB.state == State.tombe:
-            self._gestionB_tombe()
+            self._gestion_tombeX(self.joueurB, self.joueurA, self.temps)
 
         elif self.joueurB.state == State.tombe1:
             self.joueurB.gestion_tombe1(self.temps, self.joueurA)
