@@ -8,7 +8,7 @@ from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
 
 from barbariantuw.settings import (
-    Theme, SCREEN_SIZE, SCALE, FRAME_RATE, CHAR_W, CHAR_H,
+    Theme, SCREEN_SIZE, SCALE, CHAR_W, CHAR_H,
 )
 from barbariantuw.sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
@@ -520,7 +520,8 @@ class Battle(EmptyScene):
                 self.txtScoreB.msg = f'{Game.ScoreB:05}'
         if degat or ja.occupe:
             return 'gestion'
-        return 'clavier'
+        self._clavier()
+        return 'gestion'
 
     def _clavier(self):
         self.joueurA.clavierX = 7
@@ -530,40 +531,25 @@ class Battle(EmptyScene):
             self.joueurA.attaque = False
             self.joueurA.levier = self.joueurA.recule_levier()
             self.joueurA.action(self.temps)
-            return 'gestion'
+            return
         if self.entreesorcier:
             if self.joueurA.x_loc() <= 33:
                 self.entreesorcier = False
-                return 'gestion'
-            self.joueurA.levier = Levier.gauche
-            self.joueurA.action(self.temps)
-            return 'gestion'
+            else:
+                self.joueurA.levier = Levier.gauche
+                self.joueurA.action(self.temps)
+            return
         if not Game.Demo:
             self.joueurA.clavier()
         else:
             if ai.demo_joueurA(self.joueurA, self.joueurB, self.temps):
-                return 'gestion'
+                return
 
         # redirection suivant les touches
         if self.joueurA.levier != Levier.neutre:
             self.joueurA.action(self.temps)
-            return 'gestion'
-
-        self.joueurA.protegeD = False
-        self.joueurA.protegeH = False
-        self.joueurA.attente += 1
-        # pour se relever
-        self.joueurA.assis = False
-        if self.joueurA.state == State.assis2:
-            self.joueurA.occupe_state(State.releve, self.temps)
-            return 'gestion'
-        # attente des 5 secondes
-        if self.joueurA.attente > FRAME_RATE * 5:
-            self.joueurA.occupe_state(State.attente, self.temps)
-            return 'gestion'
-        # etat debout
-        self.joueurA.state = State.debout
-        return 'gestion'
+        else:
+            self.joueurA.clavier_debut(self.temps)
 
     def _gestion(self):
         # ********************************************
@@ -840,7 +826,8 @@ class Battle(EmptyScene):
 
         if degat or jb.occupe:
             return 'gestionB'
-        return 'clavierB'
+        self._clavierB()
+        return 'gestionB'
 
     def _clavierB(self):
         self.joueurB.clavierX = 7
@@ -850,32 +837,18 @@ class Battle(EmptyScene):
             self.joueurB.attaque = False
             self.joueurB.levier = self.joueurB.recule_levier()
             self.joueurB.action(self.temps)
-            return 'gestionB'
+            return
         if Game.Partie == 'vs':
             self.joueurB.clavier()
         elif Game.Partie == 'solo':
             if ai.joueurB(Game.Demo, Game.IA,
                           self.joueurA, self.joueurB, self.temps):
-                return 'gestionB'
+                return
         # redirection suivant les touches
         if self.joueurB.levier != Levier.neutre:
             self.joueurB.action(self.temps)
-            return 'gestionB'
-        # actions si aucune touche n'a ete touchee
-        self.joueurB.protegeD = False
-        self.joueurB.protegeH = False
-        self.joueurB.attente += 1
-        # pour se relever
-        self.joueurB.assis = False
-        if self.joueurB.state == State.assis2:
-            self.joueurB.occupe_state(State.releve, self.temps)
-            return 'gestionB'
-        # attente des 5 secondes
-        if self.joueurB.attente > FRAME_RATE * 5:
-            self.joueurB.occupe_state(State.attente, self.temps)
-            return 'gestionB'
-        self.joueurB.state = State.debout
-        return 'gestionB'
+        else:
+            self.joueurB.clavier_debut(self.temps)
 
     def _gestionB(self):
         # ***********************************
@@ -1284,11 +1257,13 @@ class Battle(EmptyScene):
         if ja.sortie:
             if self.is_sortiedA(jax, jbx):
                 return  #
-            goto = 'clavier'
+            self._clavier()
+            goto = 'gestion'
         elif jb.sortie:
             if self.is_sortiedB(jax, jbx):
                 return  #
-            goto = 'clavierB'
+            self._clavierB()
+            goto = 'gestionB'
         elif self.gnome:
             self._gnome()
             return  #
@@ -1296,14 +1271,10 @@ class Battle(EmptyScene):
             goto = self._degats()
 
         while goto:
-            if goto == 'clavier':
-                goto = self._clavier()
-            elif goto == 'gestion':
+            if goto == 'gestion':
                 goto = self._gestion()
             elif goto == 'joueur2':
                 goto = self._joueur2()
-            elif goto == 'clavierB':
-                goto = self._clavierB()
             elif goto == 'gestionB':
                 goto = self._gestionB()
             elif goto == 'colision':

@@ -13,7 +13,7 @@ from pygame.transform import scale
 
 import barbariantuw.anims as anims
 from barbariantuw.anims import get_img, rtl_anims
-from barbariantuw.settings import FONT, SND_PATH, Theme, CHAR_W
+from barbariantuw.settings import FONT, SND_PATH, Theme, CHAR_W, FRAME_RATE
 
 snd_cache: Dict[int, Sound] = {}
 
@@ -642,6 +642,21 @@ class Barbarian(AnimatedSprite):
             self.levier = Levier.bas
         if self.clavierX == 7 and self.clavierY <= 6:
             self.levier = Levier.haut
+
+    def clavier_debut(self, temps):
+        self.protegeD = False
+        self.protegeH = False
+        self.attente += 1
+        # pour se relever
+        self.assis = False
+        if self.state == State.assis2:
+            self.occupe_state(State.releve, temps)
+        # attente des 5 secondes
+        elif self.attente > FRAME_RATE * 5:
+            self.occupe_state(State.attente, temps)
+        # etat debout
+        else:
+            self.state = State.debout
 
     # region actions
     def action(self, temps):
