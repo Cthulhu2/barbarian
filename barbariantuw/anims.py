@@ -377,7 +377,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/saut1.gif',  tick=13),
             Frame(f'{subdir}/saut2.gif',  tick=30),
             Frame(f'{subdir}/saut1.gif',  tick=40),
-            Frame(f'{subdir}/debout.gif', tick=46),
+            Frame(f'{subdir}/debout.gif', tick=47),
             # @formatter:on
         ],
         'assis': [
@@ -619,7 +619,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/saut1.gif',  xflip=True, tick=13, dx=-CHAR_W),
             Frame(f'{subdir}/saut2.gif',  xflip=True, tick=30, dx=-CHAR_W),
             Frame(f'{subdir}/saut1.gif',  xflip=True, tick=40, dx=-CHAR_W),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=46),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=47),
             # @formatter:on
         ],
         'assis': [
