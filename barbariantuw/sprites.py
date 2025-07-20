@@ -647,7 +647,8 @@ class Barbarian(AnimatedSprite):
         if self.clavierX == 7 and self.clavierY <= 6:
             self.levier = Levier.haut
 
-    def clavier_debut(self, temps):
+    # region actions
+    def action_debut(self, temps):
         self.protegeD = False
         self.protegeH = False
         self.attente += 1
@@ -662,7 +663,6 @@ class Barbarian(AnimatedSprite):
         else:
             self.state = State.debout
 
-    # region actions
     def action(self, temps):
         self.attente = 1
 

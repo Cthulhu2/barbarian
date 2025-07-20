@@ -547,7 +547,7 @@ class Battle(EmptyScene):
         if self.joueurA.levier != Levier.neutre:
             self.joueurA.action(self.temps)
         else:
-            self.joueurA.clavier_debut(self.temps)
+            self.joueurA.action_debut(self.temps)
 
     def _gestionA_touche(self):
         rtl = self.joueurA.rtl
@@ -833,7 +833,70 @@ class Battle(EmptyScene):
         if self.joueurB.levier != Levier.neutre:
             self.joueurB.action(self.temps)
         else:
-            self.joueurB.clavier_debut(self.temps)
+            self.joueurB.action_debut(self.temps)
+
+    def _gestionB_touche(self):
+        rtl = self.joueurB.rtl
+        self.joueurB.attente = 0
+        self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
+        self.joueurB.reset_xX_back()
+        self.joueurB.reset_yX()
+        if self.joueurA.state == State.coupdepied:
+            self.joueurB.state = State.tombe
+            self._gestionB_tombe()
+            return
+
+        self.serpentB.animate('bite')
+
+        if self.joueurA.state == State.decapite and self.joueurB.decapite:
+            self.joueurB.occupe_state(State.mortdecap, self.temps)
+            Game.ScoreA += 250
+            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            self._gestion_mortedecapX(self.joueurB, self.joueurA)
+            return
+
+        self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
+        self.joueurB.vie -= 1
+        self.vieB(self.joueurB.vie)
+        if self.joueurB.vie <= 0:
+            self.joueurB.occupe_state(State.mort, self.temps)
+            self._gestion_mortX(self.joueurB, self.joueurA)
+            return
+
+        self.snd_play(next(self.sontouche))
+
+        self.joueurB.occupe_state(State.touche1, self.temps)
+        self.joueurB.decapite = True
+        self.joueurB.gestion_touche1(self.temps)
+
+    def _gestionB_tombe(self):
+        rtl = self.joueurB.rtl
+        self.joueurB.xAttA = self.joueurB.x_loc() + (4 if rtl else 0)
+        self.joueurB.attente = 0
+        self.joueurB.reset_xX_back()
+        self.joueurB.reset_yX()
+        if self.joueurA.state != State.rouladeAV:
+            self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
+            self.serpentB.animate('bite')
+            self.joueurB.vie -= 1
+            self.vieB(self.joueurB.vie)
+            Game.ScoreA += 100
+            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+
+        if self.joueurB.vie <= 0:
+            self.joueurB.occupe_state(State.mort, self.temps)
+            self._gestion_mortX(self.joueurB, self.joueurA)
+            return
+        if self.joueurA.state == State.coupdetete:
+            Game.ScoreA += 150
+            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            self.snd_play('coupdetete.ogg')
+        if self.joueurA.state == State.coupdepied:
+            Game.ScoreA += 150
+            self.txtScoreA.msg = f'{Game.ScoreA:05}'
+            self.snd_play('coupdepied.ogg')
+        self.joueurB.occupe_state(State.tombe1, self.temps)
+        self.joueurB.gestion_tombe1(self.temps, self.joueurA)
 
     def _gestionB(self):
         # ***********************************
@@ -841,201 +904,127 @@ class Battle(EmptyScene):
         # ***********************************
         if self.joueurB.state == State.debout:
             self.joueurB.gestion_debout(self.temps, Game.Partie == 'solo')
-            return 'colision'
 
-        if self.joueurB.state == State.attente:
+        elif self.joueurB.state == State.attente:
             self.joueurB.gestion_attente(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.avance:
+        elif self.joueurB.state == State.avance:
             self.joueurB.gestion_avance(self.temps, self.joueurA,
                                         self.soncling, self.songrogne)
-            return 'colision'
 
-        if self.joueurB.state == State.recule:
+        elif self.joueurB.state == State.recule:
             self.joueurB.gestion_recule(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.saute:
+        elif self.joueurB.state == State.saute:
             self.joueurB.gestion_saute(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.assis:
+        elif self.joueurB.state == State.assis:
             self.joueurB.gestion_assis(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.assis2:
+        elif self.joueurB.state == State.assis2:
             self.joueurB.gestion_assis2(self.temps, self.joueurA,
                                         self.soncling, self.songrogne,
                                         Game.Partie == 'solo')
-            return 'colision'
 
-        if self.joueurB.state == State.releve:
+        elif self.joueurB.state == State.releve:
             self.joueurB.gestion_releve(self.temps, self.joueurA,
                                         self.soncling, self.songrogne)
-            return 'colision'
 
-        if self.joueurB.state == State.rouladeAV:
+        elif self.joueurB.state == State.rouladeAV:
             self.joueurB.gestion_rouladeAV(self.temps, self.joueurA)
-            return 'colision'
 
-        if self.joueurB.state == State.rouladeAR:
+        elif self.joueurB.state == State.rouladeAR:
             self.joueurB.gestion_rouladeAR(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.protegeH1:
+        elif self.joueurB.state == State.protegeH1:
             self.joueurB.gestion_protegeH1(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.protegeH:
+        elif self.joueurB.state == State.protegeH:
             self.joueurB.gestion_protegeH(self.temps, self.joueurA,
                                           self.soncling, self.songrogne)
-            return 'colision'
 
-        if self.joueurB.state == State.protegeD1:
+        elif self.joueurB.state == State.protegeD1:
             self.joueurB.gestion_protegeD1(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.protegeD:
+        elif self.joueurB.state == State.protegeD:
             self.joueurB.gestion_protegeD(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.cou:  # ****attention au temps sinon il saute
+        elif self.joueurB.state == State.cou:  # ****attention au temps sinon il saute
             self.joueurB.gestion_cou(self.temps, self.joueurA,
                                      self.soncling, self.songrogne)
-            return 'colision'
 
-        if self.joueurB.state == State.devant:
+        elif self.joueurB.state == State.devant:
             self.joueurB.gestion_devant(self.temps, self.joueurA,
                                         self.soncling, self.songrogne)
-            return 'colision'
 
-        if self.joueurB.state == State.genou:
+        elif self.joueurB.state == State.genou:
             self.joueurB.gestion_genou(self.temps, self.joueurA,
                                        self.soncling, self.songrogne)
 
-        if self.joueurB.state == State.araignee:
+        elif self.joueurB.state == State.araignee:
             self.joueurB.gestion_araignee(self.temps, self.joueurA,
                                           self.soncling, self.songrogne)
 
-        if self.joueurB.state == State.coupdepied:
+        elif self.joueurB.state == State.coupdepied:
             self.joueurB.gestion_coupdepied(self.temps, self.joueurA)
 
-        if self.joueurB.state == State.coupdetete:
+        elif self.joueurB.state == State.coupdetete:
             self.joueurB.gestion_coupdetete(self.temps)
 
-        if self.joueurB.state == State.decapite:
+        elif self.joueurB.state == State.decapite:
             self.joueurB.gestion_decapite(self.temps)
 
-        if self.joueurB.state == State.front:
+        elif self.joueurB.state == State.front:
             self.joueurB.gestion_front(self.temps, self.joueurA,
                                        self.soncling, self.songrogne)
 
-        if self.joueurB.state == State.retourne:
+        elif self.joueurB.state == State.retourne:
             self.joueurB.gestion_retourne(self.temps)
 
-        if self.joueurB.state == State.vainqueur:
+        elif self.joueurB.state == State.vainqueur:
             self.joueurB.gestion_vainqueur()
 
-        if self.joueurB.state == State.vainqueurKO:
+        elif self.joueurB.state == State.vainqueurKO:
             self.joueurB.gestion_vainqueurKO(self.temps, self.joueurA)
             if self.temps > self.joueurB.reftemps + 230:
                 self.animate_gnome()
-            return 'colision'
 
         # ******degats B ******
-        if self.joueurB.state == State.touche:
-            rtl = self.joueurB.rtl
-            self.joueurB.attente = 0
-            self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.reset_xX_back()
-            self.joueurB.reset_yX()
-            if self.joueurA.state == State.coupdepied:
-                self.joueurB.state = State.tombe
-                return 'gestionB'
+        elif self.joueurB.state == State.touche:
+            self._gestionB_touche()
 
-            self.serpentB.animate('bite')
-
-            if self.joueurA.state == State.decapite and self.joueurB.decapite:
-                self.joueurB.occupe_state(State.mortdecap, self.temps)
-                Game.ScoreA += 250
-                self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                self._gestion_mortedecapX(self.joueurB, self.joueurA)
-                return 'colision'
-
-            self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
-            self.joueurB.vie -= 1
-            self.vieB(self.joueurB.vie)
-            if self.joueurB.vie <= 0:
-                self.joueurB.occupe_state(State.mort, self.temps)
-                self._gestion_mortX(self.joueurB, self.joueurA)
-                return 'colision'
-
-            self.snd_play(next(self.sontouche))
-
-            self.joueurB.occupe_state(State.touche1, self.temps)
-            self.joueurB.decapite = True
-
-        if self.joueurB.state == State.touche1:
+        elif self.joueurB.state == State.touche1:
             self.joueurB.gestion_touche1(self.temps)
 
-        if self.joueurB.state == State.tombe:
-            rtl = self.joueurB.rtl
-            self.joueurB.xAttA = self.joueurB.x_loc() + (4 if rtl else 0)
-            self.joueurB.attente = 0
-            self.joueurB.reset_xX_back()
-            self.joueurB.reset_yX()
-            if self.joueurA.state != State.rouladeAV:
-                self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
-                self.serpentB.animate('bite')
-                self.joueurB.vie -= 1
-                self.vieB(self.joueurB.vie)
-                Game.ScoreA += 100
-                self.txtScoreA.msg = f'{Game.ScoreA:05}'
+        elif self.joueurB.state == State.tombe:
+            self._gestionB_tombe()
 
-            if self.joueurB.vie <= 0:
-                self.joueurB.occupe_state(State.mort, self.temps)
-                self._gestion_mortX(self.joueurB, self.joueurA)
-                return 'colision'
-            if self.joueurA.state == State.coupdetete:
-                Game.ScoreA += 150
-                self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                self.snd_play('coupdetete.ogg')
-            if self.joueurA.state == State.coupdepied:
-                Game.ScoreA += 150
-                self.txtScoreA.msg = f'{Game.ScoreA:05}'
-                self.snd_play('coupdepied.ogg')
-            self.joueurB.occupe_state(State.tombe1, self.temps)
-
-        if self.joueurB.state == State.tombe1:
+        elif self.joueurB.state == State.tombe1:
             self.joueurB.gestion_tombe1(self.temps, self.joueurA)
 
         # bruit des epees  et decapitations loupees
-        if self.joueurB.state == State.clingD:
+        elif self.joueurB.state == State.clingD:
             if self.joueurA.state == State.decapite and not self.joueurB.decapite:
                 self.joueurB.occupe_state(State.touche, self.temps)
-                return 'gestionB'
+                self._gestionB_touche()
+                return
             if self.joueurA.state == State.genou:
                 self.joueurB.occupe_state(State.touche, self.temps)
-                return 'gestionB'
+                self._gestionB_touche()
+                return
             distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
             if distance < 12:
                 self.snd_play(next(self.soncling))
             self.joueurB.state = State.protegeD
-            return 'colision'
 
-        if self.joueurB.state == State.clingH:
+        elif self.joueurB.state == State.clingH:
             self.joueurB.gestion_clingH(self.joueurA, self.soncling)
-            return 'colision'
 
-        if self.joueurB.state == State.sorcier:
+        elif self.joueurB.state == State.sorcier:
             self.joueurB.gestion_sorcier(self.temps)
-            return 'colision'
 
-        if self.joueurB.state == State.mortdecap:
+        elif self.joueurB.state == State.mortdecap:
             self._gestion_mortedecapX(self.joueurB, self.joueurA)
-
-        return 'colision'
 
     def _colision(self, ja: Barbarian, jb: Barbarian):
         # ***************************************
@@ -1071,7 +1060,6 @@ class Battle(EmptyScene):
             jb.x = loc2px(left)
         elif jbx > right:
             jb.x = loc2px(right)
-        return None
 
     def _colision_borders(self, joueur: Barbarian, opponent: Barbarian):
         return ((0, 40) if any((self.entree, self.entreesorcier,
@@ -1245,12 +1233,10 @@ class Battle(EmptyScene):
             self._clavier()
             self._gestion()
             self._joueur2()
-            goto = 'gestionB'
         elif jb.sortie:
             if self.is_sortiedB(jax, jbx):
                 return  #
             self._clavierB()
-            goto = 'gestionB'
         elif self.gnome:
             self._gnome()
             return  #
@@ -1258,15 +1244,8 @@ class Battle(EmptyScene):
             self._degats()
             self._gestion()
             self._joueur2()
-            goto = 'gestionB'
-
-        while goto:
-            if goto == 'gestionB':
-                goto = self._gestionB()
-            elif goto == 'colision':
-                goto = self._colision(ja, jb)
-            else:
-                goto = None
+        self._gestionB()
+        self._colision(ja, jb)
 
     def debug(self, ja, jb):
         self.jAstate.msg = f'AS: {ja.state}'
