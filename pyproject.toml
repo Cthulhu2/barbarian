@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "barbariantuw"
+version = "0.1.0"
+authors = [{ name = "Cthulhu Fhtagn" }, ]
+description = "'Barbarian - The Ultimate Warrion' game clone"
+readme = "README.MD"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = ["pygame-ce", "psutil"]
+optional-dependencies.dev = ["build", "nuitka", "pygbag"]
+scripts.barbarian-tuw = "barbariantuw.__main__:run"
+urls.Homepage = "https://codeberg.org/cthulhu/barbarian"
+urls.Issues = "https://codeberg.org/cthulhu/barbarian/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["barbariantuw"]
+
+[tool.setuptools.package-data]
+barbariantuw = ["fnt/**", "img/**", "snd/**"]

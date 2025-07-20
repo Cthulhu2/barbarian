@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 
-BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-FONT_PATH = os.path.abspath(BASE_PATH + '/font') + '/'
+BASE_PATH = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else
+                            __file__)
+FONT_PATH = os.path.abspath(BASE_PATH + '/fnt') + '/'
 IMG_PATH = os.path.abspath(BASE_PATH + '/img') + '/'
 SND_PATH = os.path.abspath(BASE_PATH + '/snd') + '/'
 

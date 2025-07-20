@@ -1,49 +1,84 @@
-Barbarian
-=========
+# Barbarian - The Ultimate Warrior
 
-This is **'Barbarian -- The Ultimate Warrior'** game clone written in Python and [PyGame](https://www.pygame.org).
-It's in progress. In fact, it has two scenes only:
-* Some kind of battle with stupid AI. [barbarian.battle.demo.webm (~180Kb)](https://github.com/Cthulhu2/barbarian/blob/master/readme/barbarian.battle.demo.webm?raw=true)
-* An animation viewer. [barbarian.anim-viewer.demo.webm (~600Kb)](https://github.com/Cthulhu2/barbarian/blob/master/readme/barbarian.anim-viewer.demo.webm?raw=true)
+Amiga 500 game remake written in Python and [PyGame CE][0].
 
+## Installation
 
-Installation
-------------
+### Linux
+_TODO: Linux executable_
 
-After clone the project you needs to install some pre-requisites:
+### Windows
+_TODO: Windows executable_
 
-* At first you need [Python3](https://www.python.org/downloads/) interpreter (3.5 or better?).
+### Pip
+_TODO: PIP package_
 
-* There is [psutil](https://pypi.org/project/psutil/) used in this project and it may require [python3-devel](https://github.com/giampaolo/psutil/issues/1143) package installed on Linux systems;
+## Controls
 
-* The _PyGame_ framework and _psutil_ can be installed with [pip](https://pip.pypa.io/en/stable/installing/) and _requirements.txt_ file:
+* `ESC` - close window and exit
+
+|           | Player 1             | Player 2 |
+|-----------|----------------------|----------|
+| **LEFT**  | `Left`, `Numpad 4`   | `J`      |
+| **RIGHT** | `Right`, `Numpad 6`  | `L`      |
+| **UP**    | `Up`, `Numpad 8`     | `I`      |
+| **DOWN**  | `Down`, `Numpad 2`   | `K`      |
+| **FIRE**  | `RShift`, `Numpad 0` | `Space`  |
+
+## Credits
+
+* Font "PressStart2P". Thanks very much to [CodeMan38][1] for a fonts.
+  Also see [SIL OPEN FONT LICENSE Version 1.1][2]
+* Thanks very much to [F.L.][3] for BASIC source code of Barbarian.
+
+## Links
+
+* [PyGame CE][0]
+* [F.L. remakes][3]
+
+[0]: https://pyga.me/
+[1]: https://github.com/codeman38
+[2]: barbariantuw/fnt/OFL.txt?raw=true
+[3]: http://barbarian.1987.free.fr/indexEN.htm
+
+## Build
+
+Clone repo:
+```shell
+$ git clone https://codeberg.org/cthulhu/barbarian.git
+```
+Create virtual environment:
+```shell
+$ cd barbarian
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+```
+Install dev-dependencies:
+```shell
+(.venv) $ pip install .[dev]
+(.venv) $ pip install git+https://github.com/AppImageCrafters/appimage-builder.git
+```
+### PIP
+Package for pypi.org:
+```shell
+(.venv) $ python3 -m build
+```
+
+### PygBag
+WebAssembly zip-archive for itch.io:
+```shell
+(.venv) $ pygbag --archive barbariantuw
+```
+
+### Nuitka and AppImage
+Executable AppImage:
+```shell
+(.venv) $ python3 -m nuitka --standalone \
+  --include-data-dir=barbariantuw/fnt=barbariantuw/fnt \
+  --include-data-dir=barbariantuw/img=barbariantuw/img \
+  --include-data-dir=barbariantuw/snd=barbariantuw/snd \
+  --include-data-dir=AppImage=. \ 
+  barbariantuw
   
-  ```pip install -r requirements.txt```
-
-Launch
-------
-
-In project directory you can start battle scene:
-
-```python3 src/main.py```
-
-Or animation viewer scene:
-
-```python3 srs/main.py -v```
-
-`-d` -- debug options shows FPS, CPU and memory usage info.
-
-
-There are keys to control the left barbarian used in battle scene:
-* `6` -- left
-* `7` -- right
-* `8` -- up
-* `9` -- down
-* `0` -- fire
-* `ESC` -- close window and exit
-
-Credits
--------
-* Art. Thanks very much to [Jicehel](https://www.deviantart.com/jicehel/) for 2D sprites. If you want use this art in other projects please ask [Jicehel](https://www.deviantart.com/jicehel/) first.
-* Font. "PressStart2P". Thanks very much to [CodeMan38](https://github.com/codeman38) for a fonts. Also see [SIL OPEN FONT LICENSE Version 1.1](https://github.com/Cthulhu2/barbarian/blob/master/resources/font/OFL.txt?raw=true)
-* Source code are provided under [MIT](https://github.com/Cthulhu2/barbarian/blob/master/LICENSE?raw=tru) licence.
+(.venv) $ appimage-builder --recipe AppImageBuilder.yml
+```

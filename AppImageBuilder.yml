@@ -1,0 +1,21 @@
+version: 1
+AppDir:
+  path: barbariantuw.dist
+  app_info:
+    id: org.cthulhu.barbariantuw
+    name: barbarian-tuw
+    icon: icone
+    version: 0.1.0
+    exec: 'barbariantuw.bin'
+    exec_args: $@
+  files:
+    include: []
+    exclude:
+    - usr/share/man
+    - usr/share/doc/*/README.*
+    - usr/share/doc/*/changelog.*
+    - usr/share/doc/*/NEWS.*
+    - usr/share/doc/*/TODO.*
+AppImage:
+  arch: x86_64
+  comp: gzip

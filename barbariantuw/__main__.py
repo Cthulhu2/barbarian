@@ -305,8 +305,12 @@ def option_parser():
     return parser
 
 
-if __name__ == '__main__':
+def run():
     (options, args) = option_parser().parse_args()
 
     BarbarianMain(options).main()
     sys.exit(0)
+
+
+if __name__ == '__main__':
+    run()
