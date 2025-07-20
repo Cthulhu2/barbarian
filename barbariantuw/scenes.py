@@ -395,8 +395,8 @@ class Battle(EmptyScene):
         self.vieA1 = AnimatedSprite((43 * SCALE, 11 * SCALE), anims.vie(), self)
         self.vieB0 = AnimatedSprite((276 * SCALE, 0), anims.vie(), self)
         self.vieB1 = AnimatedSprite((276 * SCALE, 11 * SCALE), anims.vie(), self)
-        self.vieA(self.joueurA.vie)
-        self.vieB(self.joueurB.vie)
+        self.joueurA.on_vie_changed = self.on_vieA_changed
+        self.joueurB.on_vie_changed = self.on_vieB_changed
         #
         self.gnome = False
         self.gnomeSprite = AnimatedSprite((0, loc2px(20)), anims.gnome())
@@ -493,10 +493,8 @@ class Battle(EmptyScene):
                  StaticSprite((109 * SCALE, 100 * SCALE),
                               'fill', w=27, h=15.1, fill=Theme.BLACK),
                  layer=0)
-        self.vieA(0)
-        self.vieB(0)
-        self.serpentA.animate('bite')
-        self.serpentB.animate('bite')
+        self.on_vieA_changed(0)
+        self.on_vieB_changed(0)
 
     def _degats(self):
         # degats sur joueurA
@@ -560,9 +558,8 @@ class Battle(EmptyScene):
             self._gestionA_tombe()
             return
 
-        self.serpentA.animate('bite')
-
         if self.joueurB.state == State.decapite and self.joueurA.decapite:
+            self.joueurA.vie = 0
             self.joueurA.occupe_state(State.mortdecap, self.temps)
             Game.ScoreB += 250
             self.txtScoreB.msg = f'{Game.ScoreB:05}'
@@ -571,7 +568,6 @@ class Battle(EmptyScene):
 
         self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
         self.joueurA.vie -= 1
-        self.vieA(self.joueurA.vie)
         if self.joueurA.vie <= 0:
             self.joueurA.occupe_state(State.mort, self.temps)
             self._gestion_mortX(self.joueurA, self.joueurB)
@@ -591,9 +587,7 @@ class Battle(EmptyScene):
         self.joueurA.reset_yX()
         if self.joueurB.state != State.rouladeAV:
             self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
-            self.serpentA.animate('bite')
             self.joueurA.vie -= 1
-            self.vieA(self.joueurA.vie)
             Game.ScoreB += 100
             self.txtScoreB.msg = f'{Game.ScoreB:05}'
 
@@ -846,9 +840,8 @@ class Battle(EmptyScene):
             self._gestionB_tombe()
             return
 
-        self.serpentB.animate('bite')
-
         if self.joueurA.state == State.decapite and self.joueurB.decapite:
+            self.joueurB.vie = 0
             self.joueurB.occupe_state(State.mortdecap, self.temps)
             Game.ScoreA += 250
             self.txtScoreA.msg = f'{Game.ScoreA:05}'
@@ -857,7 +850,6 @@ class Battle(EmptyScene):
 
         self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
         self.joueurB.vie -= 1
-        self.vieB(self.joueurB.vie)
         if self.joueurB.vie <= 0:
             self.joueurB.occupe_state(State.mort, self.temps)
             self._gestion_mortX(self.joueurB, self.joueurA)
@@ -877,9 +869,7 @@ class Battle(EmptyScene):
         self.joueurB.reset_yX()
         if self.joueurA.state != State.rouladeAV:
             self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
-            self.serpentB.animate('bite')
             self.joueurB.vie -= 1
-            self.vieB(self.joueurB.vie)
             Game.ScoreA += 100
             self.txtScoreA.msg = f'{Game.ScoreA:05}'
 
@@ -1068,13 +1058,15 @@ class Battle(EmptyScene):
                 (9, 32) if joueur.rtl else
                 (5, 28))
 
-    def vieA(self, num):
+    def on_vieA_changed(self, num):
         self.vieA0.set_anim_frame('vie', max(0, min(6, 6 - num)))
         self.vieA1.set_anim_frame('vie', max(0, min(6, 12 - num)))
+        self.serpentA.animate('bite')
 
-    def vieB(self, num):
+    def on_vieB_changed(self, num):
         self.vieB0.set_anim_frame('vie_rtl', max(0, min(6, 6 - num)))
         self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - num)))
+        self.serpentB.animate('bite')
 
     def _gnome(self):
         if self.joueurA.state in (State.mort, State.mortdecap):

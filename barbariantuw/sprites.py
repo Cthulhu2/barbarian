@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import enum
 from os.path import join
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Callable
 
 from pygame import Rect
 from pygame.font import Font
@@ -456,6 +456,8 @@ class Barbarian(AnimatedSprite):
     xT: int = 0
     xM: int = 0
     xG: int = 0
+    _vie: int = 12
+    on_vie_changed: Callable[[int], None]
 
     def __init__(self, opts, x, y, subdir: str, rtl=False, anim='debout'):
         super().__init__((x, y), anims.barb(subdir))
@@ -488,7 +490,6 @@ class Barbarian(AnimatedSprite):
         #
         self.reftemps = 0
         self.attente = 1
-        self.vie = 12
         self.occupe = False
         self.sortie = False
         self.levier: Levier = Levier.neutre
@@ -507,6 +508,17 @@ class Barbarian(AnimatedSprite):
         self.pressedLeft = False
         self.pressedRight = False
         self.pressedFire = False
+
+    @property
+    def vie(self):
+        return self._vie
+
+    @vie.setter
+    def vie(self, vie: int):
+        if self._vie != vie:
+            self._vie = vie
+            if self.on_vie_changed:
+                self.on_vie_changed(vie)
 
     def recule_levier(self):
         return Levier.droite if self.rtl else Levier.gauche
