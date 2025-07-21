@@ -659,15 +659,8 @@ class Battle(EmptyScene):
 
         # bruit des epees  et decapitations loupees
         elif self.joueurA.state == State.clingD:
-            if (self.joueurB.state == State.decapite and not self.joueurA.decapite
-                    or self.joueurB.state == State.genou):
-                self.joueurA.occupe_state(State.touche, self.temps)
-                self.joueurA.gestion_touche(self.temps, self.joueurB, self.sontouche)
-            else:
-                distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
-                if distance < 12:
-                    self.snd_play(next(self.soncling))
-                self.joueurA.state = State.protegeD
+            self.joueurA.gestion_clingD(self.temps, self.joueurB,
+                                        self.soncling, self.sontouche)
 
         elif self.joueurA.state == State.clingH:
             self.joueurA.gestion_clingH(self.joueurB, self.soncling)
@@ -857,15 +850,8 @@ class Battle(EmptyScene):
 
         # bruit des epees  et decapitations loupees
         elif self.joueurB.state == State.clingD:
-            if (self.joueurA.state == State.decapite and not self.joueurB.decapite
-                    or self.joueurA.state == State.genou):
-                self.joueurB.occupe_state(State.touche, self.temps)
-                self.joueurB.gestion_touche(self.temps, self.joueurA, self.sontouche)
-            else:
-                distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
-                if distance < 12:
-                    self.snd_play(next(self.soncling))
-                self.joueurB.state = State.protegeD
+            self.joueurB.gestion_clingD(self.temps, self.joueurA,
+                                        self.soncling, self.sontouche)
 
         elif self.joueurB.state == State.clingH:
             self.joueurB.gestion_clingH(self.joueurA, self.soncling)

@@ -1352,6 +1352,18 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps:
             self.animate('tombe1')
 
+    def gestion_clingD(self, temps, opponent: 'Barbarian',
+                       soncling: iter, sontouche: iter):
+        if (opponent.state == State.decapite and not self.decapite
+                or opponent.state == State.genou):
+            self.occupe_state(State.touche, temps)
+            self.gestion_touche(temps, opponent, sontouche)
+        else:
+            distance = abs(self.x_loc() - opponent.x_loc())
+            if distance < 12:
+                self.snd_play(next(soncling))
+            self.state = State.protegeD
+
     def gestion_clingH(self, opponent: 'Barbarian', soncling: iter):
         distance = abs(self.x_loc() - opponent.x_loc())
         if distance < 12:
