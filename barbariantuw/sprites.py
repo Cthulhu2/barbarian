@@ -1595,6 +1595,14 @@ class Sorcier(AnimatedSprite):
         if self.anim != 'debout':
             self.set_anim_frame('debout', 0)
 
+    # noinspection PyUnusedLocal
+    def gestion(self, temps, opponent: 'Barbarian',
+                soncling: iter, songrogne: iter, sontouche: iter,
+                is_ai: bool):
+
+        if self.state == State.sorcier:
+            self.gestion_sorcier(temps)
+
     def gestion_sorcier(self, temps):
         if temps > self.reftemps + 171:
             self.reftemps = temps + 1

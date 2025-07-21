@@ -490,6 +490,7 @@ class Battle(EmptyScene):
             self.joueurA.turn_around(True)
         self.gnome = False
         self.joueurA.sortie = False
+        self.joueurA.attaque = False
         self.entreesorcier = True
         self.joueurB = Sorcier(self.opts, loc2px(7), loc2px(14))
         self.joueurB.occupe_state(State.sorcier, self.temps)
@@ -527,11 +528,7 @@ class Battle(EmptyScene):
         self.joueurA.clavierX = 7
         self.joueurA.clavierY = 7
         self.joueurA.levier = Levier.neutre
-        if self.joueurA.sortie:
-            self.joueurA.attaque = False
-            self.joueurA.levier = self.joueurA.recule_levier()
-            self.joueurA.action(self.temps)
-            return
+
         if self.entreesorcier:
             if self.joueurA.x_loc() <= 33:
                 self.entreesorcier = False
@@ -625,11 +622,7 @@ class Battle(EmptyScene):
         self.joueurB.clavierX = 7
         self.joueurB.clavierY = 7
         self.joueurB.levier = Levier.neutre
-        if self.joueurB.sortie:
-            self.joueurB.attaque = False
-            self.joueurB.levier = self.joueurB.recule_levier()
-            self.joueurB.action(self.temps)
-            return
+
         if Game.Partie == 'vs':
             self.joueurB.clavier()
         elif Game.Partie == 'solo':
@@ -716,7 +709,7 @@ class Battle(EmptyScene):
         self.txtScoreB.msg = f'{Game.ScoreB:05}'
 
     def on_mort(self, mort: Barbarian):
-        self.chrono = False
+        self.chronoOn = False
         # noinspection PyTypeChecker
         self.change_layer(mort, 2)
 
@@ -755,6 +748,7 @@ class Battle(EmptyScene):
                 mort.kill()
                 vainqueur.sortie = True
                 vainqueur.occupe = False
+                vainqueur.animate('recule')
 
     def tick_chrono(self, current_time, ja: Barbarian, jb: Barbarian):
         if self.chrono == 0:
@@ -769,6 +763,8 @@ class Battle(EmptyScene):
                     ja.sortie = jb.sortie = True
                     ja.occupe = jb.occupe = False
                     self.tempsfini = True
+                    ja.animate('recule')
+                    jb.animate('recule')
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
 
     def joueurA_bonus(self, jbx):
@@ -777,8 +773,10 @@ class Battle(EmptyScene):
             Game.Chronometre -= 1
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
         elif jbx >= 37:
+            self.joueurA.bonus = False
             self.joueurA.sortie = True
             self.joueurA.occupe = False
+            self.joueurA.animate('recule')
 
     def joueurB_bonus(self, jax):
         if Game.Chronometre > 0:
@@ -786,8 +784,10 @@ class Battle(EmptyScene):
             Game.Chronometre -= 1
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
         elif jax >= 37:
+            self.joueurB.bonus = False
             self.joueurB.sortie = True
             self.joueurB.occupe = False
+            self.joueurB.animate('recule')
 
     def do_entree(self, jax, jbx):
         if self.serpentA.anim == 'idle' and jax >= 3:
@@ -804,9 +804,9 @@ class Battle(EmptyScene):
             if Game.Partie == 'vs':
                 self.chronoOn = True
 
-    def is_sortiedA(self, jax, jbx):
+    def check_sortiedA(self, jax, jbx):
         if not self.tempsfini:
-            if jbx >= 35 and (jax <= 0 or 38 <= jax):
+            if jbx >= 34 and (jax <= 0 or 38 <= jax):
                 if Game.Partie == 'solo':
                     if Game.Demo:
                         self.finish()
@@ -816,21 +816,16 @@ class Battle(EmptyScene):
                         self.start_sorcier()
                 elif Game.Partie == 'vs':
                     self.next_stage()
-                return True  #
         elif (jax < 2 and 38 < jbx) or (jbx < 2 and 38 < jax):
             self.next_stage()
-            return True  #
-        return False  #
 
-    def is_sortiedB(self, jax, jbx):
+    def check_sortiedB(self, jax, jbx):
         if not self.tempsfini:
-            if jax >= 35 and (jbx <= 0 or 38 <= jbx):
+            if jax >= 34 and (jbx <= 0 or 38 <= jbx):
                 if Game.Partie == 'solo':
                     self.finish()
                 elif Game.Partie == 'vs':
                     self.next_stage()
-                return True  #
-        return False  #
 
     def update(self, current_time, *args):
         ja = self.joueurA
@@ -868,22 +863,18 @@ class Battle(EmptyScene):
             return  #
 
         if ja.sortie:
-            if self.is_sortiedA(jax, jbx):
-                return  #
-            self._clavier()
-            self._gestion()
-            self._joueur2()
+            self.check_sortiedA(jax, jbx)
+            return  #
         elif jb.sortie:
-            if self.is_sortiedB(jax, jbx):
-                return  #
-            self._clavierB()
+            self.check_sortiedB(jax, jbx)
+            return  #
         elif self.gnome:
             self._gnome()
             return  #
-        else:
-            self._degats()
-            self._gestion()
-            self._joueur2()
+
+        self._degats()
+        self._gestion()
+        self._joueur2()
         self._gestionB()
         self._colision(ja, jb)
 
