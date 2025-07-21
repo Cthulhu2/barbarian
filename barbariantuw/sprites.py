@@ -1227,6 +1227,59 @@ class Barbarian(AnimatedSprite):
         if is_ai and temps > self.reftemps + 20:
             self.occupe = False
 
+    def gestion_touche(self, temps, opponent: 'Barbarian', sontouche: iter):
+        self.attente = 0
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.reset_xX_back()
+        self.reset_yX()
+        if opponent.state == State.coupdepied:
+            self.state = State.tombe
+            self.gestion_tombe(temps, opponent)
+            return
+
+        if opponent.state == State.decapite and self.decapite:
+            self.vie = 0
+            self.occupe_state(State.mortdecap, temps)
+            opponent.on_score(250)
+            self.gestion_mortedecap(temps, opponent)
+            return
+
+        self.animate_sang(loc2px(opponent.yAtt))
+        self.vie -= 1
+        if self.vie <= 0:
+            self.occupe_state(State.mort, temps)
+            self.gestion_mort(temps, opponent)
+            return
+
+        self.snd_play(next(sontouche))
+
+        self.occupe_state(State.touche1, temps)
+        self.decapite = True
+        self.gestion_touche1(temps)
+
+    def gestion_tombe(self, temps, opponent: 'Barbarian'):
+        self.xAttA = self.x_loc() + (4 if self.rtl else 0)
+        self.attente = 0
+        self.reset_xX_back()
+        self.reset_yX()
+        if opponent.state != State.rouladeAV:
+            self.animate_sang(loc2px(opponent.yAtt))
+            self.vie -= 1
+            opponent.on_score(100)
+
+        if self.vie <= 0:
+            self.occupe_state(State.mort, temps)
+            self.gestion_mort(temps, opponent)
+            return
+        if opponent.state == State.coupdetete:
+            opponent.on_score(150)
+            self.snd_play('coupdetete.ogg')
+        if opponent.state == State.coupdepied:
+            opponent.on_score(150)
+            self.snd_play('coupdepied.ogg')
+        self.occupe_state(State.tombe1, temps)
+        self.gestion_tombe1(temps, opponent)
+
     def gestion_mort(self, temps, opponent: 'Barbarian'):
         self.on_mort(self)
         self.animate('mort')
