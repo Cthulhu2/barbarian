@@ -730,13 +730,11 @@ class Battle(EmptyScene):
         gnome = self.gnomeSprite
 
         if mort.state == State.mort:
-            if (gnome.rect.right >= mort.rect.right + CHAR_W
-                    and mort.anim != 'mortgnome'):
+            if gnome.rect.left >= mort.rect.right and mort.anim != 'mortgnome':
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortgnome')
         elif mort.state == State.mortdecap:
-            if (gnome.rect.right >= mort.rect.right + CHAR_W
-                    and mort.anim != 'mortdecapgnome'):
+            if gnome.rect.left >= mort.rect.right and mort.anim != 'mortdecapgnome':
                 mort.top_left = mort.rect.topleft
                 mort.animate('mortdecapgnome')
             if mort.teteSprite.alive():
