@@ -1233,6 +1233,13 @@ class Barbarian(AnimatedSprite):
         opponent.occupe_state(State.vainqueurKO, temps)
         self.snd_play('mortKO.ogg')
 
+    def gestion_mortedecap(self, temps, opponent: 'Barbarian'):
+        if temps == self.reftemps:
+            self.on_mort(self)
+            self.animate('mortdecap')
+            opponent.occupe_state(State.vainqueur, temps)
+            self.snd_play('mortdecap.ogg')
+
     def gestion_vainqueur(self):
         self.xAtt = self.x_loc()
         self.yG = YG

@@ -565,7 +565,7 @@ class Battle(EmptyScene):
             joueur.vie = 0
             joueur.occupe_state(State.mortdecap, temps)
             opponent.on_score(250)
-            self._gestion_mortedecapX(joueur, opponent)
+            joueur.gestion_mortedecap(temps, opponent)
             return
 
         joueur.animate_sang(loc2px(opponent.yAtt))
@@ -726,7 +726,9 @@ class Battle(EmptyScene):
             self.joueurA.gestion_clingH(self.joueurB, self.soncling)
 
         elif self.joueurA.state == State.mortdecap:
-            self._gestion_mortedecapX(self.joueurA, self.joueurB)
+            self.joueurA.gestion_mortedecap(self.temps, self.joueurB)
+            if self.temps == self.joueurA.reftemps + 126:
+                self.animate_gnome()
 
         elif self.joueurA.state == State.mortSORCIER:
             if self.temps > self.joueurA.reftemps + 86:
@@ -736,17 +738,6 @@ class Battle(EmptyScene):
             elif self.temps == self.joueurA.reftemps:
                 self.joueurB.is_stopped = True
                 self.joueurA.animate('mortSORCIER')
-
-    def _gestion_mortedecapX(self, mort: Barbarian, vainqueur: Barbarian):
-        if self.temps == mort.reftemps + 126:
-            self.animate_gnome()
-        elif self.temps == mort.reftemps:
-            self.chronoOn = False
-            # noinspection PyTypeChecker
-            self.change_layer(mort, 2)
-            mort.animate('mortdecap')
-            vainqueur.occupe_state(State.vainqueur, self.temps)
-            self.snd_play('mortdecap.ogg')
 
     @staticmethod
     def _center_txt(msg):
@@ -936,7 +927,9 @@ class Battle(EmptyScene):
             self.joueurB.gestion_sorcier(self.temps)
 
         elif self.joueurB.state == State.mortdecap:
-            self._gestion_mortedecapX(self.joueurB, self.joueurA)
+            self.joueurB.gestion_mortedecap(self.temps, self.joueurA)
+            if self.temps == self.joueurB.reftemps + 126:
+                self.animate_gnome()
 
     def _colision(self, ja: Barbarian, jb: Barbarian):
         # ***************************************
