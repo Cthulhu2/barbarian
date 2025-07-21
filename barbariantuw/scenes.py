@@ -552,121 +552,19 @@ class Battle(EmptyScene):
             self.joueurA.action_debut(self.temps)
 
     def _gestion(self):
-        # ********************************************
-        # *************GESTION DES ETATS**************
-        # ********************************************
-        if self.joueurA.state == State.attente:
-            self.joueurA.gestion_attente(self.temps)
-
-        elif self.joueurA.state == State.debout:
-            self.joueurA.gestion_debout(self.temps, Game.Demo)
-
-        elif self.joueurA.state == State.avance:
-            self.joueurA.gestion_avance(self.temps, self.joueurB,
-                                        self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.recule:
-            self.joueurA.gestion_recule(self.temps)
-
-        elif self.joueurA.state == State.saute:
-            self.joueurA.gestion_saute(self.temps)
-
-        elif self.joueurA.state == State.assis:
-            self.joueurA.gestion_assis(self.temps)
-
-        elif self.joueurA.state == State.assis2:
-            self.joueurA.gestion_assis2(self.temps, self.joueurB,
-                                        self.soncling, self.songrogne,
-                                        Game.Demo)
-
-        elif self.joueurA.state == State.releve:
-            self.joueurA.gestion_releve(self.temps, self.joueurB,
-                                        self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.rouladeAV:
-            self.joueurA.gestion_rouladeAV(self.temps, self.joueurB)
-
-        elif self.joueurA.state == State.rouladeAR:
-            self.joueurA.gestion_rouladeAR(self.temps)
-
-        elif self.joueurA.state == State.protegeH1:
-            self.joueurA.gestion_protegeH1(self.temps)
-
-        elif self.joueurA.state == State.protegeH:
-            self.joueurA.gestion_protegeH(self.temps, self.joueurB,
-                                          self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.protegeD1:
-            self.joueurA.gestion_protegeD1(self.temps)
-
-        elif self.joueurA.state == State.protegeD:
-            self.joueurA.gestion_protegeD(self.temps)
-
-        elif self.joueurA.state == State.cou:  # ****attention au temps sinon il saute
-            self.joueurA.gestion_cou(self.temps, self.joueurB,
-                                     self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.devant:
-            self.joueurA.gestion_devant(self.temps, self.joueurB,
-                                        self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.genou:
-            self.joueurA.gestion_genou(self.temps, self.joueurB,
-                                       self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.araignee:
-            self.joueurA.gestion_araignee(self.temps, self.joueurB,
-                                          self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.coupdepied:
-            self.joueurA.gestion_coupdepied(self.temps, self.joueurB)
-
-        elif self.joueurA.state == State.coupdetete:
-            self.joueurA.gestion_coupdetete(self.temps)
-
-        elif self.joueurA.state == State.decapite:
-            self.joueurA.gestion_decapite(self.temps)
-
-        elif self.joueurA.state == State.front:
-            self.joueurA.gestion_front(self.temps, self.joueurB,
-                                       self.soncling, self.songrogne)
-
-        elif self.joueurA.state == State.retourne:
-            self.joueurA.gestion_retourne(self.temps)
+        self.joueurA.gestion(self.temps, self.joueurB,
+                             self.soncling, self.songrogne, self.sontouche,
+                             Game.Demo)
+        #
+        if self.joueurA.state == State.retourne:
             if self.temps == self.joueurA.reftemps + 16:
                 self.sense = "inverse" if self.joueurA.rtl else "normal"
 
-        elif self.joueurA.state == State.vainqueur:
-            self.joueurA.gestion_vainqueur()
-
         elif self.joueurA.state == State.vainqueurKO:
-            self.joueurA.gestion_vainqueurKO(self.temps, self.joueurB)
-            if self.temps > self.joueurA.reftemps + 230:
+            if self.temps == self.joueurA.reftemps + 231:
                 self.animate_gnome()
 
-        # ******degats******
-        elif self.joueurA.state == State.touche:
-            self.joueurA.gestion_touche(self.temps, self.joueurB, self.sontouche)
-
-        elif self.joueurA.state == State.touche1:
-            self.joueurA.gestion_touche1(self.temps)
-
-        elif self.joueurA.state == State.tombe:
-            self.joueurA.gestion_tombe(self.temps, self.joueurB)
-
-        elif self.joueurA.state == State.tombe1:
-            self.joueurA.gestion_tombe1(self.temps, self.joueurB)
-
-        # bruit des epees  et decapitations loupees
-        elif self.joueurA.state == State.clingD:
-            self.joueurA.gestion_clingD(self.temps, self.joueurB,
-                                        self.soncling, self.sontouche)
-
-        elif self.joueurA.state == State.clingH:
-            self.joueurA.gestion_clingH(self.joueurB, self.soncling)
-
         elif self.joueurA.state == State.mortdecap:
-            self.joueurA.gestion_mortedecap(self.temps, self.joueurB)
             if self.temps == self.joueurA.reftemps + 126:
                 self.animate_gnome()
 
@@ -745,122 +643,15 @@ class Battle(EmptyScene):
             self.joueurB.action_debut(self.temps)
 
     def _gestionB(self):
-        # ***********************************
-        # *********gestion joueur 2**********
-        # ***********************************
-        if self.joueurB.state == State.debout:
-            self.joueurB.gestion_debout(self.temps, Game.Partie == 'solo')
-
-        elif self.joueurB.state == State.attente:
-            self.joueurB.gestion_attente(self.temps)
-
-        elif self.joueurB.state == State.avance:
-            self.joueurB.gestion_avance(self.temps, self.joueurA,
-                                        self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.recule:
-            self.joueurB.gestion_recule(self.temps)
-
-        elif self.joueurB.state == State.saute:
-            self.joueurB.gestion_saute(self.temps)
-
-        elif self.joueurB.state == State.assis:
-            self.joueurB.gestion_assis(self.temps)
-
-        elif self.joueurB.state == State.assis2:
-            self.joueurB.gestion_assis2(self.temps, self.joueurA,
-                                        self.soncling, self.songrogne,
-                                        Game.Partie == 'solo')
-
-        elif self.joueurB.state == State.releve:
-            self.joueurB.gestion_releve(self.temps, self.joueurA,
-                                        self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.rouladeAV:
-            self.joueurB.gestion_rouladeAV(self.temps, self.joueurA)
-
-        elif self.joueurB.state == State.rouladeAR:
-            self.joueurB.gestion_rouladeAR(self.temps)
-
-        elif self.joueurB.state == State.protegeH1:
-            self.joueurB.gestion_protegeH1(self.temps)
-
-        elif self.joueurB.state == State.protegeH:
-            self.joueurB.gestion_protegeH(self.temps, self.joueurA,
-                                          self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.protegeD1:
-            self.joueurB.gestion_protegeD1(self.temps)
-
-        elif self.joueurB.state == State.protegeD:
-            self.joueurB.gestion_protegeD(self.temps)
-
-        elif self.joueurB.state == State.cou:  # ****attention au temps sinon il saute
-            self.joueurB.gestion_cou(self.temps, self.joueurA,
-                                     self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.devant:
-            self.joueurB.gestion_devant(self.temps, self.joueurA,
-                                        self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.genou:
-            self.joueurB.gestion_genou(self.temps, self.joueurA,
-                                       self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.araignee:
-            self.joueurB.gestion_araignee(self.temps, self.joueurA,
-                                          self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.coupdepied:
-            self.joueurB.gestion_coupdepied(self.temps, self.joueurA)
-
-        elif self.joueurB.state == State.coupdetete:
-            self.joueurB.gestion_coupdetete(self.temps)
-
-        elif self.joueurB.state == State.decapite:
-            self.joueurB.gestion_decapite(self.temps)
-
-        elif self.joueurB.state == State.front:
-            self.joueurB.gestion_front(self.temps, self.joueurA,
-                                       self.soncling, self.songrogne)
-
-        elif self.joueurB.state == State.retourne:
-            self.joueurB.gestion_retourne(self.temps)
-
-        elif self.joueurB.state == State.vainqueur:
-            self.joueurB.gestion_vainqueur()
-
-        elif self.joueurB.state == State.vainqueurKO:
-            self.joueurB.gestion_vainqueurKO(self.temps, self.joueurA)
+        self.joueurB.gestion(self.temps, self.joueurA,
+                             self.soncling, self.songrogne, self.sontouche,
+                             Game.Partie == 'solo')
+        #
+        if self.joueurB.state == State.vainqueurKO:
             if self.temps > self.joueurB.reftemps + 230:
                 self.animate_gnome()
 
-        # ******degats B ******
-        elif self.joueurB.state == State.touche:
-            self.joueurB.gestion_touche(self.temps, self.joueurA, self.sontouche)
-
-        elif self.joueurB.state == State.touche1:
-            self.joueurB.gestion_touche1(self.temps)
-
-        elif self.joueurB.state == State.tombe:
-            self.joueurB.gestion_tombe(self.temps, self.joueurA)
-
-        elif self.joueurB.state == State.tombe1:
-            self.joueurB.gestion_tombe1(self.temps, self.joueurA)
-
-        # bruit des epees  et decapitations loupees
-        elif self.joueurB.state == State.clingD:
-            self.joueurB.gestion_clingD(self.temps, self.joueurA,
-                                        self.soncling, self.sontouche)
-
-        elif self.joueurB.state == State.clingH:
-            self.joueurB.gestion_clingH(self.joueurA, self.soncling)
-
-        elif self.joueurB.state == State.sorcier:
-            self.joueurB.gestion_sorcier(self.temps)
-
         elif self.joueurB.state == State.mortdecap:
-            self.joueurB.gestion_mortedecap(self.temps, self.joueurA)
             if self.temps == self.joueurB.reftemps + 126:
                 self.animate_gnome()
 

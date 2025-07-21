@@ -764,6 +764,108 @@ class Barbarian(AnimatedSprite):
     # endregion actions
 
     # region gestions
+    def gestion(self, temps, opponent: 'Barbarian',
+                soncling: iter, songrogne: iter, sontouche: iter,
+                is_ai: bool):
+
+        if self.state == State.attente:
+            self.gestion_attente(temps)
+
+        elif self.state == State.debout:
+            self.gestion_debout(temps, is_ai)
+
+        elif self.state == State.avance:
+            self.gestion_avance(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.recule:
+            self.gestion_recule(temps)
+
+        elif self.state == State.saute:
+            self.gestion_saute(temps)
+
+        elif self.state == State.assis:
+            self.gestion_assis(temps)
+
+        elif self.state == State.assis2:
+            self.gestion_assis2(temps, opponent, soncling, songrogne, is_ai)
+
+        elif self.state == State.releve:
+            self.gestion_releve(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.rouladeAV:
+            self.gestion_rouladeAV(temps, opponent)
+
+        elif self.state == State.rouladeAR:
+            self.gestion_rouladeAR(temps)
+
+        elif self.state == State.protegeH1:
+            self.gestion_protegeH1(temps)
+
+        elif self.state == State.protegeH:
+            self.gestion_protegeH(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.protegeD1:
+            self.gestion_protegeD1(temps)
+
+        elif self.state == State.protegeD:
+            self.gestion_protegeD(temps)
+
+        elif self.state == State.cou:  # ****attention au temps sinon il saute
+            self.gestion_cou(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.devant:
+            self.gestion_devant(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.genou:
+            self.gestion_genou(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.araignee:
+            self.gestion_araignee(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.coupdepied:
+            self.gestion_coupdepied(temps, opponent)
+
+        elif self.state == State.coupdetete:
+            self.gestion_coupdetete(temps)
+
+        elif self.state == State.decapite:
+            self.gestion_decapite(temps)
+
+        elif self.state == State.front:
+            self.gestion_front(temps, opponent, soncling, songrogne)
+
+        elif self.state == State.retourne:
+            self.gestion_retourne(temps)
+
+        elif self.state == State.vainqueur:
+            self.gestion_vainqueur()
+
+        elif self.state == State.vainqueurKO:
+            self.gestion_vainqueurKO(temps, opponent)
+
+        # ******degats******
+        elif self.state == State.touche:
+            self.gestion_touche(temps, opponent, sontouche)
+
+        elif self.state == State.touche1:
+            self.gestion_touche1(temps)
+
+        elif self.state == State.tombe:
+            self.gestion_tombe(temps, opponent)
+
+        elif self.state == State.tombe1:
+            self.gestion_tombe1(temps, opponent)
+
+        # bruit des epees  et decapitations loupees
+        elif self.state == State.clingD:
+            self.gestion_clingD(temps, opponent, soncling, sontouche)
+
+        elif self.state == State.clingH:
+            self.gestion_clingH(opponent, soncling)
+
+        elif self.state == State.mortdecap:
+            self.gestion_mortedecap(temps, opponent)
+
     def gestion_attente(self, temps):
         self.reset_xX_front()
         if temps > self.reftemps + 50:
