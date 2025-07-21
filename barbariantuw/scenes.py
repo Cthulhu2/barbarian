@@ -400,8 +400,10 @@ class Battle(EmptyScene):
         self.vieB1 = AnimatedSprite((276 * SCALE, 11 * SCALE), anims.vie(), self)
         self.joueurA.on_vie_changed = self.on_vieA_changed
         self.joueurA.on_score = self.on_scoreA
+        self.joueurA.on_mort = self.on_mort
         self.joueurB.on_vie_changed = self.on_vieB_changed
         self.joueurB.on_score = self.on_scoreB
+        self.joueurB.on_mort = self.on_mort
         #
         self.gnome = False
         self.gnomeSprite = AnimatedSprite((0, loc2px(20)), anims.gnome())
@@ -570,7 +572,7 @@ class Battle(EmptyScene):
         joueur.vie -= 1
         if joueur.vie <= 0:
             joueur.occupe_state(State.mort, temps)
-            self._gestion_mortX(joueur, opponent)
+            joueur.gestion_mort(temps, opponent)
             return
 
         self.snd_play(next(self.sontouche))
@@ -591,7 +593,7 @@ class Battle(EmptyScene):
 
         if joueur.vie <= 0:
             joueur.occupe_state(State.mort, self.temps)
-            self._gestion_mortX(joueur, opponent)
+            joueur.gestion_mort(temps, opponent)
             return
         if opponent.state == State.coupdetete:
             opponent.on_score(150)
@@ -734,14 +736,6 @@ class Battle(EmptyScene):
             elif self.temps == self.joueurA.reftemps:
                 self.joueurB.is_stopped = True
                 self.joueurA.animate('mortSORCIER')
-
-    def _gestion_mortX(self, mort: Barbarian, vainqueur: Barbarian):
-        self.chronoOn = False
-        # noinspection PyTypeChecker
-        self.change_layer(mort, 2)
-        mort.animate('mort')
-        vainqueur.occupe_state(State.vainqueurKO, self.temps)
-        self.snd_play('mortKO.ogg')
 
     def _gestion_mortedecapX(self, mort: Barbarian, vainqueur: Barbarian):
         if self.temps == mort.reftemps + 126:
@@ -1003,6 +997,11 @@ class Battle(EmptyScene):
     def on_scoreB(self, increment):
         Game.ScoreB += increment
         self.txtScoreB.msg = f'{Game.ScoreB:05}'
+
+    def on_mort(self, mort: Barbarian):
+        self.chrono = False
+        # noinspection PyTypeChecker
+        self.change_layer(mort, 2)
 
     def _gnome(self):
         if self.joueurA.state in (State.mort, State.mortdecap):

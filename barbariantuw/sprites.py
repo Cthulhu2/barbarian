@@ -459,6 +459,7 @@ class Barbarian(AnimatedSprite):
     _vie: int = 12
     on_vie_changed: Callable[[int], None]
     on_score: Callable[[int], None]
+    on_mort: Callable[['Barbarian'], None]
 
     def __init__(self, opts, x, y, subdir: str, rtl=False, anim='debout'):
         super().__init__((x, y), anims.barb(subdir))
@@ -1225,6 +1226,12 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_front()
         if is_ai and temps > self.reftemps + 20:
             self.occupe = False
+
+    def gestion_mort(self, temps, opponent: 'Barbarian'):
+        self.on_mort(self)
+        self.animate('mort')
+        opponent.occupe_state(State.vainqueurKO, temps)
+        self.snd_play('mortKO.ogg')
 
     def gestion_vainqueur(self):
         self.xAtt = self.x_loc()
