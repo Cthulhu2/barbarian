@@ -549,36 +549,35 @@ class Battle(EmptyScene):
         else:
             self.joueurA.action_debut(self.temps)
 
-    def _gestionA_touche(self):
-        rtl = self.joueurA.rtl
-        self.joueurA.attente = 0
-        self.joueurA.xAtt = self.joueurA.x_loc() + (4 if rtl else 0)
-        self.joueurA.reset_xX_back()
-        self.joueurA.reset_yX()
-        if self.joueurB.state == State.coupdepied:
-            self.joueurA.state = State.tombe
-            self._gestion_tombeX(self.joueurA, self.joueurB, self.temps)
+    def _gestion_toucheX(self, joueur: Barbarian, opponent: Barbarian, temps):
+        joueur.attente = 0
+        joueur.xAtt = joueur.x_loc() + (4 if joueur.rtl else 0)
+        joueur.reset_xX_back()
+        joueur.reset_yX()
+        if opponent.state == State.coupdepied:
+            joueur.state = State.tombe
+            self._gestion_tombeX(joueur, opponent, temps)
             return
 
-        if self.joueurB.state == State.decapite and self.joueurA.decapite:
-            self.joueurA.vie = 0
-            self.joueurA.occupe_state(State.mortdecap, self.temps)
-            self.joueurB.on_score(250)
-            self._gestion_mortedecapX(self.joueurA, self.joueurB)
+        if opponent.state == State.decapite and joueur.decapite:
+            joueur.vie = 0
+            joueur.occupe_state(State.mortdecap, temps)
+            opponent.on_score(250)
+            self._gestion_mortedecapX(joueur, opponent)
             return
 
-        self.joueurA.animate_sang(loc2px(self.joueurB.yAtt))
-        self.joueurA.vie -= 1
-        if self.joueurA.vie <= 0:
-            self.joueurA.occupe_state(State.mort, self.temps)
-            self._gestion_mortX(self.joueurA, self.joueurB)
+        joueur.animate_sang(loc2px(opponent.yAtt))
+        joueur.vie -= 1
+        if joueur.vie <= 0:
+            joueur.occupe_state(State.mort, temps)
+            self._gestion_mortX(joueur, opponent)
             return
 
         self.snd_play(next(self.sontouche))
 
-        self.joueurA.occupe_state(State.touche1, self.temps)
-        self.joueurA.decapite = True
-        self.joueurA.gestion_touche1(self.temps)
+        joueur.occupe_state(State.touche1, temps)
+        joueur.decapite = True
+        joueur.gestion_touche1(temps)
 
     def _gestion_tombeX(self, joueur: Barbarian, opponent: Barbarian, temps):
         joueur.xAttA = joueur.x_loc() + (4 if joueur.rtl else 0)
@@ -698,7 +697,7 @@ class Battle(EmptyScene):
 
         # ******degats******
         elif self.joueurA.state == State.touche:
-            self._gestionA_touche()
+            self._gestion_toucheX(self.joueurA, self.joueurB, self.temps)
 
         elif self.joueurA.state == State.touche1:
             self.joueurA.gestion_touche1(self.temps)
@@ -714,7 +713,7 @@ class Battle(EmptyScene):
             if (self.joueurB.state == State.decapite and not self.joueurA.decapite
                     or self.joueurB.state == State.genou):
                 self.joueurA.occupe_state(State.touche, self.temps)
-                self._gestionA_touche()
+                self._gestion_toucheX(self.joueurA, self.joueurB, self.temps)
             else:
                 distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
                 if distance < 12:
@@ -820,37 +819,6 @@ class Battle(EmptyScene):
         else:
             self.joueurB.action_debut(self.temps)
 
-    def _gestionB_touche(self):
-        rtl = self.joueurB.rtl
-        self.joueurB.attente = 0
-        self.joueurB.xAtt = self.joueurB.x_loc() + (4 if rtl else 0)
-        self.joueurB.reset_xX_back()
-        self.joueurB.reset_yX()
-        if self.joueurA.state == State.coupdepied:
-            self.joueurB.state = State.tombe
-            self._gestion_tombeX(self.joueurB, self.joueurA, self.temps)
-            return
-
-        if self.joueurA.state == State.decapite and self.joueurB.decapite:
-            self.joueurB.vie = 0
-            self.joueurB.occupe_state(State.mortdecap, self.temps)
-            self.joueurA.on_score(250)
-            self._gestion_mortedecapX(self.joueurB, self.joueurA)
-            return
-
-        self.joueurB.animate_sang(loc2px(self.joueurA.yAtt))
-        self.joueurB.vie -= 1
-        if self.joueurB.vie <= 0:
-            self.joueurB.occupe_state(State.mort, self.temps)
-            self._gestion_mortX(self.joueurB, self.joueurA)
-            return
-
-        self.snd_play(next(self.sontouche))
-
-        self.joueurB.occupe_state(State.touche1, self.temps)
-        self.joueurB.decapite = True
-        self.joueurB.gestion_touche1(self.temps)
-
     def _gestionB(self):
         # ***********************************
         # *********gestion joueur 2**********
@@ -944,7 +912,7 @@ class Battle(EmptyScene):
 
         # ******degats B ******
         elif self.joueurB.state == State.touche:
-            self._gestionB_touche()
+            self._gestion_toucheX(self.joueurB, self.joueurA, self.temps)
 
         elif self.joueurB.state == State.touche1:
             self.joueurB.gestion_touche1(self.temps)
@@ -960,7 +928,7 @@ class Battle(EmptyScene):
             if (self.joueurA.state == State.decapite and not self.joueurB.decapite
                     or self.joueurA.state == State.genou):
                 self.joueurB.occupe_state(State.touche, self.temps)
-                self._gestionB_touche()
+                self._gestion_toucheX(self.joueurB, self.joueurA, self.temps)
             else:
                 distance = abs(self.joueurB.x_loc() - self.joueurA.x_loc())
                 if distance < 12:
