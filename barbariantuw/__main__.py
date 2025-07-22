@@ -281,11 +281,11 @@ def option_parser():
     parser = OptionParser(usage='usage: %prog [options]',
                           version='%prog 0.1')
 
-    parser.add_option('-s', '--sound',
-                      action='store_true',
+    parser.add_option('--no-sound',
+                      action='store_false',
                       dest='sound',
-                      default=True,  # False
-                      help='turn sound on. Default: false (off)')
+                      default=True,
+                      help='turn sound off')
 
     debug = OptionGroup(parser, 'Debug Options', description='')
 

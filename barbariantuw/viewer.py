@@ -9,7 +9,7 @@ from pygame import key, Surface, display
 from pygame.locals import *
 
 import barbariantuw.anims as anims
-from barbariantuw.main import BarbarianMain, option_parser
+from barbariantuw.__main__ import BarbarianMain, option_parser
 from barbariantuw.scenes import EmptyScene
 from barbariantuw.settings import SCREEN_SIZE, Theme
 from barbariantuw.sprites import Barbarian, Rectangle, Txt
