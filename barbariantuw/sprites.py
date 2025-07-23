@@ -899,13 +899,16 @@ class Barbarian(AnimatedSprite):
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.reset_xX_front()
         self.decapite = False
-        self.yG = self.yM
+        self.yG = YT
+        self.yM = YT
         self.yAtt = 14
         if self.attaque:
             self.occupe_state(State.cou, temps)
         elif temps > self.reftemps + 45:
             self.occupe = False
             self.state = State.debout
+            self.yG = YG
+            self.yM = YM
         elif temps > self.reftemps + 40:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
             self.xG = self.x_loc() + (0 if self.rtl else 4)
