@@ -740,7 +740,7 @@ class Battle(EmptyScene):
                         self.snd_play('tete.ogg')
                 if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
                     mort.stop_football()
-        if gnome.alive() and px2loc(gnome.x) > 41:
+        if gnome.alive() and px2loc(gnome.x) > 42:
             gnome.kill()
             if Game.Partie == 'vs':
                 vainqueur.bonus = True

@@ -67,7 +67,9 @@ Package for pypi.org:
 ### PygBag
 WebAssembly zip-archive for itch.io:
 ```shell
-(.venv) $ pygbag --archive barbariantuw
+(.venv) $ rm -rf pygbag/barbariantuw/* \
+  && cp -r barbariantuw pygbag \
+  && pygbag --archive pygbag
 ```
 
 ### Nuitka and AppImage

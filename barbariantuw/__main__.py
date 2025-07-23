@@ -1,5 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
+import asyncio
 import gc
 import importlib
 import sys
@@ -8,7 +9,8 @@ from os import getpid
 from os.path import join
 
 import pygame
-from psutil import Process
+if sys.platform != 'emscripten':
+    psutil = importlib.import_module('psutil')
 from pygame import display, event, mixer, init, time, image
 
 import barbariantuw.ai as ai
@@ -80,7 +82,8 @@ class BarbarianMain(object):
                            on_quit=self.quit)
 
     def quit(self):
-        self.running = False
+        if not self.opts.web:
+            self.running = False
 
     def show_logo(self):
         self.scene = scenes.Logo(self.opts, on_load=self.show_menu)
@@ -207,7 +210,7 @@ class BarbarianMain(object):
 
     def on_fullscreen(self):
         # TODO: Toggle fullscreen with multi-display
-        if not pygame.display.is_fullscreen():
+        if not self.opts.web and not pygame.display.is_fullscreen():
             country = scenes.Game.Country
             sc = min(self.desktopSize[0] / 320, self.desktopSize[1] / 200)
             self.reinit(self.desktopSize, sc)
@@ -217,7 +220,7 @@ class BarbarianMain(object):
         self.show_logo()
 
     def on_window(self):
-        if pygame.display.is_fullscreen():
+        if not self.opts.web and pygame.display.is_fullscreen():
             country = scenes.Game.Country
             self.reinit()
             pygame.display.toggle_fullscreen()
@@ -225,11 +228,13 @@ class BarbarianMain(object):
             scenes.Game.Country = country
         self.show_logo()
 
-    def main(self):
+    async def main(self):
         cpu_timer = 0
         mem_timer = 0
-        pid = getpid()
-        pu = Process(pid)
+        if not self.opts.web:
+            pid = getpid()
+            # noinspection PyUnresolvedReferences
+            pu = psutil.Process(pid)
         slowmo = False
 
         clock = time.Clock()
@@ -237,7 +242,8 @@ class BarbarianMain(object):
         while self.running:
             for evt in event.get():
                 if evt.type == pygame.QUIT:
-                    self.quit()
+                    if not self.opts.web:
+                        self.quit()
                 if self.opts.debug:
                     if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKSPACE:
                         slowmo = True
@@ -248,11 +254,12 @@ class BarbarianMain(object):
                 self.scene.process_event(evt)
 
             current_time = time.get_ticks()
-            if self.opts.debug:
+            if not self.opts.web and self.opts.debug:
                 self.fps.msg = f'FPS: {clock.get_fps():.0f}'
 
                 if current_time - cpu_timer > self.opts.cpu_time:
                     cpu_timer = current_time
+                    # noinspection PyUnboundLocalVariable
                     self.cpu.msg = f'CPU: {pu.cpu_percent():.1f}%'
 
                 if current_time - mem_timer > self.opts.mem_time:
@@ -266,7 +273,9 @@ class BarbarianMain(object):
 
             dirty = self._scene.draw(self.screen)
             display.update(dirty)
-            if slowmo:
+            if self.opts.web:
+                await asyncio.sleep(0)
+            elif slowmo:
                 clock.tick(4)
             else:
                 clock.tick(FRAME_RATE)
@@ -274,7 +283,6 @@ class BarbarianMain(object):
         if self.opts.sound:
             pygame.mixer.stop()
             pygame.mixer.quit()
-        pygame.quit()
 
 
 def option_parser():
@@ -292,7 +300,7 @@ def option_parser():
     debug.add_option('-d', '--debug',
                      action='count',
                      dest='debug',
-                     default=3,
+                     default=0,
                      help='show debug info (CPU, VMS, RSS, FPS)')
     debug.add_option('-c', '--cpu-time',
                      action='store',
@@ -313,9 +321,8 @@ def option_parser():
 
 def run():
     (options, args) = option_parser().parse_args()
-
-    BarbarianMain(options).main()
-    sys.exit(0)
+    options.web = (sys.platform == 'emscripten')
+    asyncio.run(BarbarianMain(options).main())
 
 
 if __name__ == '__main__':

@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import gc
 import importlib
-import sys
 from typing import Any
 
+import asyncio
 from pygame import key, Surface, display
 from pygame.locals import *
 
@@ -207,8 +207,9 @@ class AnimationViewerScene(EmptyScene):
 if __name__ == '__main__':
     (options, args) = option_parser().parse_args()
     options.sound = False
+    options.web = False
+    options.debug = 3
     main = BarbarianMain(options)
     main.scene = AnimationViewerScene(options, main.screen, on_quit=main.quit)
     display.set_caption('Barbarian - Animation viewer')
-    main.main()
-    sys.exit(0)
+    asyncio.run(main.main())

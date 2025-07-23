@@ -8,7 +8,7 @@ FONT_PATH = os.path.abspath(BASE_PATH + '/fnt') + '/'
 IMG_PATH = os.path.abspath(BASE_PATH + '/img') + '/'
 SND_PATH = os.path.abspath(BASE_PATH + '/snd') + '/'
 
-SCALE = 3
+SCALE = 1 if sys.platform == 'emscripten' else 3
 SCREEN_SIZE = (320 * SCALE, 200 * SCALE)
 CHAR_W = int(320 / 40 * SCALE)  # 24
 CHAR_H = int(200 / 25 * SCALE)  # 24
