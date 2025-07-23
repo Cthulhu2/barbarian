@@ -2,6 +2,12 @@
 
 Amiga 500 game remake written in Python and [PyGame CE][0].
 
+![preview](readme/preview.png)
+
+<video src="https://codeberg.org/cthulhu/barbarian/raw/branch/master/readme/demo.mp4"
+       width="640" height="480" controls>
+</video>
+
 ## Installation
 
 ### Linux
