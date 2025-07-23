@@ -581,7 +581,7 @@ class Barbarian(AnimatedSprite):
                                 or rtl and xAtt >= self.xM):
             if self.state == State.protegeD:
                 self.state = State.clingD
-            elif opponent.state == State.coupdepied:
+            elif opponent.state in (State.coupdepied, State.rouladeAV):
                 self.state = State.tombe
             else:
                 self.state = State.touche
@@ -590,7 +590,7 @@ class Barbarian(AnimatedSprite):
 
         if yAtt == self.yG and (ltr and xAtt <= self.xG
                                 or rtl and xAtt >= self.xG):
-            if opponent.state in (State.araignee, State.rouladeAV):
+            if opponent.state == State.araignee:
                 self.state = State.tombe
             elif self.state == State.protegeD:
                 self.state = State.clingD
@@ -970,7 +970,7 @@ class Barbarian(AnimatedSprite):
     def gestion_rouladeAV(self, temps, opponent):
         self.reset_xX_back()
         self.yG = YG
-        self.yAtt = self.yG
+        self.yAtt = self.yM
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yT = self.yG
         if self.attaque:

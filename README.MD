@@ -79,7 +79,7 @@ Executable AppImage:
   --include-data-dir=barbariantuw/fnt=barbariantuw/fnt \
   --include-data-dir=barbariantuw/img=barbariantuw/img \
   --include-data-dir=barbariantuw/snd=barbariantuw/snd \
-  --include-data-dir=AppImage=. \ 
+  --include-data-dir=AppImage=. \
   barbariantuw
   
 (.venv) $ appimage-builder --recipe AppImageBuilder.yml
