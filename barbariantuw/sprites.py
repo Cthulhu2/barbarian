@@ -1424,12 +1424,12 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps + 36:
             distance = abs(self.x_loc() - opponent.x_loc())
             rtl = self.rtl
-            if (distance < 6 and rtl) or (distance > 6 and not rtl):
+            if (distance < 5 and rtl) or (distance > 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
                 self.x = loc2px(self.x_loc() + abs(6 - distance))
-            if (distance > 6 and rtl) or (distance < 6 and not rtl):
+            if (distance > 5 and rtl) or (distance < 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 5)  # 'marche3' xflip=True
-                self.x = loc2px(self.x_loc() - abs(6 - distance))
+                self.x = loc2px(self.x_loc() - abs(5 - distance))
 
         elif temps == self.reftemps + 8:
             self.animate('vainqueurKO', 8)
