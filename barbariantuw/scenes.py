@@ -815,17 +815,14 @@ class Battle(EmptyScene):
                     else:
                         self.start_sorcier()
                 elif Game.Partie == 'vs':
-                    self.next_stage()
+                    self.finish()
         elif (jax < 2 and 38 < jbx) or (jbx < 2 and 38 < jax):
             self.next_stage()
 
     def check_sortiedB(self, jax, jbx):
         if not self.tempsfini:
             if jax >= 34 and (jbx <= 0 or 38 <= jbx):
-                if Game.Partie == 'solo':
-                    self.finish()
-                elif Game.Partie == 'vs':
-                    self.next_stage()
+                self.finish()
 
     def update(self, current_time, *args):
         ja = self.joueurA
