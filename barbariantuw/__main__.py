@@ -9,8 +9,6 @@ from os import getpid
 from os.path import join
 
 import pygame
-if sys.platform != 'emscripten':
-    psutil = importlib.import_module('psutil')
 from pygame import display, event, mixer, init, time, image
 
 import barbariantuw.ai as ai
@@ -20,6 +18,13 @@ import barbariantuw.settings as settings
 import barbariantuw.sprites as sprites
 from barbariantuw.settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
 from barbariantuw.sprites import Txt, loc2px
+
+psutil = None
+if sys.platform != 'emscripten':
+    try:
+        psutil = importlib.import_module('psutil')
+    except ImportError:
+        pass
 
 
 class BarbarianMain(object):
@@ -231,7 +236,7 @@ class BarbarianMain(object):
     async def main(self):
         cpu_timer = 0
         mem_timer = 0
-        if not self.opts.web:
+        if not self.opts.web and psutil:
             pid = getpid()
             # noinspection PyUnresolvedReferences
             pu = psutil.Process(pid)
@@ -256,19 +261,19 @@ class BarbarianMain(object):
             current_time = time.get_ticks()
             if not self.opts.web and self.opts.debug:
                 self.fps.msg = f'FPS: {clock.get_fps():.0f}'
+                if psutil:
+                    if current_time - cpu_timer > self.opts.cpu_time:
+                        cpu_timer = current_time
+                        # noinspection PyUnboundLocalVariable
+                        self.cpu.msg = f'CPU: {pu.cpu_percent():.1f}%'
 
-                if current_time - cpu_timer > self.opts.cpu_time:
-                    cpu_timer = current_time
-                    # noinspection PyUnboundLocalVariable
-                    self.cpu.msg = f'CPU: {pu.cpu_percent():.1f}%'
-
-                if current_time - mem_timer > self.opts.mem_time:
-                    mem_timer = current_time
-                    mem = pu.memory_info()
-                    resident = f'Mem RSS: {mem.rss / 1024:>7,.0f} Kb'
-                    self.mem_rss.msg = resident.replace(',', ' ')
-                    virtual = f'Mem VMS: {mem.vms / 1024:>7,.0f} Kb'
-                    self.mem_vms.msg = virtual.replace(',', ' ')
+                    if current_time - mem_timer > self.opts.mem_time:
+                        mem_timer = current_time
+                        mem = pu.memory_info()
+                        resident = f'Mem RSS: {mem.rss / 1024:>7,.0f} Kb'
+                        self.mem_rss.msg = resident.replace(',', ' ')
+                        virtual = f'Mem VMS: {mem.vms / 1024:>7,.0f} Kb'
+                        self.mem_vms.msg = virtual.replace(',', ' ')
             self._scene.update(current_time)
 
             dirty = self._scene.draw(self.screen)
@@ -301,7 +306,8 @@ def option_parser():
                      action='count',
                      dest='debug',
                      default=0,
-                     help='show debug info (CPU, VMS, RSS, FPS)')
+                     help='show debug info (CPU, VMS, RSS, FPS),'
+                          ' psutil module required')
     debug.add_option('-c', '--cpu-time',
                      action='store',
                      dest='cpu_time',
