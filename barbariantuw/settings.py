@@ -8,10 +8,11 @@ FONT_PATH = os.path.abspath(BASE_PATH + '/fnt') + '/'
 IMG_PATH = os.path.abspath(BASE_PATH + '/img') + '/'
 SND_PATH = os.path.abspath(BASE_PATH + '/snd') + '/'
 
-SCALE = 1 if sys.platform == 'emscripten' else 3
-SCREEN_SIZE = (320 * SCALE, 200 * SCALE)
-CHAR_W = int(320 / 40 * SCALE)  # 24
-CHAR_H = int(200 / 25 * SCALE)  # 24
+SCALE_X = 1 if sys.platform == 'emscripten' else 3
+SCALE_Y = 1 if sys.platform == 'emscripten' else 3
+SCREEN_SIZE = (320 * SCALE_X, 200 * SCALE_Y)
+CHAR_W = int(320 / 40 * SCALE_X)  # 24
+CHAR_H = int(200 / 25 * SCALE_Y)  # 24
 FRAME_RATE = 60
 
 FONT = FONT_PATH + 'PressStart2P-Regular.ttf'

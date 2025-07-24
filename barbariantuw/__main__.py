@@ -84,6 +84,7 @@ class BarbarianMain(object):
         #
         self._scene = scene
         if self.opts.debug:
+            # noinspection PyTypeChecker
             self.scene.add(self.cpu, self.mem_rss, self.mem_vms, self.fps,
                            self.lblSlowmo,
                            layer=99)
@@ -212,15 +213,16 @@ class BarbarianMain(object):
 
     # noinspection PyTypeChecker
     @staticmethod
-    def reinit(size=settings.SCREEN_SIZE, sc=settings.SCALE):
+    def reinit(size=settings.SCREEN_SIZE, scx=settings.SCALE_X, scy=settings.SCALE_Y):
         anims.img_cache.clear()
         Txt.cache.clear()
         gc.collect(generation=0)
         #
         settings.SCREEN_SIZE = size
-        settings.SCALE = sc
-        settings.CHAR_W = int(320 / 40 * sc)
-        settings.CHAR_H = int(200 / 25 * sc)
+        settings.SCALE_X = scx
+        settings.SCALE_Y = scy
+        settings.CHAR_W = int(320 / 40 * scx)
+        settings.CHAR_H = int(200 / 25 * scy)
         #
         importlib.reload(anims)
         importlib.reload(sprites)
@@ -231,8 +233,9 @@ class BarbarianMain(object):
         # TODO: Toggle fullscreen with multi-display
         if not self.opts.web and not pygame.display.is_fullscreen():
             country = scenes.Game.Country
-            sc = min(self.desktopSize[0] / 320, self.desktopSize[1] / 200)
-            self.reinit(self.desktopSize, sc)
+            scx = self.desktopSize[0] / 320
+            scy = self.desktopSize[1] / 200
+            self.reinit(self.desktopSize, scx, scy)
             pygame.display.set_mode(self.desktopSize)
             pygame.display.toggle_fullscreen()
             scenes.Game.Country = country

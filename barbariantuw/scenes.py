@@ -8,7 +8,7 @@ from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
 
 from barbariantuw.settings import (
-    Theme, SCREEN_SIZE, SCALE, CHAR_W, CHAR_H,
+    Theme, SCREEN_SIZE, SCALE_X, SCALE_Y, CHAR_W, CHAR_H,
 )
 from barbariantuw.sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
@@ -238,7 +238,7 @@ class _MenuBackScene(EmptyScene):
         if Game.Country == 'USA':
             back = get_img(back).copy()
             logo_ds = get_img('menu/logoDS.png')
-            back.blit(logo_ds, (46 * SCALE, 10 * SCALE))
+            back.blit(logo_ds, (46 * SCALE_X, 10 * SCALE_Y))
         else:
             back = get_img(back)
         # noinspection PyTypeChecker
@@ -304,12 +304,12 @@ class Battle(EmptyScene):
             if Game.Decor in ('foret', 'plaine'):
                 logo = get_img('stage/logoDS2.png')
                 if Game.Decor == 'foret':
-                    back.blit(logo, (59 * SCALE, 16 * SCALE))
+                    back.blit(logo, (59 * SCALE_X, 16 * SCALE_Y))
                 elif Game.Decor == 'plaine':
-                    back.blit(logo, (59 * SCALE, 14 * SCALE))
+                    back.blit(logo, (59 * SCALE_X, 14 * SCALE_Y))
             if Game.Decor in ('arene', 'trone'):
                 logo = get_img('stage/logoDS3.png')
-                back.blit(logo, (59 * SCALE, 16 * SCALE))
+                back.blit(logo, (59 * SCALE_X, 16 * SCALE_Y))
         # noinspection PyTypeChecker
         self.clear(None, back)
         self.debugAttArea = False
@@ -346,9 +346,9 @@ class Battle(EmptyScene):
                 self.jBAtt, self.jBF, self.jBT, self.jBM, self.jBG)
         # noinspection PyTypeChecker
         self.add(
-            StaticSprite((0, 104 * SCALE),
+            StaticSprite((0, 104 * SCALE_Y),
                          f'stage/{Game.Decor}ARBREG.gif'),
-            StaticSprite((272 * SCALE, 104 * SCALE),
+            StaticSprite((272 * SCALE_X, 104 * SCALE_Y),
                          f'stage/{Game.Decor}ARBRED.gif'),
             layer=5)
 
@@ -383,9 +383,9 @@ class Battle(EmptyScene):
         self.add(self.joueurA, self.joueurB, layer=1)
         self.joueurA.animate('avance')
         self.joueurB.animate('avance')
-        self.serpentA = AnimatedSprite((11 * SCALE, 22 * SCALE),
+        self.serpentA = AnimatedSprite((11 * SCALE_X, 22 * SCALE_Y),
                                        anims.serpent(), self)
-        self.serpentB = AnimatedSprite((275 * SCALE, 22 * SCALE),
+        self.serpentB = AnimatedSprite((275 * SCALE_X, 22 * SCALE_Y),
                                        rtl_anims(anims.serpent()), self)
         self.entreesorcier = False
         self.temps = 0
@@ -394,10 +394,10 @@ class Battle(EmptyScene):
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
-        self.vieA0 = AnimatedSprite((43 * SCALE, 0), anims.vie(), self)
-        self.vieA1 = AnimatedSprite((43 * SCALE, 11 * SCALE), anims.vie(), self)
-        self.vieB0 = AnimatedSprite((276 * SCALE, 0), anims.vie(), self)
-        self.vieB1 = AnimatedSprite((276 * SCALE, 11 * SCALE), anims.vie(), self)
+        self.vieA0 = AnimatedSprite((43 * SCALE_X, 0), anims.vie(), self)
+        self.vieA1 = AnimatedSprite((43 * SCALE_X, 11 * SCALE_Y), anims.vie(), self)
+        self.vieB0 = AnimatedSprite((276 * SCALE_X, 0), anims.vie(), self)
+        self.vieB1 = AnimatedSprite((276 * SCALE_X, 11 * SCALE_Y), anims.vie(), self)
         self.joueurA.on_vie_changed = self.on_vieA_changed
         self.joueurA.on_score = self.on_scoreA
         self.joueurA.on_mort = self.on_mort
@@ -496,9 +496,9 @@ class Battle(EmptyScene):
         self.joueurB.occupe_state(State.sorcier, self.temps)
         # noinspection PyTypeChecker
         self.add(self.joueurB,
-                 StaticSprite((114 * SCALE, 95 * SCALE),
+                 StaticSprite((114 * SCALE_X, 95 * SCALE_Y),
                               'fill', w=16, h=6, fill=Theme.BLACK),
-                 StaticSprite((109 * SCALE, 100 * SCALE),
+                 StaticSprite((109 * SCALE_X, 100 * SCALE_Y),
                               'fill', w=27, h=15.1, fill=Theme.BLACK),
                  layer=0)
         self.on_vieA_changed(0)
@@ -580,8 +580,8 @@ class Battle(EmptyScene):
                   color=(34, 34, 153), bgcolor=Theme.BLACK)
         txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2px(11))
         bg = StaticSprite((0, 0), 'fill',
-                          w=(txt.rect.w + 2 * CHAR_W) / SCALE,
-                          h=(txt.rect.h + 2 * CHAR_H) / SCALE,
+                          w=(txt.rect.w + 2 * CHAR_W) / SCALE_X,
+                          h=(txt.rect.h + 2 * CHAR_H) / SCALE_Y,
                           fill=Theme.BLACK)
         bg.rect.topleft = (txt.rect.topleft[0] - CHAR_W,
                            txt.rect.topleft[1] - CHAR_H)
@@ -596,9 +596,9 @@ class Battle(EmptyScene):
         # noinspection PyTypeChecker
         self.add(
             StaticSprite(loc(16.5, 14), 'sprites/marianna.gif'),
-            StaticSprite((186 * SCALE, 95 * SCALE), 'fill',
+            StaticSprite((186 * SCALE_X, 95 * SCALE_Y), 'fill',
                          w=15, h=20, fill=Theme.BLACK),
-            StaticSprite((185 * SCALE, 113 * SCALE), 'fill',
+            StaticSprite((185 * SCALE_X, 113 * SCALE_Y), 'fill',
                          w=18, h=2.1, fill=Theme.BLACK),
             self._center_txt('Thanks big boy.'))
         self.jeu = 'gagne'
@@ -976,7 +976,7 @@ class ControlsKeys(_MenuBackScene):
         self.add([
             StaticSprite((0, 0), 'menu/playerA.png',
                          color=(255, 255, 255)),
-            StaticSprite((280 * SCALE, 0), 'menu/playerB.png',
+            StaticSprite((280 * SCALE_X, 0), 'menu/playerB.png',
                          color=(255, 255, 255)),
             Txt(sz, 'CONTROLS KEYS', Theme.OPTS_TITLE, loc(14, 11)),
 
@@ -1013,7 +1013,7 @@ class ControlsMoves(EmptyScene):
         self.on_next = on_next
         sz = CHAR_H
         self.add([
-            StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls1.gif'),
+            StaticSprite((100 * SCALE_X, 40 * SCALE_Y), 'menu/controls1.gif'),
             Txt(sz, 'MOVING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
 
             Txt(sz, 'jump', Theme.OPTS_TXT, loc(19, 5)),
@@ -1045,7 +1045,7 @@ class ControlsFight(EmptyScene):
         self.on_next = on_next
         sz = CHAR_H
         self.add([
-            StaticSprite((100 * SCALE, 40 * SCALE), 'menu/controls2.gif'),
+            StaticSprite((100 * SCALE_X, 40 * SCALE_Y), 'menu/controls2.gif'),
             Txt(sz, 'FIGHTING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
             Txt(sz, '(with attack key)', Theme.OPTS_TITLE, loc(13, 3)),
 
