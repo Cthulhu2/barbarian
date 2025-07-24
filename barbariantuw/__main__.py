@@ -12,7 +12,6 @@
 # nuitka-project: --include-data-dir=barbariantuw/fnt=barbariantuw/fnt
 # nuitka-project: --include-data-dir=barbariantuw/img=barbariantuw/img
 # nuitka-project: --include-data-dir=barbariantuw/snd=barbariantuw/snd
-# nuitka-project: --include-data-dir=AppImage=.
 
 import asyncio
 import gc
