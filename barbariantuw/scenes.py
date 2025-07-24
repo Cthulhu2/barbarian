@@ -285,6 +285,9 @@ def area(color, lbl, border_width=2):
     return Rectangle(0, 0, CHAR_W, CHAR_H, color, border_width, lbl)
 
 
+MORT_RIGHT_BORDER = 34
+
+
 class Battle(EmptyScene):
     chrono: int = 0
     chronoOn: bool = False
@@ -742,12 +745,12 @@ class Battle(EmptyScene):
                         self.snd_play('tete.ogg')
                 if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
                     mort.stop_football()
-        if gnome.alive() and px2locX(gnome.x) > 42:
+        if gnome.alive() and mort.x_loc() > MORT_RIGHT_BORDER:
             gnome.kill()
+            mort.kill()
             if Game.Partie == 'vs':
                 vainqueur.bonus = True
             if Game.Partie == 'solo':
-                mort.kill()
                 vainqueur.sortie = True
                 vainqueur.occupe = False
                 vainqueur.animate('recule')
@@ -774,7 +777,7 @@ class Battle(EmptyScene):
             self.joueurA.on_score(10)
             Game.Chronometre -= 1
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
-        elif jbx >= 37:
+        elif jbx >= MORT_RIGHT_BORDER:
             self.joueurA.bonus = False
             self.joueurA.sortie = True
             self.joueurA.occupe = False
@@ -785,7 +788,7 @@ class Battle(EmptyScene):
             self.joueurB.on_score(10)
             Game.Chronometre -= 1
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
-        elif jax >= 37:
+        elif jax >= MORT_RIGHT_BORDER:
             self.joueurB.bonus = False
             self.joueurB.sortie = True
             self.joueurB.occupe = False
@@ -808,7 +811,7 @@ class Battle(EmptyScene):
 
     def check_sortiedA(self, jax, jbx):
         if not self.tempsfini:
-            if jbx >= 34 and (jax <= 0 or 38 <= jax):
+            if jbx >= MORT_RIGHT_BORDER and (jax <= 0 or 38 <= jax):
                 if Game.Partie == 'solo':
                     if Game.Demo:
                         self.finish()
@@ -823,7 +826,7 @@ class Battle(EmptyScene):
 
     def check_sortiedB(self, jax, jbx):
         if not self.tempsfini:
-            if jax >= 34 and (jbx <= 0 or 38 <= jbx):
+            if jax >= MORT_RIGHT_BORDER and (jbx <= 0 or 38 <= jbx):
                 self.finish()
 
     def update(self, current_time, *args):
