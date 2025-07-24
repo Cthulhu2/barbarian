@@ -10,13 +10,16 @@ description = "'Barbarian - The Ultimate Warrior' game clone"
 readme = "README.MD"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Games/Entertainment",
+    "Topic :: Games/Entertainment :: Arcade"
 ]
 dependencies = ["pygame-ce"]
 optional-dependencies.dev = ["psutil", "build", "nuitka", "pygbag"]
-scripts.barbarian-tuw = "barbariantuw.__main__:run"
+scripts.barbariantuw = "barbariantuw.__main__:run"
 urls.Homepage = "https://codeberg.org/cthulhu/barbarian"
 urls.Issues = "https://codeberg.org/cthulhu/barbarian/issues"
 

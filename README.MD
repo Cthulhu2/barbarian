@@ -2,8 +2,7 @@
 
 Amiga 500 game remake written in Python and [PyGame CE][0].
 
-![preview](readme/preview.png)
-
+![preview](https://codeberg.org/cthulhu/barbarian/raw/branch/master/readme/preview.png)
 <video src="https://codeberg.org/cthulhu/barbarian/raw/branch/master/readme/demo.mp4"
        width="640" height="480" controls>
 </video>
@@ -11,13 +10,19 @@ Amiga 500 game remake written in Python and [PyGame CE][0].
 ## Installation
 
 ### Linux
-_TODO: Linux executable_
+Download executable from [releases](https://codeberg.org/cthulhu/barbarian/releases).
 
 ### Windows
-_TODO: Windows executable_
+Download executable from [releases](https://codeberg.org/cthulhu/barbarian/releases).
 
-### Pip
-_TODO: PIP package_
+### PIP
+```shell
+pip install barbariantuw
+```
+Launch:
+```shell
+barbariantuw
+```
 
 ## Controls
 
@@ -62,8 +67,8 @@ $ source .venv/bin/activate
 Install dev-dependencies:
 ```shell
 (.venv) $ pip install .[dev]
-(.venv) $ pip install git+https://github.com/AppImageCrafters/appimage-builder.git
 ```
+
 ### PIP
 Package for pypi.org:
 ```shell
@@ -78,15 +83,8 @@ WebAssembly zip-archive for itch.io:
   && pygbag --archive pygbag
 ```
 
-### Nuitka and AppImage
-Executable AppImage:
+### Nuitka
+Executable:
 ```shell
-(.venv) $ python3 -m nuitka --standalone \
-  --include-data-dir=barbariantuw/fnt=barbariantuw/fnt \
-  --include-data-dir=barbariantuw/img=barbariantuw/img \
-  --include-data-dir=barbariantuw/snd=barbariantuw/snd \
-  --include-data-dir=AppImage=. \
-  barbariantuw
-  
-(.venv) $ appimage-builder --recipe AppImageBuilder.yml
+(.venv) $ nuitka barbariantuw
 ```

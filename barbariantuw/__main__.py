@@ -1,5 +1,19 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
+
+# TODO: Define version in single place
+# See also pyproject.toml version.
+
+# nuitka-project: --product-name=barbariantuw
+# nuitka-project: --product-version=0.1.0
+# nuitka-project: --file-description="'Barbarian - The Ultimate Warrior' game clone"
+# nuitka-project: --onefile
+# nuitka-project: --onefile-tempdir-spec="{CACHE_DIR}/{PRODUCT}/{VERSION}"
+# nuitka-project: --include-data-dir=barbariantuw/fnt=barbariantuw/fnt
+# nuitka-project: --include-data-dir=barbariantuw/img=barbariantuw/img
+# nuitka-project: --include-data-dir=barbariantuw/snd=barbariantuw/snd
+# nuitka-project: --include-data-dir=AppImage=.
+
 import asyncio
 import gc
 import importlib
