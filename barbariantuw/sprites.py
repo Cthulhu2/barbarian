@@ -13,7 +13,9 @@ from pygame.transform import scale
 
 import barbariantuw.anims as anims
 from barbariantuw.anims import get_img, rtl_anims
-from barbariantuw.settings import FONT, SND_PATH, Theme, CHAR_W, FRAME_RATE
+from barbariantuw.settings import (
+    FONT, SND_PATH, Theme, CHAR_H, CHAR_W, FRAME_RATE
+)
 
 snd_cache: Dict[int, Sound] = {}
 
@@ -29,7 +31,7 @@ def get_snd(name: str) -> Sound:
     return snd
 
 
-def px2loc(x: int) -> int:
+def px2locX(x: int) -> int:
     """
     Convert scaled pixel to character location X 40x25 (320x200 mode, 8x8 font).
     :param x: 0..959
@@ -38,13 +40,31 @@ def px2loc(x: int) -> int:
     return int(x / CHAR_W + 1)
 
 
-def loc2px(x: int) -> int:
+def px2locY(y: int) -> int:
+    """
+    Convert scaled pixel to character location X 40x25 (320x200 mode, 8x8 font).
+    :param y: 0..599
+    :return: 1..25
+    """
+    return int(y / CHAR_H + 1)
+
+
+def loc2pxX(x: int) -> int:
     """
     Convert character location X 40x25 (320x200 mode, 8x8 font) to scaled pixel.
     :param x: 1..40
     :return:
     """
     return (x - 1) * CHAR_W
+
+
+def loc2pxY(y: int) -> int:
+    """
+    Convert character location X 40x25 (320x200 mode, 8x8 font) to scaled pixel.
+    :param y: 1..25
+    :return:
+    """
+    return (y - 1) * CHAR_H
 
 
 def loc(x: int, y: int) -> Tuple[int, int]:
@@ -54,7 +74,7 @@ def loc(x: int, y: int) -> Tuple[int, int]:
     :param y: 1..25
     :return:
     """
-    return loc2px(x), loc2px(y)
+    return loc2pxX(x), loc2pxY(y)
 
 
 class Rectangle(Group):
@@ -551,7 +571,7 @@ class Barbarian(AnimatedSprite):
         self.yG = YG
 
     def x_loc(self):
-        return px2loc(self.x)
+        return px2locX(self.x)
 
     def degat(self, opponent: 'Barbarian'):
         ltr = not self.rtl and self.x_loc() < opponent.x_loc()
@@ -1349,7 +1369,7 @@ class Barbarian(AnimatedSprite):
             self.gestion_mortedecap(temps, opponent)
             return
 
-        self.animate_sang(loc2px(opponent.yAtt))
+        self.animate_sang(loc2pxY(opponent.yAtt))
         self.vie -= 1
         if self.vie <= 0:
             self.occupe_state(State.mort, temps)
@@ -1368,7 +1388,7 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_back()
         self.reset_yX()
         if opponent.state != State.rouladeAV:
-            self.animate_sang(loc2px(opponent.yAtt))
+            self.animate_sang(loc2pxY(opponent.yAtt))
             self.vie -= 1
             opponent.on_score(100)
 
@@ -1426,10 +1446,10 @@ class Barbarian(AnimatedSprite):
             rtl = self.rtl
             if (distance < 5 and rtl) or (distance > 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
-                self.x = loc2px(self.x_loc() + abs(6 - distance))
+                self.x = loc2pxX(self.x_loc() + abs(6 - distance))
             if (distance > 5 and rtl) or (distance < 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 5)  # 'marche3' xflip=True
-                self.x = loc2px(self.x_loc() - abs(5 - distance))
+                self.x = loc2pxX(self.x_loc() - abs(5 - distance))
 
         elif temps == self.reftemps + 8:
             self.animate('vainqueurKO', 8)
@@ -1562,10 +1582,10 @@ class Sorcier(AnimatedSprite):
         self.yT = YT  # tete
         self.yM = YM  # corps
         self.yG = YG  # genou
-        self.xF = px2loc(self.x) + 4
-        self.xT = px2loc(self.x) + 4
-        self.xM = px2loc(self.x) + 4
-        self.xG = px2loc(self.x) + 4
+        self.xF = px2locX(self.x) + 4
+        self.xT = px2locX(self.x) + 4
+        self.xM = px2locX(self.x) + 4
+        self.xG = px2locX(self.x) + 4
         #
         self.vie = 0
         self.bonus = False
@@ -1583,7 +1603,7 @@ class Sorcier(AnimatedSprite):
             get_snd(snd).play()
 
     def x_loc(self):
-        return px2loc(self.x)
+        return px2locX(self.x)
 
     def occupe_state(self, state: State, temps: int):
         self.state = state
@@ -1614,7 +1634,7 @@ class Sorcier(AnimatedSprite):
             self.xAtt = 6
 
         elif self.reftemps + 135 < temps < self.reftemps + 170:
-            self.xAtt = px2loc(self.feu.x)
+            self.xAtt = px2locX(self.feu.x)
 
         elif temps == self.reftemps + 131:
             self.yAtt = YT
@@ -1628,7 +1648,7 @@ class Sorcier(AnimatedSprite):
             self.xAtt = 6
 
         elif self.reftemps + 55 < temps < self.reftemps + 90:
-            self.xAtt = px2loc(self.feu.x)
+            self.xAtt = px2locX(self.feu.x)
             self.yAtt = YG
 
         elif temps == self.reftemps + 51:

@@ -12,7 +12,7 @@ from barbariantuw.settings import (
 )
 from barbariantuw.sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2px, loc, State, Levier, Sorcier, Rectangle, px2loc,
+    loc2pxX, loc2pxY, loc, State, Levier, Sorcier, Rectangle, px2locX,
 )
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
@@ -73,7 +73,7 @@ class Logo(EmptyScene):
         if Game.Country == 'USA':
             img = get_img('menu/titre.png').copy()
             logo_ds = get_img('menu/logoDS.png')
-            img.blit(logo_ds, (46 * SCALE, 10 * SCALE))
+            img.blit(logo_ds, (46 * SCALE_X, 10 * SCALE_Y))
         else:
             img = get_img('menu/titre.png')
 
@@ -314,21 +314,21 @@ class Battle(EmptyScene):
         self.clear(None, back)
         self.debugAttArea = False
         if self.opts.debug > 1:
-            self.jAstate = Txt.Debug(loc2px(10), 0)
-            self.jBstate = Txt.Debug(loc2px(25), 0)
-            self.jAlevier = Txt.Debug(loc2px(10), self.jAstate.rect.bottom)
-            self.jBlevier = Txt.Debug(loc2px(25), self.jBstate.rect.bottom)
-            self.jAtemps = Txt.Debug(loc2px(10), self.jAlevier.rect.bottom)
-            self.jBtemps = Txt.Debug(loc2px(25), self.jBlevier.rect.bottom)
-            self.debugTemps = Txt.Debug(loc2px(18), 0)
-            self.distance = Txt.Debug(loc2px(18), self.jBtemps.rect.top)
+            self.jAstate = Txt.Debug(loc2pxX(10), 0)
+            self.jBstate = Txt.Debug(loc2pxX(25), 0)
+            self.jAlevier = Txt.Debug(loc2pxX(10), self.jAstate.rect.bottom)
+            self.jBlevier = Txt.Debug(loc2pxX(25), self.jBstate.rect.bottom)
+            self.jAtemps = Txt.Debug(loc2pxX(10), self.jAlevier.rect.bottom)
+            self.jBtemps = Txt.Debug(loc2pxX(25), self.jBlevier.rect.bottom)
+            self.debugTemps = Txt.Debug(loc2pxX(18), 0)
+            self.distance = Txt.Debug(loc2pxX(18), self.jBtemps.rect.top)
             # noinspection PyTypeChecker
             self.add(self.jAstate, self.jAlevier, self.jAtemps,
                      self.jBstate, self.jBlevier, self.jBtemps,
                      self.debugTemps, self.distance, layer=99)
             if self.opts.debug > 2:
-                self.jAframe = Txt.Debug(loc2px(10), self.jAtemps.rect.bottom)
-                self.jBframe = Txt.Debug(loc2px(25), self.jBtemps.rect.bottom)
+                self.jAframe = Txt.Debug(loc2pxX(10), self.jAtemps.rect.bottom)
+                self.jBframe = Txt.Debug(loc2pxX(25), self.jBtemps.rect.bottom)
                 self.add(self.jAframe, self.jBframe, layer=99)
 
             self.jAAtt = area(Theme.RED, 'A', border_width=5)
@@ -352,11 +352,11 @@ class Battle(EmptyScene):
                          f'stage/{Game.Decor}ARBRED.gif'),
             layer=5)
 
-        self.joueurA = Barbarian(opts, loc2px(1), loc2px(14),
+        self.joueurA = Barbarian(opts, loc2pxX(1), loc2pxY(14),
                                  'spritesA',
                                  rtl=Game.Rtl)
         self.joueurA.infoCoup = 3
-        self.joueurB = Barbarian(opts, loc2px(36), loc2px(14),
+        self.joueurB = Barbarian(opts, loc2pxX(36), loc2pxY(14),
                                  f'spritesB/spritesB{Game.IA}',
                                  rtl=not Game.Rtl)  # type: Union[Barbarian, Sorcier]
         sz = CHAR_H
@@ -406,7 +406,7 @@ class Battle(EmptyScene):
         self.joueurB.on_mort = self.on_mort
         #
         self.gnome = False
-        self.gnomeSprite = AnimatedSprite((0, loc2px(20)), anims.gnome())
+        self.gnomeSprite = AnimatedSprite((0, loc2pxY(20)), anims.gnome())
 
     def snd_play(self, snd: str):
         if snd and self.opts.sound:
@@ -485,14 +485,14 @@ class Battle(EmptyScene):
         Game.Sorcier = True
         self.sense = 'inverse'
         self.joueurA.state = State.debout
-        self.joueurA.x = loc2px(36)
+        self.joueurA.x = loc2pxX(36)
         if not self.joueurA.rtl:
             self.joueurA.turn_around(True)
         self.gnome = False
         self.joueurA.sortie = False
         self.joueurA.attaque = False
         self.entreesorcier = True
-        self.joueurB = Sorcier(self.opts, loc2px(7), loc2px(14))
+        self.joueurB = Sorcier(self.opts, loc2pxX(7), loc2pxY(14))
         self.joueurB.occupe_state(State.sorcier, self.temps)
         # noinspection PyTypeChecker
         self.add(self.joueurB,
@@ -578,7 +578,7 @@ class Battle(EmptyScene):
     def _center_txt(msg):
         txt = Txt(CHAR_H, msg,
                   color=(34, 34, 153), bgcolor=Theme.BLACK)
-        txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2px(11))
+        txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2pxY(11))
         bg = StaticSprite((0, 0), 'fill',
                           w=(txt.rect.w + 2 * CHAR_W) / SCALE_X,
                           h=(txt.rect.h + 2 * CHAR_H) / SCALE_Y,
@@ -592,7 +592,7 @@ class Battle(EmptyScene):
         self.joueurB.occupe_state(State.mortSORCIER, self.temps)
         self.joueurA.occupe_state(State.fini, self.temps)
         self.joueurA.set_anim_frame('vainqueur', 2)
-        self.joueurA.x = loc2px(17)
+        self.joueurA.x = loc2pxX(17)
         # noinspection PyTypeChecker
         self.add(
             StaticSprite(loc(16.5, 14), 'sprites/marianna.gif'),
@@ -662,26 +662,26 @@ class Battle(EmptyScene):
                     or ja.state in (State.rouladeAV, State.decapite,
                                     State.debout, State.coupdepied)):
                 if ja.xLocPrev != jax:
-                    ja.x = loc2px(jax - (-1 if ja.rtl else 1))
+                    ja.x = loc2pxX(jax - (-1 if ja.rtl else 1))
 
             # pour empecher que B entre dans A
             if (jb.levier == jb.avance_levier()
                     or jb.state in (State.rouladeAV, State.decapite,
                                     State.debout, State.coupdepied)):
                 if jb.xLocPrev != jbx:
-                    jb.x = loc2px(jbx - (-1 if jb.rtl else 1))
+                    jb.x = loc2pxX(jbx - (-1 if jb.rtl else 1))
 
         left, right = self._colision_borders(ja, jb)
         if jax < left:
-            ja.x = loc2px(left)
+            ja.x = loc2pxX(left)
         elif jax > right:
-            ja.x = loc2px(right)
+            ja.x = loc2pxX(right)
         #
         left, right = self._colision_borders(jb, ja)
         if jbx < left:
-            jb.x = loc2px(left)
+            jb.x = loc2pxX(left)
         elif jbx > right:
-            jb.x = loc2px(right)
+            jb.x = loc2pxX(right)
 
     def _colision_borders(self, joueur: Barbarian, opponent: Barbarian):
         return ((0, 40) if any((self.entree, self.entreesorcier,
@@ -742,7 +742,7 @@ class Battle(EmptyScene):
                         self.snd_play('tete.ogg')
                 if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
                     mort.stop_football()
-        if gnome.alive() and px2loc(gnome.x) > 42:
+        if gnome.alive() and px2locX(gnome.x) > 42:
             gnome.kill()
             if Game.Partie == 'vs':
                 vainqueur.bonus = True
@@ -796,9 +796,9 @@ class Battle(EmptyScene):
             self.serpentA.animate('bite')
             self.serpentB.animate('bite')
         if jax >= 13:
-            self.joueurA.x = loc2px(13)
+            self.joueurA.x = loc2pxX(13)
         if jbx <= 22:
-            self.joueurB.x = loc2px(22)
+            self.joueurB.x = loc2pxX(22)
         if jax >= 13 or jbx <= 22:
             self.joueurA.set_anim_frame('debout', 0)
             self.joueurB.set_anim_frame('debout', 0)
@@ -888,17 +888,17 @@ class Battle(EmptyScene):
         distance = abs(jb.x_loc() - ja.x_loc())
         self.distance.msg = f'A <- {distance:>2} -> B'
         if self.debugAttArea:
-            self.jAAtt.move_to(loc2px(ja.xAtt), loc2px(ja.yAtt))
-            self.jAF.move_to(loc2px(ja.xF), loc2px(ja.yF))
-            self.jAT.move_to(loc2px(ja.xT), loc2px(ja.yT))
-            self.jAM.move_to(loc2px(ja.xM), loc2px(ja.yM))
-            self.jAG.move_to(loc2px(ja.xG), loc2px(ja.yG))
+            self.jAAtt.move_to(loc2pxX(ja.xAtt), loc2pxY(ja.yAtt))
+            self.jAF.move_to(loc2pxX(ja.xF), loc2pxY(ja.yF))
+            self.jAT.move_to(loc2pxX(ja.xT), loc2pxY(ja.yT))
+            self.jAM.move_to(loc2pxX(ja.xM), loc2pxY(ja.yM))
+            self.jAG.move_to(loc2pxX(ja.xG), loc2pxY(ja.yG))
             #
-            self.jBAtt.move_to(loc2px(jb.xAtt), loc2px(jb.yAtt))
-            self.jBF.move_to(loc2px(jb.xF), loc2px(jb.yF))
-            self.jBT.move_to(loc2px(jb.xT), loc2px(jb.yT))
-            self.jBM.move_to(loc2px(jb.xM), loc2px(jb.yM))
-            self.jBG.move_to(loc2px(jb.xG), loc2px(jb.yG))
+            self.jBAtt.move_to(loc2pxX(jb.xAtt), loc2pxY(jb.yAtt))
+            self.jBF.move_to(loc2pxX(jb.xF), loc2pxY(jb.yF))
+            self.jBT.move_to(loc2pxX(jb.xT), loc2pxY(jb.yT))
+            self.jBM.move_to(loc2pxX(jb.xM), loc2pxY(jb.yM))
+            self.jBG.move_to(loc2pxX(jb.xG), loc2pxY(jb.yG))
         if self.opts.debug > 2:
             self.jAframe.msg = (f'{ja.frameNum + 1} / {len(ja.frames)}'
                                 f' ({ja.frame.name})')

@@ -31,7 +31,7 @@ import barbariantuw.scenes as scenes
 import barbariantuw.settings as settings
 import barbariantuw.sprites as sprites
 from barbariantuw.settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
-from barbariantuw.sprites import Txt, loc2px
+from barbariantuw.sprites import Txt, loc2pxX
 
 psutil = None
 if sys.platform != 'emscripten':
@@ -67,7 +67,7 @@ class BarbarianMain(object):
             #   virtual memory used by the process.
             self.mem_vms = Txt.Debug(0, self.mem_rss.rect.bottom)
             self.fps = Txt.Debug(0, self.mem_vms.rect.bottom)
-            self.lblSlowmo = Txt.Debug(loc2px(18), 10)
+            self.lblSlowmo = Txt.Debug(loc2pxX(18), 10)
         self.show_logo()
 
     @property
