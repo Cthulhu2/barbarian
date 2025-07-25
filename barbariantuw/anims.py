@@ -497,10 +497,10 @@ def barb(subdir: str):
             Frame(f'{subdir}/retourne3.gif', tick=19, mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/retourne3.gif', tick=24, mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/retourne3.gif', tick=29,               ),  # noqa
-            Frame(f'{subdir}/protegeH.gif',  tick=33,               ),  # noqa
-            Frame(f'{subdir}/cou2.gif',      tick=39,               ),  # noqa
-            Frame(f'{subdir}/cou3.gif',      tick=51,               ),  # noqa
-            Frame(f'{subdir}/cou2.gif',      tick=60,               ),  # noqa
+            Frame(f'{subdir}/protegeH.gif',  tick=33,                               ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      tick=39,                dx=-2 * SCALE_X),  # noqa
+            Frame(f'{subdir}/cou3.gif',      tick=51,                               ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      tick=60,                dx=-3 * SCALE_X),  # noqa
             # @formatter:on
         ],
         'front': [
@@ -740,10 +740,10 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=19, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=24, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=29,                ),  # noqa
-            Frame(f'{subdir}/protegeH.gif',  xflip=True, tick=33, dx=-CHAR_W     ),  # noqa
-            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=39, dx=-CHAR_W     ),  # noqa
-            Frame(f'{subdir}/cou3.gif',      xflip=True, tick=51, dx=-4 * CHAR_W ),  # noqa
-            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60, dx=-CHAR_W     ),  # noqa
+            Frame(f'{subdir}/protegeH.gif',  xflip=True, tick=33,                 dx=-CHAR_W              ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=39,                 dx=-CHAR_W + 2 * SCALE_X),  # noqa
+            Frame(f'{subdir}/cou3.gif',      xflip=True, tick=51,                 dx=-4 * CHAR_W          ),  # noqa
+            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60,                 dx=-CHAR_W + 3 * SCALE_X),  # noqa
             # @formatter:on
         ],
         'front': [
