@@ -95,23 +95,8 @@ class AnimationViewerScene(EmptyScene):
         txt_list[cur_ix].color = Theme.VIEWER_TXT_SELECTED
         return txt_list
 
-    def create_barbarian(self, x, y, rtl=False, anim='debout'):
-        barb = Barbarian(self.opts, x, y, 'spritesA', rtl, anim)
-        barb.available_move = self.available_move
-        return barb
-
-    def available_move(self, dx, dy):
-        if not self.canMove:
-            return 0, dy
-        center_x = self.target.rect.center[0]
-        left = self.target.rect.width / 2
-        right = SCREEN_SIZE[0] - self.target.rect.width / 2
-        if center_x + dx < left:
-            return -(center_x - left), dy
-        elif center_x + dx > right:
-            return right - center_x, dy
-        else:
-            return dx, dy
+    def create_barbarian(self, x, y, rtl=False, anim='debout') -> Barbarian:
+        return Barbarian(self.opts, x, y, 'spritesA', rtl, anim)
 
     def process_event(self, evt):
         super(AnimationViewerScene, self).process_event(evt)
@@ -196,6 +181,13 @@ class AnimationViewerScene(EmptyScene):
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         super().update(*args, **kwargs)
+        if not self.canMove and self.target.frame.move_base:
+            self.target.move(-self.target.frame.move_base[0], 0)
+        elif self.target.rect.left < 0:
+            self.target.move(-self.target.rect.left, 0)
+        elif self.target.rect.right > SCREEN_SIZE[0]:
+            self.target.move(SCREEN_SIZE[0] - self.target.rect.right, 0)
+
         self.frameTxt.msg = (
             f'{self.target.frameNum + 1} / {len(self.target.frames)}'
             f' ({self.target.frame.name})'

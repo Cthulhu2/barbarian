@@ -31,7 +31,7 @@ def get_snd(name: str) -> Sound:
     return snd
 
 
-def px2locX(x: int) -> int:
+def px2locX(x: float) -> int:
     """
     Convert scaled pixel to character location X 40x25 (320x200 mode, 8x8 font).
     :param x: 0..959
@@ -40,7 +40,7 @@ def px2locX(x: int) -> int:
     return int(x / CHAR_W + 1)
 
 
-def px2locY(y: int) -> int:
+def px2locY(y: float) -> int:
     """
     Convert scaled pixel to character location X 40x25 (320x200 mode, 8x8 font).
     :param y: 0..599
@@ -227,7 +227,7 @@ class AnimatedSprite(DirtySprite):
         self.animTimer = get_ticks()
         self.animTick = 0
         self._speed = 1.0
-        self._is_stopped = False
+        self._stopped = False
 
         self.anim = next(iter(self.anims))
         self.frames = self.anims[self.anim]
@@ -242,29 +242,29 @@ class AnimatedSprite(DirtySprite):
         self._update_rect()
 
     @property
-    def x(self):
+    def x(self) -> float:
         return self.top_left[0]
 
     @x.setter
-    def x(self, x):
+    def x(self, x: float):
         if self.top_left[0] != x:
             self.dirty = 1
             self.top_left = (x, self.top_left[1])
             self._update_rect()
 
     @property
-    def y(self) -> int:
+    def y(self) -> float:
         return self.top_left[1]
 
     @y.setter
-    def y(self, y: int):
+    def y(self, y: float):
         if self.top_left[1] != y:
             self.dirty = 1
             self.top_left = (self.top_left[0], y)
             self._update_rect()
 
     @property
-    def speed(self):
+    def speed(self) -> float:
         return self._speed
 
     @speed.setter
@@ -274,16 +274,16 @@ class AnimatedSprite(DirtySprite):
         self.frame_tick = self._calc_frame_tick(self.frame.tick)
 
     @property
-    def is_stopped(self):
-        return self._is_stopped
+    def stopped(self) -> bool:
+        return self._stopped
 
-    @is_stopped.setter
-    def is_stopped(self, stopped: bool):
-        self._is_stopped = stopped
+    @stopped.setter
+    def stopped(self, stopped: bool):
+        self._stopped = stopped
 
     def animate(self, anim: str, tick=0):
         if anim in self.anims:
-            self.is_stopped = False
+            self.stopped = False
             self.anim = anim
             self.frames = self.anims[anim]
             self.animTimer = get_ticks()
@@ -296,8 +296,8 @@ class AnimatedSprite(DirtySprite):
             self.visible = False
 
     def set_anim_frame(self, anim: str, frame: int = 0):
-        if not self.is_stopped:
-            self.is_stopped = True
+        if not self.stopped:
+            self.stopped = True
         if not self.visible:
             self.visible = True
         self.anim = anim
@@ -306,17 +306,17 @@ class AnimatedSprite(DirtySprite):
         self.next_frame()
 
     def update(self, current_time, *args):
-        if self.visible and not self.is_stopped and self.speed > 0:
+        if self.visible and not self.stopped and self.speed > 0:
             self.animTick += 1
             if not self.frame.is_tickable:
                 passed = current_time - self.animTimer
-                while not self.is_stopped and passed > self.frame_duration:
+                while not self.stopped and passed > self.frame_duration:
                     # TODO: Rewind mixed frame types
                     passed -= self.frame_duration
                     self.animTimer = current_time
                     self.next_frame()
             else:
-                while not self.is_stopped and self.animTick > self.frame_tick:
+                while not self.stopped and self.animTick > self.frame_tick:
                     self.animTimer = current_time
                     self.next_frame()
 
@@ -337,7 +337,7 @@ class AnimatedSprite(DirtySprite):
 
     def on_post_action(self, anim, action):
         if action == 'stop':
-            self.is_stopped = True
+            self.stopped = True
         elif action == 'kill':
             self.kill()
 
@@ -351,9 +351,7 @@ class AnimatedSprite(DirtySprite):
             if self.frame.post_action:
                 self.on_post_action(self.anim, self.frame.post_action)
             if self.frame.move_base:  # Undo the current frame move_base
-                dx, dy = self.available_move(-self.frame.move_base[0],
-                                             -self.frame.move_base[1])
-                self.move(dx, dy)
+                self.move(-self.frame.move_base[0], -self.frame.move_base[1])
             self.frame = prev
             if self.frame.is_tickable:
                 self.frame_tick = self._calc_frame_tick(self.frame.tick)
@@ -374,10 +372,10 @@ class AnimatedSprite(DirtySprite):
             self.animTick = 1
         next_ = self.frames[self.frameNum]
         if self.frame != next_ or len(self.frames) == 1:
-            if self.frame and self.frame.post_action and not self.is_stopped:
+            if self.frame and self.frame.post_action and not self.stopped:
                 cur_anim = self.anim
                 self.on_post_action(self.anim, self.frame.post_action)
-                if cur_anim != self.anim or self.is_stopped:
+                if cur_anim != self.anim or self.stopped:
                     # Animation changed or stopped, don't process next frame
                     return
 
@@ -388,9 +386,7 @@ class AnimatedSprite(DirtySprite):
                 self.frame_duration = self._calc_duration(self.frame.duration)
             self.image = self.frame.image
             if self.frame.move_base:
-                dx, dy = self.available_move(self.frame.move_base[0],
-                                             self.frame.move_base[1])
-                self.move(dx, dy)
+                self.move(self.frame.move_base[0], self.frame.move_base[1])
             self._update_rect()
             if self.frame.pre_action:
                 self.on_pre_action(self.anim, self.frame.pre_action)
@@ -400,10 +396,6 @@ class AnimatedSprite(DirtySprite):
         self.rect.size = self.frame.rect.size
         self.rect.topleft = self.top_left
         self.rect.move_ip(self.frame.rect.x, self.frame.rect.y)
-
-    @staticmethod
-    def available_move(dx, dy):
-        return dx, dy
 
     def move(self, dx, dy):
         self.top_left = (self.top_left[0] + dx, self.top_left[1] + dy)
@@ -1383,7 +1375,7 @@ class Barbarian(AnimatedSprite):
         self.gestion_touche1(temps)
 
     def gestion_tombe(self, temps, opponent: 'Barbarian'):
-        self.xAttA = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.attente = 0
         self.reset_xX_back()
         self.reset_yX()
@@ -1497,7 +1489,7 @@ class Barbarian(AnimatedSprite):
 
     # endregion gestions
 
-    @AnimatedSprite.speed.getter
+    @property
     def speed(self):
         # noinspection PyArgumentList
         return AnimatedSprite.speed.fget(self)
@@ -1515,7 +1507,7 @@ class Barbarian(AnimatedSprite):
             s.kill()
 
     def animate_football(self, temps):
-        if self.teteSprite.is_stopped:
+        if self.teteSprite.stopped:
             self.reftemps = temps
             self.snd_play('tete2.ogg')
             self.teteSprite.top_left = self.teteSprite.rect.topleft
@@ -1524,8 +1516,8 @@ class Barbarian(AnimatedSprite):
             self.teteOmbreSprite.animate('football')
 
     def stop_football(self):
-        self.teteSprite.is_stopped = True
-        self.teteOmbreSprite.is_stopped = True
+        self.teteSprite.stopped = True
+        self.teteOmbreSprite.stopped = True
         self.teteSprite.kill()
         self.teteOmbreSprite.kill()
 
@@ -1658,7 +1650,7 @@ class Sorcier(AnimatedSprite):
             self.feu.animate('feu_low', self.animTick)
 
         elif temps == self.reftemps + 1:
-            if self.is_stopped or self.anim != 'attaque':
+            if self.stopped or self.anim != 'attaque':
                 self.animate('attaque', 1)
                 self.xAtt = self.x_loc()
                 self.yAtt = YT

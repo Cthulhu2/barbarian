@@ -722,7 +722,7 @@ class Battle(EmptyScene):
             if mort.teteSprite.alive():
                 if gnome.rect.right >= mort.teteSprite.rect.center[0]:
                     mort.animate_football(self.temps)
-                if not mort.teteSprite.is_stopped:
+                if not mort.teteSprite.stopped:
                     if self.temps == mort.reftemps + 38:
                         self.snd_play('tete.ogg')
                     elif self.temps == mort.reftemps + 83:
