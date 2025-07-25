@@ -117,7 +117,6 @@ class BarbarianMain(object):
         scenes.Game.Demo = True
         scenes.Game.IA = 4
         scenes.Game.Partie = "solo"
-        scenes.Game.Sorcier = False
         self.start_battle()
 
     def start_battle_solo(self):
@@ -127,7 +126,6 @@ class BarbarianMain(object):
         scenes.Game.Demo = False
         scenes.Game.IA = 0
         scenes.Game.Partie = "solo"
-        scenes.Game.Sorcier = False
         self.start_battle()
 
     def start_battle_duel(self):
@@ -137,7 +135,6 @@ class BarbarianMain(object):
         scenes.Game.IA = 0
         scenes.Game.Partie = "vs"
         scenes.Game.Chronometre = 60
-        scenes.Game.Sorcier = False
         self.scene = scenes.SelectStage(self.opts,
                                         on_start=self.start_battle,
                                         on_back=self.show_menu)

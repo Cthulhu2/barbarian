@@ -12,7 +12,7 @@ from pygame.time import get_ticks
 from pygame.transform import scale
 
 import barbariantuw.anims as anims
-from barbariantuw.anims import get_img, rtl_anims
+from barbariantuw.anims import get_img
 from barbariantuw.settings import (
     FONT, SND_PATH, Theme, CHAR_H, CHAR_W, FRAME_RATE
 )
@@ -1564,17 +1564,11 @@ class Barbarian(AnimatedSprite):
 
 
 class Sorcier(AnimatedSprite):
-    def __init__(self, opts, x, y, rtl=False, anim='idle'):
+    def __init__(self, opts, x, y, anim='debout'):
         super().__init__((x, y), anims.sorcier())
         self.opts = opts
-        self.rtl = rtl
+        self.rtl = False
         self.animate(anim)
-        self.ltr_anims = self.anims
-        self.rtl_anims = rtl_anims(self.anims)
-        #
-        self.clavierX = 7
-        self.clavierY = 7
-        self.attaque = False
         #
         self.yAtt = YT
         self.xAtt = 6
@@ -1590,7 +1584,6 @@ class Sorcier(AnimatedSprite):
         self.vie = 0
         self.bonus = False
         self.reftemps = 0
-        self.attente = 1
         self.occupe = False
         self.sortie = False
         self.levier: Levier = Levier.neutre
@@ -1614,6 +1607,9 @@ class Sorcier(AnimatedSprite):
         super().kill()
         self.feu.kill()
 
+    def degat(self, opponent: Barbarian) -> bool:
+        return opponent.x_loc() <= self.x_loc() + 4
+
     def gestion_debout(self):
         if self.anim != 'debout':
             self.set_anim_frame('debout', 0)
@@ -1623,7 +1619,10 @@ class Sorcier(AnimatedSprite):
                 soncling: iter, songrogne: iter, sontouche: iter,
                 is_ai: bool):
 
-        if self.state == State.sorcier:
+        if self.state == State.debout:
+            self.gestion_debout()
+
+        elif self.state == State.sorcier:
             self.gestion_sorcier(temps)
 
     def gestion_sorcier(self, temps):

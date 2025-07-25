@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from itertools import cycle
-from typing import Union
 
 from pygame import Surface
 from pygame.locals import *
@@ -12,7 +11,7 @@ from barbariantuw.settings import (
 )
 from barbariantuw.sprites import (
     get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2pxX, loc2pxY, loc, State, Levier, Sorcier, Rectangle, px2locX,
+    loc2pxX, loc2pxY, loc, State, Levier, Sorcier, Rectangle,
 )
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
@@ -23,13 +22,11 @@ class Game:  # Mutable options
     Country = 'europe'  # USA, europe
     Decor = 'foret'  # foret, plaine, trone, arene
     Partie = 'solo'  # solo, vs
-    Sorcier = False
     Demo = False
     IA = 0
     Chronometre = 0
     ScoreA = 0
     ScoreB = 0
-    Rtl = False
 
 
 class EmptyScene(LayeredDirty):
@@ -292,6 +289,8 @@ class Battle(EmptyScene):
     chrono: int = 0
     chronoOn: bool = False
     entree: bool = True
+    sorcier: bool = False
+    entreesorcier: bool = False
     lancerintro: bool = True
 
     def __init__(self, opts, *, on_esc, on_next, on_menu):
@@ -356,12 +355,10 @@ class Battle(EmptyScene):
             layer=5)
 
         self.joueurA = Barbarian(opts, loc2pxX(1), loc2pxY(14),
-                                 'spritesA',
-                                 rtl=Game.Rtl)
+                                 'spritesA', rtl=False)
         self.joueurA.infoCoup = 3
         self.joueurB = Barbarian(opts, loc2pxX(36), loc2pxY(14),
-                                 f'spritesB/spritesB{Game.IA}',
-                                 rtl=not Game.Rtl)  # type: Union[Barbarian, Sorcier]
+                                 f'spritesB/spritesB{Game.IA}', rtl=True)
         sz = CHAR_H
         if Game.Partie == 'solo' and not Game.Demo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
@@ -390,7 +387,6 @@ class Battle(EmptyScene):
                                        anims.serpent(), self)
         self.serpentB = AnimatedSprite((275 * SCALE_X, 22 * SCALE_Y),
                                        rtl_anims(anims.serpent()), self)
-        self.entreesorcier = False
         self.temps = 0
         self.tempsfini = False
         self.sense = 'normal'  # inverse
@@ -485,9 +481,9 @@ class Battle(EmptyScene):
             self.gnomeSprite.animate('gnome')
 
     def start_sorcier(self):
-        Game.Sorcier = True
+        self.sorcier = True
         self.sense = 'inverse'
-        self.joueurA.state = State.debout
+        self.joueurA.animate('avance')
         self.joueurA.x = loc2pxX(36)
         if not self.joueurA.rtl:
             self.joueurA.turn_around(True)
@@ -496,7 +492,7 @@ class Battle(EmptyScene):
         self.joueurA.attaque = False
         self.entreesorcier = True
         self.joueurB = Sorcier(self.opts, loc2pxX(7), loc2pxY(14))
-        self.joueurB.occupe_state(State.sorcier, self.temps)
+        self.joueurB.occupe_state(State.debout, self.temps)
         # noinspection PyTypeChecker
         self.add(self.joueurB,
                  StaticSprite((114 * SCALE_X, 95 * SCALE_Y),
@@ -512,7 +508,7 @@ class Battle(EmptyScene):
         ja = self.joueurA
         jb = self.joueurB
         degat = False
-        if Game.Sorcier:
+        if self.sorcier:
             if (ja.x_loc() < 33 and (
                     (jb.yAtt == ja.yT and ja.xT < jb.xAtt <= ja.xT + 2)
                     or (jb.yAtt == ja.yG and ja.xG <= jb.xAtt <= ja.xG + 2)
@@ -524,7 +520,7 @@ class Battle(EmptyScene):
                 return
         else:
             degat = ja.degat(jb)
-        if not degat and not ja.occupe:
+        if not degat and not ja.occupe and not self.entreesorcier:
             self._clavier()
 
     def _clavier(self):
@@ -532,13 +528,6 @@ class Battle(EmptyScene):
         self.joueurA.clavierY = 7
         self.joueurA.levier = Levier.neutre
 
-        if self.entreesorcier:
-            if self.joueurA.x_loc() <= 33:
-                self.entreesorcier = False
-            else:
-                self.joueurA.levier = Levier.gauche
-                self.joueurA.action(self.temps)
-            return
         if not Game.Demo:
             self.joueurA.clavier()
         else:
@@ -608,17 +597,12 @@ class Battle(EmptyScene):
 
     def _joueur2(self):
         # debut joueur 2
-        ja = self.joueurA
-        jb = self.joueurB
-        degat = False
-        if Game.Sorcier:
-            if ja.x_loc() <= jb.x_loc() + 4:
-                self._win()
-                return None
-        else:
-            degat = jb.degat(ja)
+        degat = self.joueurB.degat(self.joueurA)
+        if self.sorcier and degat:
+            self._win()
+            return
 
-        if not degat and not jb.occupe:
+        if not degat and not self.joueurB.occupe:
             self._clavierB()
 
     def _clavierB(self):
@@ -873,6 +857,11 @@ class Battle(EmptyScene):
         elif self.gnome:
             self._gnome()
             return  #
+
+        if self.entreesorcier:
+            if self.joueurA.x_loc() <= 33:
+                self.entreesorcier = False
+                self.joueurB.occupe_state(State.sorcier, self.temps)
 
         self._degats()
         self._gestion()
