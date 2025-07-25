@@ -1446,7 +1446,7 @@ class Barbarian(AnimatedSprite):
             rtl = self.rtl
             if (distance < 5 and rtl) or (distance > 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
-                self.x = loc2pxX(self.x_loc() + abs(6 - distance))
+                self.x = loc2pxX(self.x_loc() + abs(5 - distance))
             if (distance > 5 and rtl) or (distance < 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 5)  # 'marche3' xflip=True
                 self.x = loc2pxX(self.x_loc() - abs(5 - distance))
