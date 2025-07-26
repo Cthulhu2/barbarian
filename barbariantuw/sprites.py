@@ -332,15 +332,6 @@ class AnimatedSprite(DirtySprite):
         else:
             return tick / self.speed
 
-    def on_pre_action(self, anim, action):
-        pass
-
-    def on_post_action(self, anim, action):
-        if action == 'stop':
-            self.stopped = True
-        elif action == 'kill':
-            self.kill()
-
     def prev_frame(self):
         self.frameNum -= 1
         if self.frameNum == -1:
@@ -349,7 +340,7 @@ class AnimatedSprite(DirtySprite):
         prev = self.frames[self.frameNum]
         if self.frame != prev:
             if self.frame.post_action:
-                self.on_post_action(self.anim, self.frame.post_action)
+                self.frame.post_action(self)
             if self.frame.move_base:  # Undo the current frame move_base
                 self.move(-self.frame.move_base[0], -self.frame.move_base[1])
             self.frame = prev
@@ -362,7 +353,7 @@ class AnimatedSprite(DirtySprite):
 
             self._update_rect()
             if self.frame.pre_action:
-                self.on_pre_action(self.anim, self.frame.pre_action)
+                self.frame.pre_action(self)
             self.dirty = 1
 
     def next_frame(self):
@@ -374,7 +365,7 @@ class AnimatedSprite(DirtySprite):
         if self.frame != next_ or len(self.frames) == 1:
             if self.frame and self.frame.post_action and not self.stopped:
                 cur_anim = self.anim
-                self.on_post_action(self.anim, self.frame.post_action)
+                self.frame.post_action(self)
                 if cur_anim != self.anim or self.stopped:
                     # Animation changed or stopped, don't process next frame
                     return
@@ -389,7 +380,7 @@ class AnimatedSprite(DirtySprite):
                 self.move(self.frame.move_base[0], self.frame.move_base[1])
             self._update_rect()
             if self.frame.pre_action:
-                self.on_pre_action(self.anim, self.frame.pre_action)
+                self.frame.pre_action(self)
             self.dirty = 1
 
     def _update_rect(self):
