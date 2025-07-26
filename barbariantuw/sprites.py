@@ -877,7 +877,6 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
         elif temps == self.reftemps + 8:
             self.animate('attente', 8)
-            self.snd_play('attente.ogg')
 
     def gestion_avance(self, temps, opponent: 'Barbarian',
                        soncling: iter, songrogne: iter):
@@ -1033,7 +1032,6 @@ class Barbarian(AnimatedSprite):
 
         elif temps == self.reftemps + 2:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
-            self.snd_play('roule.ogg')
             self.animate('rouladeAV', 2)
 
     def gestion_rouladeAR(self, temps):
@@ -1047,7 +1045,6 @@ class Barbarian(AnimatedSprite):
             self.occupe = False
             self.state = State.debout
         elif temps == self.reftemps + 2:
-            self.snd_play('roule.ogg')
             self.animate('rouladeAR', 2)
 
     def gestion_protegeH1(self, temps):
@@ -1059,7 +1056,6 @@ class Barbarian(AnimatedSprite):
             self.state = State.protegeH
             self.occupe = False
         elif temps == self.reftemps + 2:
-            self.snd_play('protege.ogg')
             self.animate('protegeH', 2)
 
     def gestion_protegeH(self, temps, opponent: 'Barbarian',
@@ -1067,7 +1063,7 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_front()
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yG = YG
-        self.set_anim_frame('protegeH', 1)
+        self.set_anim_frame('protegeH', 2)
         if self.attaque:
             self.occupe_state(State.araignee, temps)
             self.gestion_araignee(temps, opponent, soncling, songrogne)
@@ -1124,7 +1120,6 @@ class Barbarian(AnimatedSprite):
                 self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
 
         elif temps == self.reftemps + 16:
-            self.snd_play('epee.ogg')
             self.yAtt = self.yT
 
         elif temps == self.reftemps + 4:
@@ -1156,7 +1151,6 @@ class Barbarian(AnimatedSprite):
 
         elif temps == self.reftemps + 11:
             self.snd_play(next(songrogne))
-            self.snd_play('epee.ogg')
             self.yAtt = self.yM
 
         elif temps == self.reftemps:
@@ -1185,8 +1179,8 @@ class Barbarian(AnimatedSprite):
                 self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
         elif temps == self.reftemps + 11:
             self.snd_play(next(songrogne))
-            self.snd_play('epee.ogg')
             self.yAtt = self.yG
+
         elif temps == self.reftemps:
             self.animate('genou')
 
@@ -1204,7 +1198,6 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
 
         elif temps == self.reftemps + 21:
-            self.snd_play('epee.ogg')
             if opponent.state == State.araignee:
                 distance = abs(self.x_loc() - opponent.x_loc())
                 # cycle and play cling-sound once (for one player only)
@@ -1215,7 +1208,6 @@ class Barbarian(AnimatedSprite):
 
         elif temps == self.reftemps + 8:
             self.snd_play(next(songrogne))
-            self.snd_play('epee.ogg')
 
         elif temps == self.reftemps:
             self.animate('araignee')
@@ -1279,8 +1271,6 @@ class Barbarian(AnimatedSprite):
         elif temps > self.reftemps + 50:
             self.yAtt = YT
             self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
-        elif temps == self.reftemps + 15:
-            self.snd_play('decapite.ogg')
         elif temps == self.reftemps + 2:
             self.animate('decapite', 2)
 
@@ -1307,7 +1297,6 @@ class Barbarian(AnimatedSprite):
 
         elif temps == self.reftemps + 6:
             self.snd_play(next(songrogne))
-            self.snd_play('epee.ogg')
             self.yAtt = self.yF
 
         elif temps == self.reftemps + 4:
@@ -1392,14 +1381,12 @@ class Barbarian(AnimatedSprite):
         self.on_mort(self)
         self.animate('mort')
         opponent.occupe_state(State.vainqueurKO, temps)
-        self.snd_play('mortKO.ogg')
 
     def gestion_mortedecap(self, temps, opponent: 'Barbarian'):
         if temps == self.reftemps:
             self.on_mort(self)
             self.animate('mortdecap')
             opponent.occupe_state(State.vainqueur, temps)
-            self.snd_play('mortdecap.ogg')
 
     def gestion_vainqueur(self):
         self.xAtt = self.x_loc()
@@ -1620,7 +1607,6 @@ class Sorcier(AnimatedSprite):
 
         elif temps == self.reftemps + 131:
             self.yAtt = YT
-            self.snd_play('feu.ogg')
             # noinspection PyTypeChecker
             self.feu.add(self.groups())
             self.feu.top_left = loc(self.xAtt, self.yAtt)
@@ -1634,7 +1620,6 @@ class Sorcier(AnimatedSprite):
             self.yAtt = YG
 
         elif temps == self.reftemps + 51:
-            self.snd_play('feu.ogg')
             # noinspection PyTypeChecker
             self.feu.add(self.groups())
             self.feu.top_left = loc(self.xAtt, self.yAtt)
