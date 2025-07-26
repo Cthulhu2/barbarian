@@ -584,7 +584,7 @@ class Barbarian(AnimatedSprite):
                                 or rtl and xAtt >= self.xM):
             if self.state == State.protegeD:
                 self.state = State.clingD
-            elif opponent.state in (State.coupdepied, State.rouladeAV):
+            elif opponent.state == State.coupdepied:
                 self.state = State.tombe
             else:
                 self.state = State.touche
@@ -593,7 +593,11 @@ class Barbarian(AnimatedSprite):
 
         if yAtt == self.yG and (ltr and xAtt <= self.xG
                                 or rtl and xAtt >= self.xG):
-            if opponent.state == State.araignee:
+            if (opponent.state == State.genou
+                    and self.state == State.coupdepied
+                    and self.frameNum == 1):  # pied2.gif
+                return False
+            elif opponent.state in (State.araignee, State.rouladeAV):
                 self.state = State.tombe
             elif self.state == State.protegeD:
                 self.state = State.clingD
@@ -975,7 +979,7 @@ class Barbarian(AnimatedSprite):
     def gestion_rouladeAV(self, temps, opponent):
         self.reset_xX_back()
         self.yG = YG
-        self.yAtt = self.yM
+        self.yAtt = self.yG
         self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         self.yT = self.yG
         if self.attaque:
@@ -1226,7 +1230,6 @@ class Barbarian(AnimatedSprite):
         elif temps > self.reftemps + 30:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
         elif temps > self.reftemps + 10:
-            self.xG = self.x_loc() + (3 if self.rtl else 1)
             self.xM = self.x_loc() + (0 if self.rtl else 4)
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
