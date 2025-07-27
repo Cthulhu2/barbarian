@@ -230,11 +230,13 @@ class AnimatedSprite(DirtySprite):
         self._stopped = False
 
         self.anim = next(iter(self.anims))
-        self.frames = self.anims[self.anim]
+        self.frames = self.anims[self.anim].frames
         self.frameNum = 0
         self.frame = self.frames[self.frameNum]
         self.frame_duration = self.frame.duration
         self.frame_tick = self.frame.tick
+
+        self.actions = self.anims[self.anim].actions
 
         self.image = self.frame.image
         self.rect = Rect(0, 0, 0, 0)
@@ -285,7 +287,7 @@ class AnimatedSprite(DirtySprite):
         if anim in self.anims:
             self.stopped = False
             self.anim = anim
-            self.frames = self.anims[anim]
+            self.frames = self.anims[anim].frames
             self.animTimer = get_ticks()
             self.animTick = tick
             self.frameNum = -1
@@ -301,15 +303,15 @@ class AnimatedSprite(DirtySprite):
         if not self.visible:
             self.visible = True
         self.anim = anim
-        self.frames = self.anims[anim]
+        self.frames = self.anims[anim].frames
         self.frameNum = frame - 1
         self.next_frame()
 
     def update(self, current_time, *args):
         if self.visible and not self.stopped and self.speed > 0:
             self.animTick += 1
+            passed = current_time - self.animTimer
             if not self.frame.is_tickable:
-                passed = current_time - self.animTimer
                 while not self.stopped and passed > self.frame_duration:
                     # TODO: Rewind mixed frame types
                     passed -= self.frame_duration
@@ -611,7 +613,7 @@ class Barbarian(AnimatedSprite):
 
     def turn_around(self, rtl):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
-        self.frames = self.anims[self.anim]
+        self.frames = self.anims[self.anim].frames
         self.frame = self.frames[self.frameNum]
         self.rtl = rtl
         self._update_rect()
