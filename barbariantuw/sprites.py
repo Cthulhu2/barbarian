@@ -602,11 +602,7 @@ class Barbarian(AnimatedSprite):
 
         if yAtt == self.yG and (ltr and xAtt <= self.xG
                                 or rtl and xAtt >= self.xG):
-            if (opponent.state == State.genou
-                    and self.state == State.coupdepied
-                    and self.frameNum == 1):  # pied2.gif
-                return False
-            elif opponent.state in (State.araignee, State.rouladeAV):
+            if opponent.state in (State.araignee, State.rouladeAV):
                 self.state = State.tombe
             elif self.state == State.protegeD:
                 self.state = State.clingD
@@ -1187,7 +1183,10 @@ class Barbarian(AnimatedSprite):
                     self.snd_play(next(soncling))
             else:
                 self.xG = self.x_loc() + (4 if self.rtl else 0)
-                self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+                # no attack genou<>coupdepied (pied2.gif)
+                if not (opponent.state == State.coupdepied
+                        and opponent.frameNum == 1):
+                    self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
         elif temps == self.reftemps + 11:
             self.snd_play(next(songrogne))
             self.yAtt = self.yG
@@ -1241,9 +1240,9 @@ class Barbarian(AnimatedSprite):
             self.xAtt = self.x_loc() + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
             self.xM = self.x_loc() + (4 if self.rtl else 0)
-            if opponent.state == State.coupdepied and (7 < temps - opponent.reftemps < 11):
-                pass  # do no attack
-            else:
+            # no attack coupdepied<>coupdepied
+            if not (opponent.state == State.coupdepied
+                    and (7 < temps - opponent.reftemps < 11)):
                 self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
         elif temps > self.reftemps + 1:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
@@ -1612,7 +1611,7 @@ class Sorcier(AnimatedSprite):
         elif temps == self.reftemps + 171:
             self.xAtt = 6
 
-        elif self.reftemps + 135 < temps < self.reftemps + 170:
+        elif 135 < temps - self.reftemps < 170:
             self.xAtt = px2locX(self.feu.x)
 
         elif temps == self.reftemps + 131:
@@ -1625,7 +1624,7 @@ class Sorcier(AnimatedSprite):
         elif temps == self.reftemps + 91:
             self.xAtt = 6
 
-        elif self.reftemps + 55 < temps < self.reftemps + 90:
+        elif 55 < temps - self.reftemps < 90:
             self.xAtt = px2locX(self.feu.x)
             self.yAtt = YG
 
