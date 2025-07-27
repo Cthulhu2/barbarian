@@ -1,16 +1,18 @@
+from dataclasses import dataclass, field
 from os.path import join
-from typing import Dict, List, Callable, Optional
+from typing import Dict, List, Callable, Tuple
 
-from pygame import Surface, image
+from pygame import Surface, image, Rect
 from pygame.transform import scale, rotate, flip
+from pygame.typing import ColorLike
 
 from barbariantuw.settings import IMG_PATH, SCALE_X, SCALE_Y, CHAR_W, CHAR_H
 
 img_cache: Dict[int, Surface] = {}
 
 
-def get_img(name, w=0, h=0, angle=0, xflip=False, fill=None, blend_flags=0,
-            color=None) -> Surface:
+def get_img(name, w=0, h=0, angle: float = 0, xflip=False,
+            fill=None, blend_flags=0, color=None) -> Surface:
     key_ = sum((hash(name), hash(w), hash(h), hash(angle), hash(xflip),
                 hash(fill), hash(blend_flags), hash(color)))
 
@@ -50,45 +52,42 @@ def get_img(name, w=0, h=0, angle=0, xflip=False, fill=None, blend_flags=0,
 Action = Callable[['AnimatedSprite'], None]
 
 
-class Frame(object):
-    __slots__ = ('rect', 'duration', 'image', 'move_base', 'name',
-                 'dx', 'dy', 'w', 'h', 'angle',
-                 'xflip', 'fill', 'blend_flags',
-                 'pre_action', 'post_action', 'tick', 'is_tickable')
+@dataclass(slots=True, frozen=True)
+class Frame:
+    """
+    `tick` end tick. A next tick will apply a next frame.
+    """
+    name: str
+    dx: float = 0
+    dy: float = 0
+    w: int = 0
+    h: int = 0
+    duration: int = 125
+    angle: float = 0
+    xflip: bool = False
+    fill: ColorLike = None
+    blend_flags: int = 0
+    mv: Tuple[float, float] = None
+    pre_action: Action = None
+    post_action: Action = None
+    tick: int = -1
+    colorkey: ColorLike = None
+    is_tickable: bool = field(init=False, compare=False)
+    image: Surface = field(init=False, compare=False)
+    rect: Rect = field(init=False, compare=False)
 
-    def __init__(self, name, dx=0, dy=0, w=0, h=0,
-                 duration=125, angle=0, xflip=False,
-                 fill=None, blend_flags=None, mv=None,
-                 pre_action: Optional[Action] = None,
-                 post_action: Optional[Action] = None,
-                 tick=-1, colorkey=None):
-        """
-        `tick` end tick. A next tick will apply a next frame.
-        """
-        self.duration = duration
-        self.tick = tick
-        self.is_tickable = (tick >= 0)
-        self.image = get_img(name, w, h, angle, xflip,
-                             fill, blend_flags, colorkey)
-        self.rect = self.image.get_rect().move(dx, dy)
-        self.move_base = mv
-        #
-        self.name = name
-        self.dx = dx
-        self.dy = dy
-        self.w = w
-        self.h = h
-        self.angle = angle
-        self.xflip = xflip
-        self.fill = fill
-        self.blend_flags = blend_flags
-        self.pre_action = pre_action
-        self.post_action = post_action
+    def __post_init__(self):
+        super(Frame, self).__setattr__('is_tickable', self.tick >= 0)
+        super(Frame, self).__setattr__(
+            'image', get_img(self.name, self.w, self.h, self.angle, self.xflip,
+                             self.fill, self.blend_flags, self.colorkey))
+        super(Frame, self).__setattr__(
+            'rect', self.image.get_rect().move(self.dx, self.dy))
 
     def rtl(self):
         move_base = None
-        if self.move_base:
-            move_base = (-self.move_base[0], self.move_base[1])
+        if self.mv:
+            move_base = (-self.mv[0], self.mv[1])
 
         return Frame(self.name, -self.dx, self.dy, self.w, self.h,
                      self.duration, -self.angle, not self.xflip, self.fill,
@@ -96,21 +95,21 @@ class Frame(object):
                      self.pre_action, self.post_action)
 
 
-class Act(object):
-    __slots__ = ('tick', 'time', 'actions')
+@dataclass(slots=True, frozen=True)
+class Act:
+    actions: List[Action]
+    tick: int = -1
+    time: int = -1
+    is_tickable: bool = field(init=False, compare=False)
 
-    def __init__(self, tick=-1, time=-1, actions=None):
-        self.tick = tick
-        self.time = time
-        self.actions = actions
+    def __post_init__(self):
+        super(Act, self).__setattr__('is_tickable', self.tick >= 0)
 
 
-class Animation(object):
-    __slots__ = ('frames', 'actions')
-
-    def __init__(self, frames: List[Frame], actions: Optional[List[Action]] = None):
-        self.frames = frames
-        self.actions = actions
+@dataclass(slots=True, frozen=True)
+class Animation:
+    frames: List[Frame]
+    actions: List[Action] = None
 
 
 class Actions:
