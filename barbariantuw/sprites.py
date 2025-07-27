@@ -1038,9 +1038,7 @@ class Barbarian(AnimatedSprite):
         elif temps == self.reftemps + 14:
             self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
 
-        elif temps > self.reftemps + 10:
-            pass  # do not update xM after reftemps+10
-        elif temps > self.reftemps + 2:
+        elif 2 < temps - self.reftemps < 11:
             self.xM = self.x_loc() + (0 if self.rtl else 4)
 
         elif temps == self.reftemps + 2:

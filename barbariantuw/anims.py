@@ -682,6 +682,7 @@ def barb_rtl(subdir: str):
             # @formatter:off
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=2,  mv=(-CHAR_W, 0), post_action=Actions.snd('roule.ogg')),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=4,                 ),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=7,  mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=10, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif', xflip=True, tick=13, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(-CHAR_W, 0)),  # noqa
