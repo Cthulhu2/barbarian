@@ -1051,27 +1051,26 @@ class Credits(EmptyScene):
             StaticSprite((0, 0), 'menu/team.png'),
             Txt(sz, '     BARBARIAN      ', col, loc(21, 2)),
             Txt(sz, 'the ultimate warrior', col, loc(21, 3)),
-            Txt(sz, '                    ', col, loc(21, 4)),
+            #
             Txt(sz, '  Palace Software   ', col, loc(21, 5)),
             Txt(sz, '         1987       ', col, loc(21, 6)),
             Txt(sz, ' AMIGA 500 version  ', col, loc(21, 7)),
-            Txt(sz, '                    ', col, loc(21, 8)),
+            #
             Txt(sz, 'created and designed', col, loc(21, 9)),
             Txt(sz, '  by STEVE BROWN    ', col, loc(21, 10)),
-            Txt(sz, '                    ', col, loc(21, 11)),
+            #
             Txt(sz, '     programmer     ', col, loc(21, 12)),
             Txt(sz, ' Richard Leinfellner', col, loc(21, 13)),
-            Txt(sz, '                    ', col, loc(21, 14)),
+            #
             Txt(sz, '  assistant artist  ', col, loc(21, 15)),
-            Txt(sz, '                    ', col, loc(21, 16)),
+            #
             Txt(sz, '     GARY CARR      ', col, loc(21, 17)),
-            Txt(sz, '                    ', col, loc(21, 18)),
+            #
             Txt(sz, '     JO WALKER      ', col, loc(21, 19)),
-            Txt(sz, '                    ', col, loc(21, 20)),
+            #
             Txt(sz, '       music        ', col, loc(21, 21)),
             Txt(sz, '   RICHARD JOSEPH   ', col, loc(21, 22)),
-            Txt(sz, '                    ', col, loc(21, 23)),
-            Txt(sz, 'FL clone http://barbarian.1987.free.fr', col, loc(2, 25)),
+            #
         ])
 
     def process_event(self, evt):
