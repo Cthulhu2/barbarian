@@ -29,6 +29,7 @@ import barbariantuw.anims as anims
 import barbariantuw.scenes as scenes
 import barbariantuw.settings as settings
 import barbariantuw.sprites as sprites
+from barbariantuw import OPTS
 from barbariantuw.settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
 from barbariantuw.sprites import Txt, loc2pxX
 
@@ -341,6 +342,8 @@ def option_parser():
 def run():
     (options, args) = option_parser().parse_args()
     options.web = (sys.platform == 'emscripten')
+    for k, v in options.__dict__.items():
+        OPTS.ensure_value(k, v)
     asyncio.run(BarbarianMain(options).main())
 
 

@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import enum
-from os.path import join
 from typing import Tuple, Dict, Callable, Optional, Iterator
 
 from pygame import Rect
 from pygame.font import Font
-from pygame.mixer import Sound
 from pygame.sprite import DirtySprite, AbstractGroup, Group, LayeredDirty
 from pygame.surface import Surface
 from pygame.time import get_ticks
@@ -14,21 +12,8 @@ from pygame.transform import scale
 import barbariantuw.anims as anims
 from barbariantuw.anims import get_img
 from barbariantuw.settings import (
-    FONT, SND_PATH, Theme, CHAR_H, CHAR_W, FRAME_RATE
+    FONT, Theme, CHAR_H, CHAR_W, FRAME_RATE
 )
-
-snd_cache: Dict[int, Sound] = {}
-
-
-def get_snd(name: str) -> Sound:
-    key_ = hash(name)
-
-    if key_ in snd_cache:
-        return snd_cache[key_]
-
-    snd = Sound(join(SND_PATH, name))
-    snd_cache[key_] = snd
-    return snd
 
 
 def px2locX(x: float) -> int:
@@ -570,10 +555,6 @@ class Barbarian(AnimatedSprite):
 
     def avance_levier(self):
         return Levier.gauche if self.rtl else Levier.droite
-
-    def snd_play(self, snd: str):
-        if snd and self.opts.sound:
-            get_snd(snd).play()
 
     def reset_xX(self, offset):
         self.xF = self.xLoc + offset
@@ -1143,7 +1124,7 @@ class Barbarian(AnimatedSprite):
             self.protegeD = True
             self.occupe = False
         elif temps == self.reftemps + 2:
-            self.snd_play('protege.ogg')
+            anims.snd_play('protege.ogg')
 
     def gestion_protegeD(self, temps):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
@@ -1174,7 +1155,7 @@ class Barbarian(AnimatedSprite):
                 # do not attack in same state
                 # cycle and play cling-sound once (for one player only)
                 if not self.rtl:
-                    self.snd_play(next(soncling))
+                    anims.snd_play(next(soncling))
             else:
                 self.xT = self.xLoc + (4 if self.rtl else 0)
                 self.xAtt = self.xLoc + (-3 if self.rtl else 7)
@@ -1183,7 +1164,7 @@ class Barbarian(AnimatedSprite):
             self.yAtt = self.yT
 
         elif temps == self.reftemps + 4:
-            self.snd_play(next(songrogne))
+            anims.snd_play(next(songrogne))
             self.animate('cou', 4)
 
     def gestion_devant(self, temps, opponent: 'Barbarian',
@@ -1204,13 +1185,13 @@ class Barbarian(AnimatedSprite):
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 10 and not self.rtl:
-                    self.snd_play(next(soncling))
+                    anims.snd_play(next(soncling))
             else:
                 self.xM = self.xLoc + (4 if self.rtl else 0)
                 self.xAtt = self.xLoc + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 11:
-            self.snd_play(next(songrogne))
+            anims.snd_play(next(songrogne))
             self.yAtt = self.yM
 
         elif temps == self.reftemps:
@@ -1233,7 +1214,7 @@ class Barbarian(AnimatedSprite):
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
-                    self.snd_play(next(soncling))
+                    anims.snd_play(next(soncling))
             else:
                 self.xG = self.xLoc + (4 if self.rtl else 0)
                 # no attack genou<>coupdepied (pied2.gif)
@@ -1241,7 +1222,7 @@ class Barbarian(AnimatedSprite):
                         and opponent.frameNum == 1):
                     self.xAtt = self.xLoc + (-3 if self.rtl else 7)
         elif temps == self.reftemps + 11:
-            self.snd_play(next(songrogne))
+            anims.snd_play(next(songrogne))
             self.yAtt = self.yG
 
         elif temps == self.reftemps:
@@ -1265,12 +1246,12 @@ class Barbarian(AnimatedSprite):
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
-                    self.snd_play(next(soncling))
+                    anims.snd_play(next(soncling))
             else:
                 self.xAtt = self.xLoc + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 8:
-            self.snd_play(next(songrogne))
+            anims.snd_play(next(songrogne))
 
         elif temps == self.reftemps:
             self.animate('araignee')
@@ -1352,13 +1333,13 @@ class Barbarian(AnimatedSprite):
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
-                    self.snd_play(next(soncling))
+                    anims.snd_play(next(soncling))
             else:
                 self.xF = self.xLoc + (4 if self.rtl else 0)
                 self.xAtt = self.xLoc + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 6:
-            self.snd_play(next(songrogne))
+            anims.snd_play(next(songrogne))
             self.yAtt = self.yF
 
         elif temps == self.reftemps + 4:
@@ -1410,7 +1391,7 @@ class Barbarian(AnimatedSprite):
             self.gestion_mort(temps, opponent)
             return
 
-        self.snd_play(next(sontouche))
+        anims.snd_play(next(sontouche))
 
         self.occupe_state(State.touche1, temps)
         self.decapite = True
@@ -1432,10 +1413,10 @@ class Barbarian(AnimatedSprite):
             return
         if opponent.state == State.coupdetete:
             opponent.on_score(150)
-            self.snd_play('coupdetete.ogg')
+            anims.snd_play('coupdetete.ogg')
         if opponent.state == State.coupdepied:
             opponent.on_score(150)
-            self.snd_play('coupdepied.ogg')
+            anims.snd_play('coupdepied.ogg')
         self.occupe_state(State.tombe1, temps)
         self.gestion_tombe1(temps, opponent)
 
@@ -1505,7 +1486,7 @@ class Barbarian(AnimatedSprite):
             self.occupe = False
         elif temps == self.reftemps + 2:
             if opponent.state != State.coupdetete:
-                self.snd_play('tombe.ogg')
+                anims.snd_play('tombe.ogg')
         elif temps == self.reftemps:
             self.animate('tombe1')
 
@@ -1518,13 +1499,13 @@ class Barbarian(AnimatedSprite):
         else:
             distance = abs(self.xLoc - opponent.xLoc)
             if distance < 12:
-                self.snd_play(next(soncling))
+                anims.snd_play(next(soncling))
             self.state = State.protegeD
 
     def gestion_clingH(self, opponent: 'Barbarian', soncling: iter):
         distance = abs(self.xLoc - opponent.xLoc)
         if distance < 12:
-            self.snd_play(next(soncling))
+            anims.snd_play(next(soncling))
         self.state = State.protegeH
 
     # endregion gestions
@@ -1548,7 +1529,6 @@ class Barbarian(AnimatedSprite):
 
     def animate_football(self):
         if self.teteSprite.stopped:
-            self.snd_play('tete2.ogg')
             self.teteSprite.topleft = self.teteSprite.rect.topleft
             self.teteSprite.animate('football')
             self.teteOmbreSprite.topleft = self.teteOmbreSprite.rect.topleft
@@ -1622,10 +1602,6 @@ class Sorcier(AnimatedSprite):
         self.state: State = State.debout
         self.feu = AnimatedSprite(self.topleft, anims.feu())
         self.feu.layer = 3
-
-    def snd_play(self, snd: str):
-        if snd and self.opts.sound:
-            get_snd(snd).play()
 
     @property
     def xLoc(self):

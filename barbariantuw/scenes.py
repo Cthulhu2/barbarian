@@ -10,12 +10,12 @@ from barbariantuw.settings import (
     Theme, SCREEN_SIZE, SCALE_X, SCALE_Y, CHAR_W, CHAR_H,
 )
 from barbariantuw.sprites import (
-    get_snd, Txt, AnimatedSprite, StaticSprite, Barbarian,
+    Txt, AnimatedSprite, StaticSprite, Barbarian,
     loc2pxX, loc2pxY, loc, State, Levier, Sorcier, Rectangle,
 )
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
-from barbariantuw.anims import get_img, rtl_anims
+from barbariantuw.anims import get_img, rtl_anims, get_snd
 
 
 class Game:  # Mutable options
@@ -407,10 +407,6 @@ class Battle(EmptyScene):
         self.gnome = False
         self.gnomeSprite = AnimatedSprite((0, loc2pxY(20)), anims.gnome())
 
-    def snd_play(self, snd: str):
-        if snd and self.opts.sound:
-            get_snd(snd).play()
-
     def finish(self):
         if self.opts.sound:
             get_snd('mortdecap.ogg').stop()
@@ -720,11 +716,6 @@ class Battle(EmptyScene):
             if mort.teteSprite.alive():
                 if gnome.rect.right >= mort.teteSprite.rect.center[0]:
                     mort.animate_football()
-                if not mort.teteSprite.stopped:
-                    if self.temps == mort.reftemps + 38:
-                        self.snd_play('tete.ogg')
-                    elif self.temps == mort.reftemps + 83:
-                        self.snd_play('tete.ogg')
                 if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
                     mort.stop_football()
         if gnome.alive() and mort.xLoc > MORT_RIGHT_BORDER:
@@ -824,7 +815,7 @@ class Battle(EmptyScene):
             self.joueurX_bonus(jb, ja)
         if self.lancerintro:
             self.lancerintro = False
-            self.snd_play('prepare.ogg')
+            anims.snd_play('prepare.ogg')
 
         if self.entree:
             self.do_entree(ja.xLoc, jb.xLoc)
