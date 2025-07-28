@@ -637,7 +637,7 @@ class Battle(EmptyScene):
         # ***************************************
         # ***********   COLISION   **************
         # ***************************************
-        if (abs(jb.xLoc - ja.xLoc) < 4
+        if (abs(jb.xLoc - ja.xLoc) < 3
                 and not (ja.state == State.saute and jb.state == State.rouladeAV)
                 and not (jb.state == State.saute and ja.state == State.rouladeAV)):
             # pour empecher que A entre dans B
@@ -670,8 +670,8 @@ class Battle(EmptyScene):
         return ((0, 40) if any((self.entree, self.entreesorcier,
                                 joueur.sortie, opponent.sortie)) else
                 (5, 32) if joueur.state == State.retourne else
-                (9, 32) if joueur.rtl else
-                (5, 28))
+                (8, 32) if joueur.rtl else
+                (5, 29))
 
     def on_vieA_changed(self, num):
         self.vieA0.set_frame('vie', max(0, min(6, 6 - num)))

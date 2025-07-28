@@ -1036,7 +1036,7 @@ class Barbarian(AnimatedSprite):
             # finderoulade
             jax = self.xLoc
             jbx = opponent.xLoc
-            if (not self.rtl and jax >= jbx - 2) or (self.rtl and jax <= jbx + 2):
+            if (not self.rtl and jax >= jbx - 1) or (self.rtl and jax <= jbx + 1):
                 self.occupe_state(State.retourne, temps)
                 opponent.occupe_state(State.retourne, temps)
                 self.yAtt = 14
@@ -1054,7 +1054,7 @@ class Barbarian(AnimatedSprite):
                     distance = self.xLoc - opponent.xLoc
                 else:
                     distance = opponent.xLoc - self.xLoc
-                if 4 == distance:  # do not rollout at left half opponent
+                if 3 == distance:  # do not rollout at left half opponent
                     self.animate('rouladeAV-out', self.animTick)
 
         elif temps == self.reftemps + 18:
@@ -1062,14 +1062,14 @@ class Barbarian(AnimatedSprite):
                 self.animate('rouladeAV-out', self.animTick)
 
         elif temps == self.reftemps + 17:
-            self.xAtt = self.xLoc + (-1 if self.rtl else 5)
+            self.xAtt = self.xLoc + (0 if self.rtl else 4)
 
         elif temps == self.reftemps + 15:
             if opponent.state in (State.tombe, State.tombe1):
                 self.animate('rouladeAV-out', self.animTick)
 
         elif temps == self.reftemps + 14:
-            self.xAtt = self.xLoc + (-1 if self.rtl else 5)
+            self.xAtt = self.xLoc + (0 if self.rtl else 4)
 
         elif 2 < temps - self.reftemps < 11:
             self.xM = self.xLoc + (0 if self.rtl else 4)
@@ -1244,7 +1244,7 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
 
         elif temps == self.reftemps + 21:
-            if opponent.state == State.araignee:
+            if opponent.state in (State.araignee, State.devant):
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
