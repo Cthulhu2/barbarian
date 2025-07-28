@@ -222,7 +222,7 @@ class StaticSprite(DirtySprite):
 
 class AnimatedSprite(DirtySprite):
     def __init__(self,
-                 top_left: Tuple[int, int],
+                 topleft: Tuple[float, float],
                  animations: Dict[str, anims.Animation],
                  *groups):
         super().__init__(*groups)
@@ -246,29 +246,40 @@ class AnimatedSprite(DirtySprite):
 
         self.image = self.frame.image
         self.rect = Rect(0, 0, 0, 0)
-        self.top_left = top_left
+        self._topleft = topleft
         self._update_rect()
 
     @property
     def x(self) -> float:
-        return self.top_left[0]
+        return self._topleft[0]
 
     @x.setter
     def x(self, x: float):
-        if self.top_left[0] != x:
+        if self._topleft[0] != x:
             self.dirty = 1
-            self.top_left = (x, self.top_left[1])
+            self._topleft = (x, self._topleft[1])
             self._update_rect()
 
     @property
     def y(self) -> float:
-        return self.top_left[1]
+        return self._topleft[1]
 
     @y.setter
     def y(self, y: float):
-        if self.top_left[1] != y:
+        if self._topleft[1] != y:
             self.dirty = 1
-            self.top_left = (self.top_left[0], y)
+            self._topleft = (self._topleft[0], y)
+            self._update_rect()
+
+    @property
+    def topleft(self) -> Tuple[float, float]:
+        return self._topleft
+
+    @topleft.setter
+    def topleft(self, topleft: Tuple[float, float]):
+        if self._topleft != topleft:
+            self.dirty = 1
+            self._topleft = topleft
             self._update_rect()
 
     @property
@@ -278,8 +289,8 @@ class AnimatedSprite(DirtySprite):
     @speed.setter
     def speed(self, speed: float):
         self._speed = round(min(3.0, max(0.0, speed)), 3)
-        self.frame_duration = self._calc_duration(self.frame.duration)
-        self.frame_tick = self._calc_frame_tick(self.frame.tick)
+        self.frame_duration = self._calc(self.frame.duration)
+        self.frame_tick = self._calc(self.frame.tick)
 
     @property
     def stopped(self) -> bool:
@@ -329,17 +340,11 @@ class AnimatedSprite(DirtySprite):
                 self.animTimer = current_time
                 self.next_frame()
 
-    def _calc_duration(self, duration):
+    def _calc(self, time):
         if self.speed == 0 or self.speed == 1:
-            return duration
+            return time
         else:
-            return duration / self.speed
-
-    def _calc_frame_tick(self, tick):
-        if self.speed == 0 or self.speed == 1:
-            return tick
-        else:
-            return tick / self.speed
+            return time / self.speed
 
     def prev_frame(self):
         self.frameNum -= 1
@@ -354,9 +359,9 @@ class AnimatedSprite(DirtySprite):
                 self.move(-self.frame.mv[0], -self.frame.mv[1])
             self.frame = prev
             if self.frame.is_tickable:
-                self.frame_tick = self._calc_frame_tick(self.frame.tick)
+                self.frame_tick = self._calc(self.frame.tick)
             else:
-                self.frame_duration = self._calc_duration(self.frame.duration)
+                self.frame_duration = self._calc(self.frame.duration)
 
             self.image = self.frame.image
 
@@ -381,9 +386,9 @@ class AnimatedSprite(DirtySprite):
 
             self.frame = next_
             if self.frame.is_tickable:
-                self.frame_tick = self._calc_frame_tick(self.frame.tick)
+                self.frame_tick = self._calc(self.frame.tick)
             else:
-                self.frame_duration = self._calc_duration(self.frame.duration)
+                self.frame_duration = self._calc(self.frame.duration)
             self.image = self.frame.image
             if self.frame.mv:
                 self.move(self.frame.mv[0], self.frame.mv[1])
@@ -394,11 +399,11 @@ class AnimatedSprite(DirtySprite):
 
     def _update_rect(self):
         self.rect.size = self.frame.rect.size
-        self.rect.topleft = self.top_left
+        self.rect.topleft = self.topleft
         self.rect.move_ip(self.frame.rect.x, self.frame.rect.y)
 
     def move(self, dx, dy):
-        self.top_left = (self.top_left[0] + dx, self.top_left[1] + dy)
+        self.topleft = (self.topleft[0] + dx, self.topleft[1] + dy)
         self.rect.move_ip(dx, dy)
         self.dirty = 1
 
@@ -478,15 +483,16 @@ class Barbarian(AnimatedSprite):
         self.opts = opts
         self.rtl = rtl
         #
-        self.sangSprite = AnimatedSprite(self.top_left,
+        self.sangSprite = AnimatedSprite(self.topleft,
                                          anims.sang_decap())
-        self.teteSprite = AnimatedSprite(self.top_left,
+        self.teteSprite = AnimatedSprite(self.topleft,
                                          anims.tete_decap(subdir))
-        self.teteOmbreSprite = AnimatedSprite(self.top_left,
+        self.teteOmbreSprite = AnimatedSprite(self.topleft,
                                               anims.teteombre_decap())
         self.ltr_anims = self.anims
         self.rtl_anims = anims.barb_rtl(subdir)
         self.anims = self.rtl_anims if rtl else self.ltr_anims
+        self._xLoc = px2locX(self.x)
         self.animate(anim)
         #
         self.clavierX = 7
@@ -545,7 +551,7 @@ class Barbarian(AnimatedSprite):
             get_snd(snd).play()
 
     def reset_xX(self, offset):
-        self.xF = self.x_loc() + offset
+        self.xF = self.xLoc + offset
         self.xT = self.xF
         self.xM = self.xF
         self.xG = self.xF
@@ -562,12 +568,35 @@ class Barbarian(AnimatedSprite):
         self.yM = YM
         self.yG = YG
 
-    def x_loc(self):
-        return px2locX(self.x)
+    @property
+    def xLoc(self):
+        return self._xLoc
+
+    @property
+    def x(self):
+        # noinspection PyArgumentList
+        return AnimatedSprite.x.fget(self)
+
+    @x.setter
+    def x(self, x: float):
+        # noinspection PyArgumentList
+        AnimatedSprite.x.fset(self, x)
+        self._xLoc = px2locX(x)
+
+    @property
+    def topleft(self) -> Tuple[float, float]:
+        # noinspection PyArgumentList
+        return AnimatedSprite.topleft.fget(self)
+
+    @topleft.setter
+    def topleft(self, topleft: Tuple[float, float]):
+        # noinspection PyArgumentList
+        AnimatedSprite.topleft.fset(self, topleft)
+        self._xLoc = px2locX(topleft[0])
 
     def degat(self, opponent: 'Barbarian'):
-        ltr = not self.rtl and self.x_loc() < opponent.x_loc()
-        rtl = self.rtl and self.x_loc() > opponent.x_loc()
+        ltr = not self.rtl and self.xLoc < opponent.xLoc
+        rtl = self.rtl and self.xLoc > opponent.xLoc
         yAtt = opponent.yAtt
         xAtt = opponent.xAtt
         if yAtt == self.yF and (ltr and xAtt <= self.xF
@@ -890,7 +919,7 @@ class Barbarian(AnimatedSprite):
     def gestion_avance(self, temps, opponent: 'Barbarian',
                        soncling: iter, songrogne: iter):
         self.reset_xX_front()
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         if self.attaque:
             self.occupe_state(State.devant, temps)
             self.gestion_devant(temps, opponent, soncling, songrogne)
@@ -899,7 +928,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_recule(self, temps):
         self.reset_xX_front()
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         if self.attaque:
             self.occupe_state(State.decapite, temps)
             self.gestion_decapite(temps)
@@ -907,7 +936,7 @@ class Barbarian(AnimatedSprite):
             self.animate('recule')
 
     def gestion_saute(self, temps):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.reset_xX_front()
         self.decapite = False
         self.yG = YT
@@ -921,27 +950,27 @@ class Barbarian(AnimatedSprite):
             self.yG = YG
             self.yM = YM
         elif temps > self.reftemps + 40:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
-            self.xG = self.x_loc() + (0 if self.rtl else 4)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
+            self.xG = self.xLoc + (0 if self.rtl else 4)
         elif temps > self.reftemps + 30:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
-            self.xG = self.x_loc() + (3 if self.rtl else 1)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
+            self.xG = self.xLoc + (3 if self.rtl else 1)
             self.decapite = True
         elif temps > self.reftemps + 13:
-            self.xM = self.x_loc() + (3 if self.rtl else 1)
-            self.xG = self.x_loc() + (3 if self.rtl else 1)
+            self.xM = self.xLoc + (3 if self.rtl else 1)
+            self.xG = self.xLoc + (3 if self.rtl else 1)
         elif temps > self.reftemps + 2:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
-            self.xG = self.x_loc() + (3 if self.rtl else 1)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
+            self.xG = self.xLoc + (3 if self.rtl else 1)
         elif self.anim != 'saute':
             self.animate('saute')
 
     def gestion_assis(self, temps):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-        self.xF = self.x_loc() + (4 if self.rtl else 0)
-        self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (4 if self.rtl else 0)
-        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
+        self.xF = self.xLoc + (4 if self.rtl else 0)
+        self.xT = self.xLoc + (4 if self.rtl else 0)
+        self.xM = self.xLoc + (4 if self.rtl else 0)
+        self.xG = self.xLoc + (0 if self.rtl else 4)
         self.yT = YM
         self.set_anim_frame('assis', 0)
         if temps > self.reftemps + 10:
@@ -952,11 +981,11 @@ class Barbarian(AnimatedSprite):
                        is_ai: bool):
         self.occupe = False
         self.assis = True
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
-        self.xF = self.x_loc() + (4 if self.rtl else 0)
-        self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (0 if self.rtl else 4)
-        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
+        self.xF = self.xLoc + (4 if self.rtl else 0)
+        self.xT = self.xLoc + (4 if self.rtl else 0)
+        self.xM = self.xLoc + (0 if self.rtl else 4)
+        self.xG = self.xLoc + (0 if self.rtl else 4)
         self.set_anim_frame('assis', 1)
         if self.attaque and self.levier == Levier.bas:
             self.occupe_state(State.genou, temps)
@@ -966,12 +995,12 @@ class Barbarian(AnimatedSprite):
 
     def gestion_releve(self, temps, opponent: 'Barbarian',
                        soncling: iter, songrogne: iter):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yAtt = 14
-        self.xF = self.x_loc() + (4 if self.rtl else 0)
-        self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (0 if self.rtl else 4)
-        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.xF = self.xLoc + (4 if self.rtl else 0)
+        self.xT = self.xLoc + (4 if self.rtl else 0)
+        self.xM = self.xLoc + (0 if self.rtl else 4)
+        self.xG = self.xLoc + (0 if self.rtl else 4)
         self.yT = YT
         self.set_anim_frame('releve', 0)
         if temps > self.reftemps + 10:
@@ -985,20 +1014,20 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_back()
         self.yG = YG
         self.yAtt = self.yG
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yT = self.yG
         if self.attaque:
             self.yT = YT
             self.occupe_state(State.coupdepied, temps)
 
         elif temps > self.reftemps + 38:
-            self.xT = self.x_loc() + (0 if self.rtl else 4)
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xT = self.xLoc + (0 if self.rtl else 4)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
             self.yT = YT
             self.occupe = False
             # finderoulade
-            jax = self.x_loc()
-            jbx = opponent.x_loc()
+            jax = self.xLoc
+            jbx = opponent.xLoc
             if (not self.rtl and jax >= jbx - 2) or (self.rtl and jax <= jbx + 2):
                 self.occupe_state(State.retourne, temps)
                 opponent.occupe_state(State.retourne, temps)
@@ -1014,9 +1043,9 @@ class Barbarian(AnimatedSprite):
         elif temps > self.reftemps + 23:
             if self.anim == 'rouladeAV':
                 if self.rtl:
-                    distance = self.x_loc() - opponent.x_loc()
+                    distance = self.xLoc - opponent.xLoc
                 else:
-                    distance = opponent.x_loc() - self.x_loc()
+                    distance = opponent.xLoc - self.xLoc
                 if 4 == distance:  # do not rollout at left half opponent
                     self.animate('rouladeAV-out', self.animTick)
 
@@ -1025,30 +1054,30 @@ class Barbarian(AnimatedSprite):
                 self.animate('rouladeAV-out', self.animTick)
 
         elif temps == self.reftemps + 17:
-            self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+            self.xAtt = self.xLoc + (-1 if self.rtl else 5)
 
         elif temps == self.reftemps + 15:
             if opponent.state in (State.tombe, State.tombe1):
                 self.animate('rouladeAV-out', self.animTick)
 
         elif temps == self.reftemps + 14:
-            self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+            self.xAtt = self.xLoc + (-1 if self.rtl else 5)
 
         elif 2 < temps - self.reftemps < 11:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
 
         elif temps == self.reftemps + 2:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
             self.animate('rouladeAV', 2)
 
     def gestion_rouladeAR(self, temps):
         self.reset_xX_back()
         self.yG = YG
         self.yAtt = self.yG
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         if temps > self.reftemps + 33:
-            self.xT = self.x_loc() + (0 if self.rtl else 4)
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xT = self.xLoc + (0 if self.rtl else 4)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
             self.occupe = False
             self.state = State.debout
         elif temps == self.reftemps + 2:
@@ -1056,7 +1085,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_protegeH1(self, temps):
         self.reset_xX_front()
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
         if temps > self.reftemps + 5:
             self.protegeH = True
@@ -1068,7 +1097,7 @@ class Barbarian(AnimatedSprite):
     def gestion_protegeH(self, temps, opponent: 'Barbarian',
                          soncling: iter, songrogne: iter):
         self.reset_xX_front()
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
         self.set_anim_frame('protegeH', 2)
         if self.attaque:
@@ -1076,7 +1105,7 @@ class Barbarian(AnimatedSprite):
             self.gestion_araignee(temps, opponent, soncling, songrogne)
 
     def gestion_protegeD1(self, temps):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
         self.reset_xX_front()
         self.decapite = False
@@ -1092,7 +1121,7 @@ class Barbarian(AnimatedSprite):
             self.snd_play('protege.ogg')
 
     def gestion_protegeD(self, temps):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
         self.reset_xX_front()
         self.decapite = False
@@ -1112,19 +1141,19 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
 
         elif temps > self.reftemps + 31:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
 
         elif temps == self.reftemps + 31:
             if (opponent.state == State.cou
-                    and abs(self.x_loc() - opponent.x_loc()) < 12
+                    and abs(self.xLoc - opponent.xLoc) < 12
                     and (30 < temps - opponent.reftemps <= 45)):
                 # do not attack in same state
                 # cycle and play cling-sound once (for one player only)
                 if not self.rtl:
                     self.snd_play(next(soncling))
             else:
-                self.xT = self.x_loc() + (4 if self.rtl else 0)
-                self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+                self.xT = self.xLoc + (4 if self.rtl else 0)
+                self.xAtt = self.xLoc + (-3 if self.rtl else 7)
 
         elif temps == self.reftemps + 16:
             self.yAtt = self.yT
@@ -1143,18 +1172,18 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
 
         elif temps > self.reftemps + 21:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
 
         elif temps == self.reftemps + 21:
             if (opponent.state == State.devant
                     and (20 < temps - opponent.reftemps <= 30)):
-                distance = abs(self.x_loc() - opponent.x_loc())
+                distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 10 and not self.rtl:
                     self.snd_play(next(soncling))
             else:
-                self.xM = self.x_loc() + (4 if self.rtl else 0)
-                self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
+                self.xM = self.xLoc + (4 if self.rtl else 0)
+                self.xAtt = self.xLoc + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 11:
             self.snd_play(next(songrogne))
@@ -1165,28 +1194,28 @@ class Barbarian(AnimatedSprite):
 
     def gestion_genou(self, temps, opponent: 'Barbarian',
                       soncling: iter, songrogne: iter):
-        self.xF = self.x_loc() + (4 if self.rtl else 0)
-        self.xT = self.x_loc() + (4 if self.rtl else 0)
-        self.xM = self.x_loc() + (0 if self.rtl else 4)
-        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.xF = self.xLoc + (4 if self.rtl else 0)
+        self.xT = self.xLoc + (4 if self.rtl else 0)
+        self.xM = self.xLoc + (0 if self.rtl else 4)
+        self.xG = self.xLoc + (0 if self.rtl else 4)
         self.yG = YG
         if temps > self.reftemps + 45:
             self.occupe = False
             self.state = State.assis2
         elif temps > self.reftemps + 21:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 20:
             if opponent.state == State.genou:
-                distance = abs(self.x_loc() - opponent.x_loc())
+                distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
                     self.snd_play(next(soncling))
             else:
-                self.xG = self.x_loc() + (4 if self.rtl else 0)
+                self.xG = self.xLoc + (4 if self.rtl else 0)
                 # no attack genou<>coupdepied (pied2.gif)
                 if not (opponent.state == State.coupdepied
                         and opponent.frameNum == 1):
-                    self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+                    self.xAtt = self.xLoc + (-3 if self.rtl else 7)
         elif temps == self.reftemps + 11:
             self.snd_play(next(songrogne))
             self.yAtt = self.yG
@@ -1196,12 +1225,12 @@ class Barbarian(AnimatedSprite):
 
     def gestion_araignee(self, temps, opponent: 'Barbarian',
                          soncling: iter, songrogne: iter):
-        self.xF = self.x_loc() + (0 if self.rtl else 4)
-        self.xT = self.x_loc() + (0 if self.rtl else 4)
-        self.xM = self.x_loc() + (0 if self.rtl else 4)
-        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.xF = self.xLoc + (0 if self.rtl else 4)
+        self.xT = self.xLoc + (0 if self.rtl else 4)
+        self.xM = self.xLoc + (0 if self.rtl else 4)
+        self.xG = self.xLoc + (0 if self.rtl else 4)
         self.yAtt = YM
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
         if temps > self.reftemps + 32:
             self.occupe = False
@@ -1209,12 +1238,12 @@ class Barbarian(AnimatedSprite):
 
         elif temps == self.reftemps + 21:
             if opponent.state == State.araignee:
-                distance = abs(self.x_loc() - opponent.x_loc())
+                distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
                     self.snd_play(next(soncling))
             else:
-                self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
+                self.xAtt = self.xLoc + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 8:
             self.snd_play(next(songrogne))
@@ -1224,28 +1253,28 @@ class Barbarian(AnimatedSprite):
 
     def gestion_coupdepied(self, temps, opponent):
         self.reset_xX_front()
-        self.xF = self.x_loc() + 2
-        self.xT = self.x_loc() + 2
+        self.xF = self.xLoc + 2
+        self.xT = self.xLoc + 2
         self.yAtt = self.yM
         self.yM = YM
         if temps > self.reftemps + 50:
             self.occupe = False
             self.state = State.debout
-            self.xF = self.x_loc() + (0 if self.rtl else 4)
-            self.xT = self.x_loc() + (0 if self.rtl else 4)
+            self.xF = self.xLoc + (0 if self.rtl else 4)
+            self.xT = self.xLoc + (0 if self.rtl else 4)
         elif temps > self.reftemps + 30:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
         elif temps > self.reftemps + 10:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
-            self.xM = self.x_loc() + (4 if self.rtl else 0)
+            self.xM = self.xLoc + (4 if self.rtl else 0)
             # no attack coupdepied<>coupdepied
             if not (opponent.state == State.coupdepied
                     and (7 < temps - opponent.reftemps < 11)):
-                self.xAtt = self.x_loc() + (-1 if self.rtl else 5)
+                self.xAtt = self.xLoc + (-1 if self.rtl else 5)
         elif temps > self.reftemps + 1:
-            self.xM = self.x_loc() + (0 if self.rtl else 4)
+            self.xM = self.xLoc + (0 if self.rtl else 4)
         elif temps == self.reftemps:
             self.animate('coupdepied')
 
@@ -1256,11 +1285,11 @@ class Barbarian(AnimatedSprite):
             self.occupe = False
             self.state = State.debout
         elif temps > self.reftemps + 20:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 19:
-            self.xAtt = self.x_loc() + (0 if self.rtl else 4)
+            self.xAtt = self.xLoc + (0 if self.rtl else 4)
         elif temps > self.reftemps + 18:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 9:
             self.yAtt = self.yF
         elif temps == self.reftemps:
@@ -1268,18 +1297,18 @@ class Barbarian(AnimatedSprite):
 
     def gestion_decapite(self, temps):
         self.decapite = False
-        self.xF = self.x_loc() + (0 if self.rtl else 4)
-        self.xT = self.x_loc() + 2
-        self.xM = self.x_loc() + (0 if self.rtl else 4)
-        self.xG = self.x_loc() + (0 if self.rtl else 4)
+        self.xF = self.xLoc + (0 if self.rtl else 4)
+        self.xT = self.xLoc + 2
+        self.xM = self.xLoc + (0 if self.rtl else 4)
+        self.xG = self.xLoc + (0 if self.rtl else 4)
         if temps > self.reftemps + 58:
             self.occupe = False
             self.state = State.debout
         elif temps > self.reftemps + 51:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 50:
             self.yAtt = YT
-            self.xAtt = self.x_loc() + (-3 if self.rtl else 7)
+            self.xAtt = self.xLoc + (-3 if self.rtl else 7)
         elif temps == self.reftemps + 2:
             self.animate('decapite', 2)
 
@@ -1292,17 +1321,17 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
 
         elif temps > self.reftemps + 24:
-            self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+            self.xAtt = self.xLoc + (4 if self.rtl else 0)
 
         elif temps == self.reftemps + 24:
             if opponent.state == State.front:
-                distance = abs(self.x_loc() - opponent.x_loc())
+                distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
                     self.snd_play(next(soncling))
             else:
-                self.xF = self.x_loc() + (4 if self.rtl else 0)
-                self.xAtt = self.x_loc() + (-2 if self.rtl else 6)
+                self.xF = self.xLoc + (4 if self.rtl else 0)
+                self.xAtt = self.xLoc + (-2 if self.rtl else 6)
 
         elif temps == self.reftemps + 6:
             self.snd_play(next(songrogne))
@@ -1312,7 +1341,7 @@ class Barbarian(AnimatedSprite):
             self.animate('front', 4)
 
     def gestion_retourne(self, temps):
-        self.xAtt = self.x_loc()
+        self.xAtt = self.xLoc
         self.reset_xX_front()
         self.yAtt = 14
         if temps > self.reftemps + 15:
@@ -1326,7 +1355,7 @@ class Barbarian(AnimatedSprite):
         if self.anim != 'debout':
             self.set_anim_frame('debout', 0)
         self.decapite = True
-        self.xAtt = self.x_loc() + (0 if self.rtl else 4)
+        self.xAtt = self.xLoc + (0 if self.rtl else 4)
         self.yAtt = 14
         self.reset_yX()
         self.reset_xX_front()
@@ -1335,7 +1364,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_touche(self, temps, opponent: 'Barbarian', sontouche: iter):
         self.attente = 0
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.reset_xX_back()
         self.reset_yX()
         if opponent.state == State.coupdepied:
@@ -1364,7 +1393,7 @@ class Barbarian(AnimatedSprite):
         self.gestion_touche1(temps)
 
     def gestion_tombe(self, temps, opponent: 'Barbarian'):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.attente = 0
         self.reset_xX_back()
         self.reset_yX()
@@ -1398,7 +1427,7 @@ class Barbarian(AnimatedSprite):
             opponent.occupe_state(State.vainqueur, temps)
 
     def gestion_vainqueur(self):
-        self.xAtt = self.x_loc()
+        self.xAtt = self.xLoc
         self.yG = YG
         self.yAtt = 14
         self.reset_xX_front()
@@ -1406,7 +1435,7 @@ class Barbarian(AnimatedSprite):
             self.animate('vainqueur')
 
     def gestion_vainqueurKO(self, temps, opponent: 'Barbarian'):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
         self.yAtt = 14
         self.reset_xX_front()
@@ -1421,21 +1450,21 @@ class Barbarian(AnimatedSprite):
             self.animate('vainqueurKO', 51)
 
         elif temps == self.reftemps + 36:
-            distance = abs(self.x_loc() - opponent.x_loc())
+            distance = abs(self.xLoc - opponent.xLoc)
             rtl = self.rtl
             if (distance < 5 and rtl) or (distance > 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 4)  # 'marche3'
-                self.x = loc2pxX(self.x_loc() + abs(5 - distance))
+                self.x = loc2pxX(self.xLoc + abs(5 - distance))
             if (distance > 5 and rtl) or (distance < 5 and not rtl):
                 self.set_anim_frame('vainqueurKO', 5)  # 'marche3' xflip=True
-                self.x = loc2pxX(self.x_loc() - abs(5 - distance))
+                self.x = loc2pxX(self.xLoc - abs(5 - distance))
 
         elif temps == self.reftemps + 8:
             self.animate('vainqueurKO', 8)
 
     def gestion_touche1(self, temps):
         self.attente = 0
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.reset_xX_back()
         if temps > self.reftemps + 20:
             self.occupe = False
@@ -1444,7 +1473,7 @@ class Barbarian(AnimatedSprite):
             self.animate('touche1')
 
     def gestion_tombe1(self, temps, opponent: 'Barbarian'):
-        self.xAtt = self.x_loc() + (4 if self.rtl else 0)
+        self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.attente = 0
         self.reset_xX_back()
         if temps == self.reftemps + 25:
@@ -1463,13 +1492,13 @@ class Barbarian(AnimatedSprite):
             self.occupe_state(State.touche, temps)
             self.gestion_touche(temps, opponent, sontouche)
         else:
-            distance = abs(self.x_loc() - opponent.x_loc())
+            distance = abs(self.xLoc - opponent.xLoc)
             if distance < 12:
                 self.snd_play(next(soncling))
             self.state = State.protegeD
 
     def gestion_clingH(self, opponent: 'Barbarian', soncling: iter):
-        distance = abs(self.x_loc() - opponent.x_loc())
+        distance = abs(self.xLoc - opponent.xLoc)
         if distance < 12:
             self.snd_play(next(soncling))
         self.state = State.protegeH
@@ -1493,13 +1522,12 @@ class Barbarian(AnimatedSprite):
         for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
             s.kill()
 
-    def animate_football(self, temps):
+    def animate_football(self):
         if self.teteSprite.stopped:
-            self.reftemps = temps
             self.snd_play('tete2.ogg')
-            self.teteSprite.top_left = self.teteSprite.rect.topleft
+            self.teteSprite.topleft = self.teteSprite.rect.topleft
             self.teteSprite.animate('football')
-            self.teteOmbreSprite.top_left = self.teteOmbreSprite.rect.topleft
+            self.teteOmbreSprite.topleft = self.teteOmbreSprite.rect.topleft
             self.teteOmbreSprite.animate('football')
 
     def stop_football(self):
@@ -1515,9 +1543,9 @@ class Barbarian(AnimatedSprite):
             # noinspection PyTypeChecker
             gr.add(self.sangSprite, layer=3)
         if self.rtl:
-            self.sangSprite.top_left = (self.x + 1 * CHAR_W, y)
+            self.sangSprite.topleft = (self.x + 1 * CHAR_W, y)
         else:
-            self.sangSprite.top_left = (self.x + 2 * CHAR_W, y)
+            self.sangSprite.topleft = (self.x + 2 * CHAR_W, y)
         self.sangSprite.animate('sang_touche')
 
     def animate(self, anim: str, tick=0):
@@ -1530,11 +1558,11 @@ class Barbarian(AnimatedSprite):
                        layer=3)
             #
             for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
-                s.rect.topleft = self.top_left
-                s.top_left = self.top_left
+                s.rect.topleft = self.topleft
+                s.topleft = self.topleft
             rtl = '_rtl' if self.rtl else ''
             self.sangSprite.animate(f'sang{rtl}')
-            if self.x_loc() > 19:
+            if self.xLoc > 19:
                 self.teteSprite.animate(f'teteagauche{rtl}')
                 self.teteOmbreSprite.animate(f'teteagauche')
             else:
@@ -1547,6 +1575,7 @@ class Sorcier(AnimatedSprite):
         super().__init__((x, y), anims.sorcier())
         self.opts = opts
         self.rtl = False
+        self._xLoc = px2locX(self.x)
         self.animate(anim)
         #
         self.yAtt = YT
@@ -1567,15 +1596,38 @@ class Sorcier(AnimatedSprite):
         self.sortie = False
         self.levier: Levier = Levier.neutre
         self.state: State = State.debout
-        self.feu = AnimatedSprite(self.top_left, anims.feu())
+        self.feu = AnimatedSprite(self.topleft, anims.feu())
         self.feu.layer = 3
 
     def snd_play(self, snd: str):
         if snd and self.opts.sound:
             get_snd(snd).play()
 
-    def x_loc(self):
-        return px2locX(self.x)
+    @property
+    def xLoc(self):
+        return self._xLoc
+
+    @property
+    def x(self):
+        # noinspection PyArgumentList
+        return AnimatedSprite.x.fget(self)
+
+    @x.setter
+    def x(self, x: float):
+        # noinspection PyArgumentList
+        AnimatedSprite.x.fset(self, x)
+        self._xLoc = px2locX(x)
+
+    @property
+    def topleft(self) -> Tuple[float, float]:
+        # noinspection PyArgumentList
+        return AnimatedSprite.topleft.fget(self)
+
+    @topleft.setter
+    def topleft(self, topleft: Tuple[float, float]):
+        # noinspection PyArgumentList
+        AnimatedSprite.topleft.fset(self, topleft)
+        self._xLoc = px2locX(topleft[0])
 
     def occupe_state(self, state: State, temps: int):
         self.state = state
@@ -1587,7 +1639,7 @@ class Sorcier(AnimatedSprite):
         self.feu.kill()
 
     def degat(self, opponent: Barbarian) -> bool:
-        return opponent.x_loc() <= self.x_loc() + 4
+        return opponent.xLoc <= self.xLoc + 4
 
     def gestion_debout(self):
         if self.anim != 'debout':
@@ -1618,7 +1670,7 @@ class Sorcier(AnimatedSprite):
             self.yAtt = YT
             # noinspection PyTypeChecker
             self.feu.add(self.groups())
-            self.feu.top_left = loc(self.xAtt, self.yAtt)
+            self.feu.topleft = loc(self.xAtt, self.yAtt)
             self.feu.animate('feu_high', self.animTick)
 
         elif temps == self.reftemps + 91:
@@ -1631,11 +1683,11 @@ class Sorcier(AnimatedSprite):
         elif temps == self.reftemps + 51:
             # noinspection PyTypeChecker
             self.feu.add(self.groups())
-            self.feu.top_left = loc(self.xAtt, self.yAtt)
+            self.feu.topleft = loc(self.xAtt, self.yAtt)
             self.feu.animate('feu_low', self.animTick)
 
         elif temps == self.reftemps + 1:
             if self.stopped or self.anim != 'attaque':
                 self.animate('attaque', 1)
-                self.xAtt = self.x_loc()
+                self.xAtt = self.xLoc
                 self.yAtt = YT

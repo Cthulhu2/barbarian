@@ -5,7 +5,7 @@ from barbariantuw.sprites import State, Levier, Barbarian
 # ******* Intelligence Artificielle *******
 # *****************************************
 def demo_joueurA(ja: Barbarian, jb: Barbarian, temps):
-    distance = abs(ja.x_loc() - jb.x_loc())
+    distance = abs(ja.xLoc - jb.xLoc)
     if distance >= 15:  # quand trop loin
         ja.occupe_state(State.rouladeAV, temps)
 
@@ -97,7 +97,7 @@ def demo_joueurA(ja: Barbarian, jb: Barbarian, temps):
 
 
 def joueurB(demo: bool, lvl: int, ja: Barbarian, jb: Barbarian, temps):
-    distance = abs(jb.x_loc() - ja.x_loc())
+    distance = abs(jb.xLoc - ja.xLoc)
     # ***************************IA de 1,2,3,6
     if lvl in (0, 1, 2, 3, 6):
         if distance >= 15:

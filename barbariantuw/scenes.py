@@ -509,7 +509,7 @@ class Battle(EmptyScene):
         jb = self.joueurB
         degat = False
         if self.sorcier:
-            if (ja.x_loc() < 33 and (
+            if (ja.xLoc < 33 and (
                     (jb.yAtt == ja.yT and ja.xT < jb.xAtt <= ja.xT + 2)
                     or (jb.yAtt == ja.yG and ja.xG <= jb.xAtt <= ja.xG + 2)
             )):
@@ -639,35 +639,33 @@ class Battle(EmptyScene):
         # ***************************************
         # ***********   COLISION   **************
         # ***************************************
-        jax = ja.x_loc()
-        jbx = jb.x_loc()
-        if (abs(jbx - jax) < 4
+        if (abs(jb.xLoc - ja.xLoc) < 4
                 and not (ja.state == State.saute and jb.state == State.rouladeAV)
                 and not (jb.state == State.saute and ja.state == State.rouladeAV)):
             # pour empecher que A entre dans B
             if (ja.levier == ja.avance_levier()
                     or ja.state in (State.rouladeAV, State.decapite,
                                     State.debout, State.coupdepied)):
-                if ja.xLocPrev != jax:
-                    ja.x = loc2pxX(jax - (-1 if ja.rtl else 1))
+                if ja.xLocPrev != ja.xLoc:
+                    ja.x = loc2pxX(ja.xLoc - (-1 if ja.rtl else 1))
 
             # pour empecher que B entre dans A
             if (jb.levier == jb.avance_levier()
                     or jb.state in (State.rouladeAV, State.decapite,
                                     State.debout, State.coupdepied)):
-                if jb.xLocPrev != jbx:
-                    jb.x = loc2pxX(jbx - (-1 if jb.rtl else 1))
+                if jb.xLocPrev != jb.xLoc:
+                    jb.x = loc2pxX(jb.xLoc - (-1 if jb.rtl else 1))
 
         left, right = self._colision_borders(ja, jb)
-        if jax < left:
+        if ja.xLoc < left:
             ja.x = loc2pxX(left)
-        elif jax > right:
+        elif ja.xLoc > right:
             ja.x = loc2pxX(right)
         #
         left, right = self._colision_borders(jb, ja)
-        if jbx < left:
+        if jb.xLoc < left:
             jb.x = loc2pxX(left)
-        elif jbx > right:
+        elif jb.xLoc > right:
             jb.x = loc2pxX(right)
 
     def _colision_borders(self, joueur: Barbarian, opponent: Barbarian):
@@ -712,16 +710,16 @@ class Battle(EmptyScene):
         if mort.state == State.mort:
             if (gnome.rect.left >= mort.rect.right - CHAR_W
                     and mort.anim != 'mortgnome'):
-                mort.top_left = mort.rect.topleft
+                mort.topleft = mort.rect.topleft
                 mort.animate('mortgnome')
         elif mort.state == State.mortdecap:
             if (gnome.rect.left >= mort.rect.right - CHAR_W
                     and mort.anim != 'mortdecapgnome'):
-                mort.top_left = mort.rect.topleft
+                mort.topleft = mort.rect.topleft
                 mort.animate('mortdecapgnome')
             if mort.teteSprite.alive():
                 if gnome.rect.right >= mort.teteSprite.rect.center[0]:
-                    mort.animate_football(self.temps)
+                    mort.animate_football()
                 if not mort.teteSprite.stopped:
                     if self.temps == mort.reftemps + 38:
                         self.snd_play('tete.ogg')
@@ -729,7 +727,7 @@ class Battle(EmptyScene):
                         self.snd_play('tete.ogg')
                 if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
                     mort.stop_football()
-        if gnome.alive() and mort.x_loc() > MORT_RIGHT_BORDER:
+        if gnome.alive() and mort.xLoc > MORT_RIGHT_BORDER:
             gnome.kill()
             mort.kill()
             if Game.Partie == 'vs':
@@ -816,10 +814,8 @@ class Battle(EmptyScene):
     def update(self, current_time, *args):
         ja = self.joueurA
         jb = self.joueurB
-        jax = self.joueurA.x_loc()
-        jbx = self.joueurB.x_loc()
-        ja.xLocPrev = jax  # for collision
-        jb.xLocPrev = jbx  # for collision
+        ja.xLocPrev = ja.xLoc  # for collision
+        jb.xLocPrev = jb.xLoc  # for collision
         super(Battle, self).update(current_time, *args)
         if self.jeu in ('gagne', 'perdu'):
             return
@@ -827,39 +823,39 @@ class Battle(EmptyScene):
             self.tick_chrono(current_time, ja, jb)
         #
         self.temps += 1
-        self.update_internal(ja, jax, jb, jbx)
+        self.update_internal(ja, jb)
         #
         if self.opts.debug > 1:
             self.debug(ja, jb)
 
-    def update_internal(self, ja, jax, jb, jbx):
+    def update_internal(self, ja, jb):
         if ja.bonus:
-            self.joueurA_bonus(jbx)
+            self.joueurA_bonus(jb.xLoc)
         if jb.bonus:
-            self.joueurB_bonus(jax)
+            self.joueurB_bonus(ja.xLoc)
         if self.lancerintro:
             self.lancerintro = False
             self.snd_play('prepare.ogg')
 
         if self.entree:
-            self.do_entree(jax, jbx)
+            self.do_entree(ja.xLoc, jb.xLoc)
             return  #
         if Game.Demo and self.sense == 'inverse':
             self.on_menu()
             return  #
 
         if ja.sortie:
-            self.check_sortiedA(jax, jbx)
+            self.check_sortiedA(ja.xLoc, jb.xLoc)
             return  #
         elif jb.sortie:
-            self.check_sortiedB(jax, jbx)
+            self.check_sortiedB(ja.xLoc, jb.xLoc)
             return  #
         elif self.gnome:
             self._gnome()
             return  #
 
         if self.entreesorcier:
-            if self.joueurA.x_loc() <= 33:
+            if self.joueurA.xLoc <= 33:
                 self.entreesorcier = False
                 self.joueurB.occupe_state(State.sorcier, self.temps)
 
@@ -877,8 +873,7 @@ class Battle(EmptyScene):
         self.jBlevier.msg = f'BL: {jb.levier}'
         self.jBtemps.msg = f'BT: {jb.reftemps} ({self.temps - jb.reftemps})'
         self.debugTemps.msg = f'T: {self.temps}'
-        distance = abs(jb.x_loc() - ja.x_loc())
-        self.distance.msg = f'A <- {distance:>2} -> B'
+        self.distance.msg = f'A <- {abs(jb.xLoc - ja.xLoc):>2} -> B'
         if self.debugAttArea:
             self.jAAtt.move_to(loc2pxX(ja.xAtt), loc2pxY(ja.yAtt))
             self.jAF.move_to(loc2pxX(ja.xF), loc2pxY(ja.yF))
