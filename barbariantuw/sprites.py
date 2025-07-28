@@ -128,14 +128,14 @@ class Txt(DirtySprite):
                  size: int,
                  msg: str,
                  color: Tuple[int, int, int],
-                 loc: Tuple[int, int] = (0, 0),
+                 pos: Tuple[int, int] = (0, 0),
                  *groups,
                  fnt: str = FONT,
                  cached: bool = True,
                  bgcolor: Tuple[int, int, int] = None):
         super().__init__(*groups)
-        self._x = loc[0]
-        self._y = loc[1]
+        self._x = pos[0]
+        self._y = pos[1]
         self._msg = msg
         self._size = size
         self._font = fnt
@@ -194,7 +194,7 @@ class Txt(DirtySprite):
 
 class StaticSprite(DirtySprite):
     def __init__(self,
-                 loc: Tuple[int, int],
+                 pos: Tuple[int, int],
                  img: str,
                  w=0, h=0, fill=None,
                  color: Tuple[int, int, int] = None,
@@ -202,7 +202,7 @@ class StaticSprite(DirtySprite):
         super().__init__(*groups)
         self.image = get_img(img, w=w, h=h, fill=fill, color=color)
         self.rect = self.image.get_rect()
-        self.rect.move_ip(loc[0], loc[1])
+        self.rect.move_ip(pos[0], pos[1])
 
 
 class AnimatedSprite(DirtySprite):
@@ -1537,10 +1537,11 @@ class Barbarian(AnimatedSprite):
             self.teteOmbreSprite.animate('football')
 
     def stop_football(self):
-        self.teteSprite.stopped = True
-        self.teteOmbreSprite.stopped = True
-        self.teteSprite.kill()
-        self.teteOmbreSprite.kill()
+        if not self.teteSprite.stopped:
+            self.teteSprite.stopped = True
+            self.teteOmbreSprite.stopped = True
+            self.teteSprite.kill()
+            self.teteOmbreSprite.kill()
 
     def animate_sang(self, y):
         if self.sangSprite.alive():

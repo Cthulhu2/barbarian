@@ -19,12 +19,11 @@ from barbariantuw.anims import get_img, rtl_anims, get_snd
 
 
 class Game:  # Mutable options
-    Country = 'europe'  # USA, europe
+    Country = 'Europe'  # USA, Europe
     Decor = 'foret'  # foret, plaine, trone, arene
     Partie = 'solo'  # solo, vs
     Demo = False
     IA = 0
-    Chronometre = 0
     ScoreA = 0
     ScoreB = 0
 
@@ -286,8 +285,9 @@ MORT_RIGHT_BORDER = 34
 
 
 class Battle(EmptyScene):
-    chrono: int = 0
+    chrono: int = 0  # current millisecond
     chronoOn: bool = False
+    chronometre: int = 60  # seconds
     entree: bool = True
     sorcier: bool = False
     entreesorcier: bool = False
@@ -331,6 +331,7 @@ class Battle(EmptyScene):
             if self.opts.debug > 2:
                 self.jAframe = Txt.Debug(loc2pxX(10), self.jAtemps.rect.bottom)
                 self.jBframe = Txt.Debug(loc2pxX(25), self.jBtemps.rect.bottom)
+                # noinspection PyTypeChecker
                 self.add(self.jAframe, self.jBframe, layer=99)
 
             self.jAAtt = area(Theme.RED, 'A', border_width=5)
@@ -373,8 +374,9 @@ class Battle(EmptyScene):
                              self, cached=False)
 
         if Game.Partie == 'vs':
-            self.txtChronometre = Txt(sz, f'{Game.Chronometre:02}',
+            self.txtChronometre = Txt(sz, f'{self.chronometre:02}',
                                       Theme.TXT, loc(20, 8))
+            # noinspection PyTypeChecker
             self.add(self.txtChronometre)
 
         elif Game.Partie == 'solo':
@@ -733,9 +735,9 @@ class Battle(EmptyScene):
             self.chrono = current_time
         elif current_time > self.chrono:
             self.chrono += 1000
-            Game.Chronometre -= 1
-            if Game.Chronometre < 1:
-                Game.Chronometre = 0
+            self.chronometre -= 1
+            if self.chronometre < 1:
+                self.chronometre = 0
                 self.chronoOn = False
                 if Game.Partie == 'vs':
                     ja.sortie = jb.sortie = True
@@ -743,13 +745,13 @@ class Battle(EmptyScene):
                     self.tempsfini = True
                     ja.animate('recule')
                     jb.animate('recule')
-            self.txtChronometre.msg = f'{Game.Chronometre:02}'
+            self.txtChronometre.msg = f'{self.chronometre:02}'
 
     def joueurX_bonus(self, winner: Barbarian, dead: Barbarian):
-        if Game.Chronometre > 0:
+        if self.chronometre > 0:
             winner.on_score(10)
-            Game.Chronometre -= 1
-            self.txtChronometre.msg = f'{Game.Chronometre:02}'
+            self.chronometre -= 1
+            self.txtChronometre.msg = f'{self.chronometre:02}'
         elif dead.xLoc >= MORT_RIGHT_BORDER:
             winner.bonus = False
             winner.sortie = True
@@ -883,7 +885,7 @@ class Version(_MenuBackScene):
         if evt.type != KEYUP:
             return
         elif evt.key == K_1:
-            Game.Country = 'europe'
+            Game.Country = 'Europe'
             self.on_display()
         elif evt.key == K_2:
             Game.Country = 'USA'

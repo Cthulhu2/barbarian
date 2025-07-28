@@ -135,7 +135,6 @@ class BarbarianMain(object):
         scenes.Game.Demo = False
         scenes.Game.IA = 0
         scenes.Game.Partie = "vs"
-        scenes.Game.Chronometre = 60
         self.scene = scenes.SelectStage(self.opts,
                                         on_start=self.start_battle,
                                         on_back=self.show_menu)
@@ -168,7 +167,6 @@ class BarbarianMain(object):
                 scenes.Game.Decor = 'arene'
 
         if scenes.Game.Partie == 'vs':
-            scenes.Game.Chronometre = 60
             if scenes.Game.Decor == 'plaine':
                 scenes.Game.Decor = 'foret'
             elif scenes.Game.Decor == 'foret':
