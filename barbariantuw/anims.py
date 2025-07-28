@@ -980,7 +980,9 @@ def feu():
             Frame('sprites/feu1.gif', tick=87, mv=(0.75 * CHAR_W, 0   * CHAR_H), colorkey=(255, 0, 255)),  # noqa loc 33.5
             Frame('sprites/feu1.gif', tick=88, mv=(0.75 * CHAR_W, 0   * CHAR_H), colorkey=(255, 0, 255)),  # noqa loc 34.25
             Frame('sprites/feu1.gif', tick=89, mv=(0.75 * CHAR_W, 0   * CHAR_H), colorkey=(255, 0, 255)),  # noqa loc 35.0
-            Frame('sprites/feu1.gif', tick=90, mv=(0.75 * CHAR_W, 0   * CHAR_H), colorkey=(255, 0, 255), post_action=Actions.kill),  # noqa
+            Frame('sprites/feu1.gif', tick=90, mv=(0.75 * CHAR_W, 0   * CHAR_H), colorkey=(255, 0, 255)),  # noqa
+            Frame('sprites/feu1.gif', tick=91, mv=(0.75 * CHAR_W, 0   * CHAR_H), colorkey=(255, 0, 255)),  # noqa
+            Frame('sprites/feu1.gif', tick=92, mv=(0.75 * CHAR_W, 0   * CHAR_H), colorkey=(255, 0, 255), post_action=Actions.kill),  # noqa
             # @formatter:on
         ]),
         'feu_high': Animation(frames=[
@@ -1015,7 +1017,9 @@ def feu():
             Frame('sprites/feu1.gif', tick=167, mv=(0.75 * CHAR_W, 0), colorkey=(255, 0, 255)),  # noqa loc 33.5
             Frame('sprites/feu1.gif', tick=168, mv=(0.75 * CHAR_W, 0), colorkey=(255, 0, 255)),  # noqa loc 34.25
             Frame('sprites/feu1.gif', tick=169, mv=(0.75 * CHAR_W, 0), colorkey=(255, 0, 255)),  # noqa loc 35.0
-            Frame('sprites/feu1.gif', tick=170, mv=(0.75 * CHAR_W, 0), colorkey=(255, 0, 255), post_action=Actions.kill),  # noqa
+            Frame('sprites/feu1.gif', tick=170, mv=(0.75 * CHAR_W, 0), colorkey=(255, 0, 255)),  # noqa
+            Frame('sprites/feu1.gif', tick=171, mv=(0.75 * CHAR_W, 0), colorkey=(255, 0, 255)),  # noqa
+            Frame('sprites/feu1.gif', tick=172, mv=(0.75 * CHAR_W, 0), colorkey=(255, 0, 255), post_action=Actions.kill),  # noqa
             # @formatter:on
         ]),
     }

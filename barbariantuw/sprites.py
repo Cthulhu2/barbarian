@@ -1605,6 +1605,8 @@ class Sorcier(AnimatedSprite):
         self.state: State = State.debout
         self.feu = AnimatedSprite(self.topleft, anims.feu())
         self.feu.layer = 3
+        self.sangSprite = AnimatedSprite(self.topleft,
+                                         anims.sang_decap())
 
     @property
     def xLoc(self):
@@ -1642,7 +1644,7 @@ class Sorcier(AnimatedSprite):
         self.feu.kill()
 
     def degat(self, opponent: Barbarian) -> bool:
-        return opponent.xLoc <= self.xLoc + 4
+        return self.xLoc <= opponent.xAtt <= self.xLoc + 1
 
     def gestion_debout(self):
         if self.anim != 'debout':
@@ -1659,11 +1661,19 @@ class Sorcier(AnimatedSprite):
         elif self.state == State.sorcier:
             self.gestion_sorcier(temps)
 
+    def animate_sang(self, y):
+        for gr in self.groups():  # type:LayeredDirty
+            # noinspection PyTypeChecker
+            gr.add(self.sangSprite, layer=3)
+        self.sangSprite.topleft = (self.x + 2 * CHAR_W, y)
+        self.sangSprite.animate('sang_touche')
+        anims.snd_play('touche.ogg')
+
     def gestion_sorcier(self, temps):
-        if temps > self.reftemps + 171:
+        if temps > self.reftemps + 173:
             self.reftemps = temps + 1
 
-        elif temps == self.reftemps + 171:
+        elif temps == self.reftemps + 173:
             self.xAtt = 6
 
         elif 135 < temps - self.reftemps < 170:
@@ -1673,10 +1683,10 @@ class Sorcier(AnimatedSprite):
             self.yAtt = YT
             # noinspection PyTypeChecker
             self.feu.add(self.groups())
-            self.feu.topleft = loc(self.xAtt, self.yAtt)
+            self.feu.topleft = loc(self.xAtt - 2, self.yAtt)
             self.feu.animate('feu_high', self.animTick)
 
-        elif temps == self.reftemps + 91:
+        elif temps == self.reftemps + 93:
             self.xAtt = 6
 
         elif 55 < temps - self.reftemps < 90:
@@ -1686,7 +1696,7 @@ class Sorcier(AnimatedSprite):
         elif temps == self.reftemps + 51:
             # noinspection PyTypeChecker
             self.feu.add(self.groups())
-            self.feu.topleft = loc(self.xAtt, self.yAtt)
+            self.feu.topleft = loc(self.xAtt - 2, self.yAtt)
             self.feu.animate('feu_low', self.animTick)
 
         elif temps == self.reftemps + 1:

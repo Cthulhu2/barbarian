@@ -489,7 +489,7 @@ class Battle(EmptyScene):
         self.joueurA.sortie = False
         self.joueurA.attaque = False
         self.entreesorcier = True
-        self.joueurB = Sorcier(self.opts, loc2pxX(7), loc2pxY(14))
+        self.joueurB = Sorcier(self.opts, loc2pxX(9), loc2pxY(14))
         self.joueurB.occupe_state(State.debout, self.temps)
         # noinspection PyTypeChecker
         self.add(self.joueurB,
@@ -508,8 +508,9 @@ class Battle(EmptyScene):
         degat = False
         if self.sorcier:
             if (ja.xLoc < 33 and (
-                    (jb.yAtt == ja.yT and ja.xT < jb.xAtt <= ja.xT + 2)
+                    (jb.yAtt == ja.yT and ja.xT <= jb.xAtt <= ja.xT + 2)
                     or (jb.yAtt == ja.yG and ja.xG <= jb.xAtt <= ja.xG + 2)
+                    or (jb.yAtt == ja.yM and ja.xM <= jb.xAtt <= ja.xM + 2)
             )):
                 if self.jeu == 'perdu' or ja.state == State.mortSORCIER:
                     return
@@ -578,6 +579,8 @@ class Battle(EmptyScene):
         return bg, txt
 
     def _win(self):
+        self.joueurB.stopped = True
+        self.joueurB.animate_sang(loc2pxX(self.joueurA.yAtt))
         self.joueurB.kill()
         self.joueurB.occupe_state(State.mortSORCIER, self.temps)
         self.joueurA.occupe_state(State.fini, self.temps)
@@ -648,7 +651,7 @@ class Battle(EmptyScene):
                     ja.x = loc2pxX(ja.xLoc - (-1 if ja.rtl else 1))
 
             # pour empecher que B entre dans A
-            if (jb.levier == jb.avance_levier()
+            if (self.sorcier or jb.levier == jb.avance_levier()
                     or jb.state in (State.rouladeAV, State.decapite,
                                     State.debout, State.coupdepied)):
                 if jb.xLocPrev != jb.xLoc:
