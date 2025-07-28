@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import enum
 from os.path import join
-from typing import Tuple, Dict, Callable
+from typing import Tuple, Dict, Callable, Optional, Iterator
 
 from pygame import Rect
 from pygame.font import Font
@@ -221,6 +221,10 @@ class StaticSprite(DirtySprite):
 
 
 class AnimatedSprite(DirtySprite):
+    actions: Optional[Iterator[anims.Act]] = None
+    act: Optional[anims.Act] = None
+    actTick: int = 0
+
     def __init__(self,
                  topleft: Tuple[float, float],
                  animations: Dict[str, anims.Animation],
@@ -239,15 +243,30 @@ class AnimatedSprite(DirtySprite):
         self.frame_duration = self.frame.duration
         self.frame_tick = self.frame.tick
 
-        self.actions = self.anims[self.anim].actions
-        self.act = None
-        if self.actions:
-            self.act = self.actions[0]
-
         self.image = self.frame.image
         self.rect = Rect(0, 0, 0, 0)
         self._topleft = topleft
         self._update_rect()
+
+        self.init_acts()
+
+    def init_acts(self):
+        self.actions = self.anims[self.anim].actions
+        if self.actions:
+            self.actions = iter(self.actions)
+            self.act = next(self.actions)
+            self.actTick = int(self._calc(self.act.tick))
+        else:
+            self.act = None
+            self.actTick = 0
+
+    def call_acts(self):
+        self.act.act(self)
+        self.act = next(self.actions, None)
+        if self.act:
+            self.actTick = self._calc(self.act.tick)
+        else:
+            self.actTick = 0
 
     @property
     def x(self) -> float:
@@ -311,6 +330,9 @@ class AnimatedSprite(DirtySprite):
             self.frame = None
             self.next_frame()
             self.visible = True
+            self.init_acts()
+            while self.act and not self.stopped and self.animTick == self.actTick:
+                self.call_acts()
         else:
             self.visible = False
 
@@ -328,6 +350,8 @@ class AnimatedSprite(DirtySprite):
         if not self.visible or self.stopped or self.speed <= 0:
             return
         self.animTick += 1
+        while self.act and not self.stopped and self.animTick == self.actTick:
+            self.call_acts()
         if self.frame.is_tickable:
             while not self.stopped and self.animTick > self.frame_tick:
                 self.animTimer = current_time
@@ -374,7 +398,8 @@ class AnimatedSprite(DirtySprite):
         self.frameNum += 1
         if self.frameNum == len(self.frames):
             self.frameNum = 0
-            self.animTick = 1
+            self.animTick = 0
+            self.init_acts()
         next_ = self.frames[self.frameNum]
         if self.frame != next_ or len(self.frames) == 1:
             if self.frame and self.frame.post_action and not self.stopped:
@@ -1092,14 +1117,14 @@ class Barbarian(AnimatedSprite):
             self.state = State.protegeH
             self.occupe = False
         elif temps == self.reftemps + 2:
-            self.animate('protegeH', 2)
+            self.animate('protegeH', 1)
 
     def gestion_protegeH(self, temps, opponent: 'Barbarian',
                          soncling: iter, songrogne: iter):
         self.reset_xX_front()
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
-        self.set_anim_frame('protegeH', 2)
+        self.set_anim_frame('protegeH', 1)
         if self.attaque:
             self.occupe_state(State.araignee, temps)
             self.gestion_araignee(temps, opponent, soncling, songrogne)

@@ -97,19 +97,14 @@ class Frame:
 
 @dataclass(slots=True, frozen=True)
 class Act:
-    actions: List[Action]
+    act: Action
     tick: int = -1
-    time: int = -1
-    is_tickable: bool = field(init=False, compare=False)
-
-    def __post_init__(self):
-        super(Act, self).__setattr__('is_tickable', self.tick >= 0)
 
 
 @dataclass(slots=True, frozen=True)
 class Animation:
     frames: List[Frame]
-    actions: List[Action] = None
+    actions: List[Act] = None
 
 
 class Actions:
@@ -393,12 +388,13 @@ def barb(subdir: str):
             Frame(f'{subdir}/debout.gif'),
         ]),
         'attente': Animation(frames=[
-            Frame(f'{subdir}/attente1.gif', tick=8, post_action=Actions.snd('attente.ogg')),
             Frame(f'{subdir}/attente1.gif', tick=15),
             Frame(f'{subdir}/attente2.gif', tick=23),
             Frame(f'{subdir}/attente3.gif', tick=30),
             Frame(f'{subdir}/attente2.gif', tick=37),
             Frame(f'{subdir}/attente1.gif', tick=50),
+        ], actions=[
+            Act(tick=8, act=Actions.snd('attente.ogg'))
         ]),
         'avance': Animation(frames=[
             # @formatter:off
@@ -435,8 +431,7 @@ def barb(subdir: str):
         ]),
         'rouladeAV': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif',             tick=2,  mv=(CHAR_W, 0), post_action=Actions.snd('roule.ogg')),  # noqa
-            Frame(f'{subdir}/roulade1.gif',             tick=4,                ),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=4,  mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=7,  mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=10, mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif',             tick=13, mv=(CHAR_W, 0)),  # noqa
@@ -447,8 +442,10 @@ def barb(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(CHAR_W, 0)),  # noqa
-            Frame(f'{subdir}/debout.gif',               tick=39,               ),  # noqa
+            Frame(f'{subdir}/debout.gif',               tick=40,               ),  # noqa
             # @formatter:on
+        ], actions=[
+            Act(tick=2, act=Actions.snd('roule.ogg'))
         ]),
         'rouladeAV-out': Animation(frames=[
             # non-movable roulade out
@@ -460,12 +457,11 @@ def barb(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34),  # noqa
-            Frame(f'{subdir}/debout.gif',               tick=39),  # noqa
+            Frame(f'{subdir}/debout.gif',               tick=40),  # noqa
             # @formatter:on
         ]),
         'rouladeAR': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=2,  post_action=Actions.snd('roule.ogg')),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=5,  mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif', xflip=True, tick=11, mv=(-CHAR_W, 0)),  # noqa
@@ -475,15 +471,18 @@ def barb(subdir: str):
             Frame(f'{subdir}/roulade2.gif',             tick=23, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif',             tick=26, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=29, mv=(-CHAR_W, 0)),  # noqa
-            Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif',             tick=35, mv=(-CHAR_W, 0)),  # noqa
             # @formatter:on
+        ], actions=[
+            Act(tick=2, act=Actions.snd('roule.ogg'))
         ]),
         'protegeH': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/marche1.gif',  tick=2, mv=(-CHAR_W, 0), post_action=Actions.snd('protege.ogg')),
-            Frame(f'{subdir}/marche1.gif',  tick=5),
+            Frame(f'{subdir}/marche1.gif',  tick=5, mv=(-CHAR_W, 0)),
             Frame(f'{subdir}/protegeH.gif', tick=9, dx=-2 * SCALE_X),
             # @formatter:on
+        ], actions=[
+            Act(tick=2, act=Actions.snd('protege.ogg'))
         ]),
         'protegeD': Animation(frames=[
             Frame(f'{subdir}/protegeH.gif', tick=5, dx=-2 * SCALE_X),
@@ -638,12 +637,13 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/debout.gif', xflip=True),
         ]),
         'attente': Animation(frames=[
-            Frame(f'{subdir}/attente1.gif', xflip=True, tick=8, post_action=Actions.snd('attente.ogg')),
             Frame(f'{subdir}/attente1.gif', xflip=True, tick=15),
             Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-CHAR_W),
             Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-CHAR_W),
             Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-CHAR_W),
             Frame(f'{subdir}/attente1.gif', xflip=True, tick=50),
+        ], actions=[
+            Act(tick=8, act=Actions.snd('attente.ogg'))
         ]),
         'avance': Animation(frames=[
             # @formatter:off
@@ -680,8 +680,7 @@ def barb_rtl(subdir: str):
         ]),
         'rouladeAV': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=2,  mv=(-CHAR_W, 0), post_action=Actions.snd('roule.ogg')),  # noqa
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=4,                 ),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=4,  mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=7,  mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=10, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif', xflip=True, tick=13, mv=(-CHAR_W, 0)),  # noqa
@@ -692,8 +691,10 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-CHAR_W, 0)),  # noqa
-            Frame(f'{subdir}/debout.gif',   xflip=True, tick=39,                ),  # noqa
+            Frame(f'{subdir}/debout.gif',   xflip=True, tick=40,                ),  # noqa
             # @formatter:on
+        ], actions=[
+            Act(tick=2, act=Actions.snd('roule.ogg'))
         ]),
         'rouladeAV-out': Animation(frames=[
             # non-movable roulade out
@@ -705,12 +706,11 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=30),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=34),  # noqa
-            Frame(f'{subdir}/debout.gif',   xflip=True, tick=39),  # noqa
+            Frame(f'{subdir}/debout.gif',   xflip=True, tick=40),  # noqa
             # @formatter:on
         ]),
         'rouladeAR': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif',             tick=2,  post_action=Actions.snd('roule.ogg')),  # noqa
             Frame(f'{subdir}/roulade1.gif',             tick=5,  mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif',             tick=11, mv=(CHAR_W, 0)),  # noqa
@@ -720,15 +720,18 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade2.gif', xflip=True, tick=23, mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade2.gif', xflip=True, tick=26, mv=(CHAR_W, 0)),  # noqa
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=29, mv=(CHAR_W, 0)),  # noqa
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(CHAR_W, 0)),  # noqa
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=35, mv=(CHAR_W, 0)),  # noqa
             # @formatter:on
+        ], actions=[
+            Act(tick=2, act=Actions.snd('roule.ogg'))
         ]),
         'protegeH': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/marche1.gif',  xflip=True, tick=2, mv=(CHAR_W, 0), post_action=Actions.snd('protege.ogg')),
-            Frame(f'{subdir}/marche1.gif',  xflip=True, tick=5),
+            Frame(f'{subdir}/marche1.gif',  xflip=True, tick=5, mv=(CHAR_W, 0)),
             Frame(f'{subdir}/protegeH.gif', xflip=True, tick=9, dx=-CHAR_W + 2 * SCALE_X),
             # @formatter:on
+        ], actions=[
+            Act(tick=2, act=Actions.snd('protege.ogg'))
         ]),
         'protegeD': Animation(frames=[
             Frame(f'{subdir}/protegeH.gif', xflip=True, tick=5, dx=-CHAR_W + 2 * SCALE_X),
