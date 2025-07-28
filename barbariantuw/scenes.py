@@ -559,7 +559,7 @@ class Battle(EmptyScene):
                 self.add(self._center_txt('Your end has come!'))
                 self.jeu = 'perdu'
             elif self.temps == self.joueurA.reftemps:
-                self.joueurB.is_stopped = True
+                self.joueurB.stopped = True
                 self.joueurA.animate('mortSORCIER')
 
     @staticmethod
@@ -579,7 +579,7 @@ class Battle(EmptyScene):
         self.joueurB.kill()
         self.joueurB.occupe_state(State.mortSORCIER, self.temps)
         self.joueurA.occupe_state(State.fini, self.temps)
-        self.joueurA.set_anim_frame('vainqueur', 2)
+        self.joueurA.set_frame('vainqueur', 2)
         self.joueurA.x = loc2pxX(17)
         # noinspection PyTypeChecker
         self.add(
@@ -672,13 +672,13 @@ class Battle(EmptyScene):
                 (5, 28))
 
     def on_vieA_changed(self, num):
-        self.vieA0.set_anim_frame('vie', max(0, min(6, 6 - num)))
-        self.vieA1.set_anim_frame('vie', max(0, min(6, 12 - num)))
+        self.vieA0.set_frame('vie', max(0, min(6, 6 - num)))
+        self.vieA1.set_frame('vie', max(0, min(6, 12 - num)))
         self.serpentA.animate('bite')
 
     def on_vieB_changed(self, num):
-        self.vieB0.set_anim_frame('vie_rtl', max(0, min(6, 6 - num)))
-        self.vieB1.set_anim_frame('vie_rtl', max(0, min(6, 12 - num)))
+        self.vieB0.set_frame('vie_rtl', max(0, min(6, 6 - num)))
+        self.vieB1.set_frame('vie_rtl', max(0, min(6, 12 - num)))
         self.serpentB.animate('bite')
 
     def on_scoreA(self, increment):
@@ -765,8 +765,8 @@ class Battle(EmptyScene):
         if jbx <= 22:
             self.joueurB.x = loc2pxX(22)
         if jax >= 13 or jbx <= 22:
-            self.joueurA.set_anim_frame('debout', 0)
-            self.joueurB.set_anim_frame('debout', 0)
+            self.joueurA.set_frame('debout', 0)
+            self.joueurB.set_frame('debout', 0)
             self.entree = False
             if Game.Partie == 'vs':
                 self.chronoOn = True
