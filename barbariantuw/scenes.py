@@ -754,27 +754,16 @@ class Battle(EmptyScene):
                     jb.animate('recule')
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
 
-    def joueurA_bonus(self, jbx):
+    def joueurX_bonus(self, winner: Barbarian, dead: Barbarian):
         if Game.Chronometre > 0:
-            self.joueurA.on_score(10)
+            winner.on_score(10)
             Game.Chronometre -= 1
             self.txtChronometre.msg = f'{Game.Chronometre:02}'
-        elif jbx >= MORT_RIGHT_BORDER:
-            self.joueurA.bonus = False
-            self.joueurA.sortie = True
-            self.joueurA.occupe = False
-            self.joueurA.animate('recule')
-
-    def joueurB_bonus(self, jax):
-        if Game.Chronometre > 0:
-            self.joueurB.on_score(10)
-            Game.Chronometre -= 1
-            self.txtChronometre.msg = f'{Game.Chronometre:02}'
-        elif jax >= MORT_RIGHT_BORDER:
-            self.joueurB.bonus = False
-            self.joueurB.sortie = True
-            self.joueurB.occupe = False
-            self.joueurB.animate('recule')
+        elif dead.xLoc >= MORT_RIGHT_BORDER:
+            winner.bonus = False
+            winner.sortie = True
+            winner.occupe = False
+            winner.animate('recule')
 
     def do_entree(self, jax, jbx):
         if self.serpentA.anim == 'idle' and jax >= 3:
@@ -830,9 +819,9 @@ class Battle(EmptyScene):
 
     def update_internal(self, ja, jb):
         if ja.bonus:
-            self.joueurA_bonus(jb.xLoc)
+            self.joueurX_bonus(ja, jb)
         if jb.bonus:
-            self.joueurB_bonus(ja.xLoc)
+            self.joueurX_bonus(jb, ja)
         if self.lancerintro:
             self.lancerintro = False
             self.snd_play('prepare.ogg')
