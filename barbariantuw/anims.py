@@ -623,10 +623,10 @@ def barb(subdir: str):
             # @formatter:on
         ]),
         'mortgnome': Animation(frames=[
-            Frame(f'{subdir}/mort4.gif', tick=1, mv=(CHAR_W / 12, 0)),
+            Frame(f'{subdir}/mort4.gif', tick=0, mv=(CHAR_W / 12, 0)),
         ]),
         'mortdecapgnome': Animation(frames=[
-            Frame(f'{subdir}/decap4.gif', tick=1, mv=(CHAR_W / 12, 0)),
+            Frame(f'{subdir}/decap4.gif', tick=0, mv=(CHAR_W / 12, 0)),
         ]),
     }
 
@@ -877,10 +877,10 @@ def barb_rtl(subdir: str):
             # @formatter:on
         ]),
         'mortgnome': Animation(frames=[
-            Frame(f'{subdir}/mort4.gif', xflip=True, tick=1, mv=(CHAR_W / 12, 0)),
+            Frame(f'{subdir}/mort4.gif', xflip=True, tick=0, mv=(CHAR_W / 12, 0)),
         ]),
         'mortdecapgnome': Animation(frames=[
-            Frame(f'{subdir}/decap4.gif', xflip=True, tick=1, mv=(CHAR_W / 12, 0)),
+            Frame(f'{subdir}/decap4.gif', xflip=True, tick=0, mv=(CHAR_W / 12, 0)),
         ]),
         'mortSORCIER': Animation(frames=[
             # @formatter:off

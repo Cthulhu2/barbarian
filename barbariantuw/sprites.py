@@ -1158,8 +1158,7 @@ class Barbarian(AnimatedSprite):
     def gestion_cou(self, temps, opponent: 'Barbarian',
                     soncling: iter, songrogne: iter):
         self.reset_xX_front()
-        self.yG = YG
-        self.yT = YT
+        self.reset_yX()
         self.yAtt = YT
         if temps > self.reftemps + 45:
             self.occupe = False
