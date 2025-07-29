@@ -495,12 +495,9 @@ class Barbarian(AnimatedSprite):
         self.opts = opts
         self.rtl = rtl
         #
-        self.sangSprite = AnimatedSprite(self.topleft,
-                                         anims.sang_decap())
-        self.teteSprite = AnimatedSprite(self.topleft,
-                                         anims.tete_decap(subdir))
-        self.teteOmbreSprite = AnimatedSprite(self.topleft,
-                                              anims.teteombre_decap())
+        self.sang = AnimatedSprite(self.topleft, anims.sang_decap())
+        self.tete = AnimatedSprite(self.topleft, anims.tete_decap(subdir))
+        self.teteOmbre = AnimatedSprite(self.topleft, anims.teteombre_decap())
         self.ltr_anims = self.anims
         self.rtl_anims = anims.barb_rtl(subdir)
         self.anims = self.rtl_anims if rtl else self.ltr_anims
@@ -664,31 +661,15 @@ class Barbarian(AnimatedSprite):
         self.occupe = True
         self.reftemps = temps
 
-    def inc_clavier_x(self):
-        if self.clavierX < 9:
-            self.clavierX += 1
-
-    def dec_clavier_x(self):
-        if self.clavierX > 5:
-            self.clavierX -= 1
-
-    def inc_clavier_y(self):
-        if self.clavierY < 9:
-            self.clavierY += 1
-
-    def dec_clavier_y(self):
-        if self.clavierY > 5:
-            self.clavierY -= 1
-
     def clavier(self):
-        if self.pressedUp:
-            self.dec_clavier_y()
-        if self.pressedDown:
-            self.inc_clavier_y()
-        if self.pressedLeft:
-            self.dec_clavier_x()
-        if self.pressedRight:
-            self.inc_clavier_x()
+        if self.pressedUp and self.clavierY > 5:
+            self.clavierY -= 1
+        if self.pressedDown and self.clavierY < 9:
+            self.clavierY += 1
+        if self.pressedLeft and self.clavierX > 5:
+            self.clavierX -= 1
+        if self.pressedRight and self.clavierX < 9:
+            self.clavierX += 1
         self.attaque = self.pressedFire
 
         if self.clavierX <= 6 and self.clavierY <= 6:
@@ -1044,7 +1025,7 @@ class Barbarian(AnimatedSprite):
             else:
                 self.state = State.debout
                 self.xAtt = jax + (4 if self.rtl else 0)
-                self.yAtt = 17
+                self.yAtt = YT
                 self.reset_xX_front()
                 self.reset_yX()
 
@@ -1416,7 +1397,7 @@ class Barbarian(AnimatedSprite):
         if opponent.state == State.coupdetete:
             opponent.on_score(150)
             anims.snd_play('coupdetete.ogg')
-        if opponent.state == State.coupdepied:
+        elif opponent.state == State.coupdepied:
             opponent.on_score(150)
             anims.snd_play('coupdepied.ogg')
         self.occupe_state(State.tombe1, temps)
@@ -1521,39 +1502,37 @@ class Barbarian(AnimatedSprite):
     def speed(self, speed: float):
         # noinspection PyArgumentList
         AnimatedSprite.speed.fset(self, speed)
-        for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
+        for s in (self.sang, self.tete, self.teteOmbre):
             s.speed = speed
 
     def kill(self):
         super().kill()
-        for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
+        for s in (self.sang, self.tete, self.teteOmbre):
             s.kill()
 
     def animate_football(self):
-        if self.teteSprite.stopped:
-            self.teteSprite.topleft = self.teteSprite.rect.topleft
-            self.teteSprite.animate('football')
-            self.teteOmbreSprite.topleft = self.teteOmbreSprite.rect.topleft
-            self.teteOmbreSprite.animate('football')
+        if self.tete.stopped:
+            self.tete.topleft = self.tete.rect.topleft
+            self.tete.animate('football')
+            self.teteOmbre.topleft = self.teteOmbre.rect.topleft
+            self.teteOmbre.animate('football')
 
     def stop_football(self):
-        if not self.teteSprite.stopped:
-            self.teteSprite.stopped = True
-            self.teteOmbreSprite.stopped = True
-            self.teteSprite.kill()
-            self.teteOmbreSprite.kill()
+        if self.tete.alive():
+            self.tete.kill()
+            self.teteOmbre.kill()
 
     def animate_sang(self, y):
-        if self.sangSprite.alive():
+        if self.sang.alive():
             return
         for gr in self.groups():  # type:LayeredDirty
             # noinspection PyTypeChecker
-            gr.add(self.sangSprite, layer=3)
+            gr.add(self.sang, layer=3)
         if self.rtl:
-            self.sangSprite.topleft = (self.x + 1 * CHAR_W, y)
+            self.sang.topleft = (self.x + 1 * CHAR_W, y)
         else:
-            self.sangSprite.topleft = (self.x + 2 * CHAR_W, y)
-        self.sangSprite.animate('sang_touche')
+            self.sang.topleft = (self.x + 2 * CHAR_W, y)
+        self.sang.animate('sang_touche')
 
     def animate(self, anim: str, tick=0):
         super().animate(anim, tick)
@@ -1561,20 +1540,20 @@ class Barbarian(AnimatedSprite):
         if self.anim == 'mortdecap':
             for gr in self.groups():  # type:LayeredDirty
                 # noinspection PyTypeChecker
-                gr.add(self.sangSprite, self.teteSprite, self.teteOmbreSprite,
+                gr.add(self.sang, self.tete, self.teteOmbre,
                        layer=3)
             #
-            for s in (self.sangSprite, self.teteSprite, self.teteOmbreSprite):
+            for s in (self.sang, self.tete, self.teteOmbre):
                 s.rect.topleft = self.topleft
                 s.topleft = self.topleft
             rtl = '_rtl' if self.rtl else ''
-            self.sangSprite.animate(f'sang{rtl}')
+            self.sang.animate(f'sang{rtl}')
             if self.xLoc > 19:
-                self.teteSprite.animate(f'teteagauche{rtl}')
-                self.teteOmbreSprite.animate(f'teteagauche')
+                self.tete.animate(f'teteagauche{rtl}')
+                self.teteOmbre.animate(f'teteagauche')
             else:
-                self.teteSprite.animate(f'teteadroite{rtl}')
-                self.teteOmbreSprite.animate(f'teteadroite')
+                self.tete.animate(f'teteadroite{rtl}')
+                self.teteOmbre.animate(f'teteadroite')
 
 
 class Sorcier(AnimatedSprite):

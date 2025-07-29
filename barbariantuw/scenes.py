@@ -718,10 +718,10 @@ class Battle(EmptyScene):
                     and mort.anim != 'mortdecapgnome'):
                 mort.topleft = mort.rect.topleft
                 mort.animate('mortdecapgnome')
-            if mort.teteSprite.alive():
-                if gnome.rect.right >= mort.teteSprite.rect.center[0]:
+            if mort.tete.alive():
+                if gnome.rect.right >= mort.tete.rect.center[0]:
                     mort.animate_football()
-                if mort.teteSprite.rect.left > SCREEN_SIZE[0]:
+                if mort.tete.rect.left > SCREEN_SIZE[0]:
                     mort.stop_football()
         if gnome.alive() and mort.xLoc > MORT_RIGHT_BORDER:
             gnome.kill()
