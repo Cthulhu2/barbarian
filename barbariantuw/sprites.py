@@ -1269,7 +1269,7 @@ class Barbarian(AnimatedSprite):
     def gestion_coupdetete(self, temps):
         self.reset_xX_front()
         self.yG = YG
-        if temps > self.reftemps + 37:
+        if temps > self.reftemps + 38:
             self.occupe = False
             self.state = State.debout
         elif temps > self.reftemps + 20:

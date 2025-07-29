@@ -570,9 +570,11 @@ def barb(subdir: str):
         ]),
         'coupdetete': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/tete1.gif', tick=18),
-            Frame(f'{subdir}/tete2.gif', tick=28, mv=( CHAR_W, 0)),  # noqa
-            Frame(f'{subdir}/tete1.gif', tick=38, mv=(-CHAR_W, 0)),  # noqa
+            Frame(f'{subdir}/debout.gif', tick=8),
+            Frame(f'{subdir}/tete1.gif',  tick=18),
+            Frame(f'{subdir}/tete2.gif',  tick=28, mv=(CHAR_W, 0)),
+            Frame(f'{subdir}/tete1.gif',  tick=38, mv=(-CHAR_W, 0)),
+            Frame(f'{subdir}/debout.gif', tick=40),
             # @formatter:on
         ]),
         'decapite': Animation(frames=[
@@ -598,9 +600,11 @@ def barb(subdir: str):
             Frame(f'{subdir}/front2.gif', tick=46),
         ]),
         'retourne': Animation(frames=[
+            # @formatter:off
             Frame(f'{subdir}/retourne1.gif', tick=5,  mv=(CHAR_W, 0)),
             Frame(f'{subdir}/retourne2.gif', tick=10, mv=(CHAR_W, 0)),
             Frame(f'{subdir}/retourne3.gif', tick=18, mv=(CHAR_W, 0)),
+            # @formatter:on
         ]),
         'vainqueur': Animation(frames=[
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=18),
@@ -820,9 +824,11 @@ def barb_rtl(subdir: str):
         ]),
         'coupdetete': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/tete1.gif', xflip=True, tick=18),
-            Frame(f'{subdir}/tete2.gif', xflip=True, tick=28),
-            Frame(f'{subdir}/tete1.gif', xflip=True, tick=38),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=8),
+            Frame(f'{subdir}/tete1.gif',  xflip=True, tick=18, mv=(-CHAR_W, 0)),
+            Frame(f'{subdir}/tete2.gif',  xflip=True, tick=28),
+            Frame(f'{subdir}/tete1.gif',  xflip=True, tick=38),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=40, mv=(CHAR_W, 0)),
             # @formatter:on
         ]),
         'decapite': Animation(frames=[
@@ -850,9 +856,11 @@ def barb_rtl(subdir: str):
             # @formatter:on
         ]),
         'retourne': Animation(frames=[
+            # @formatter:off
             Frame(f'{subdir}/retourne1.gif', xflip=True, tick=5,  mv=(-CHAR_W, 0)),
             Frame(f'{subdir}/retourne2.gif', xflip=True, tick=10, mv=(-CHAR_W, 0)),
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=18, mv=(-CHAR_W, 0)),
+            # @formatter:on
         ]),
         'vainqueur': Animation(frames=[
             # @formatter:off
