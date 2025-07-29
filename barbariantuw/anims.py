@@ -2,9 +2,8 @@ from dataclasses import dataclass, field
 from os.path import join
 from typing import Dict, List, Callable, Tuple
 
-from pygame import Surface, image, Rect, Sound
+from pygame import Surface, image, Rect, Sound, Color
 from pygame.transform import scale, rotate, flip
-from pygame.typing import ColorLike
 
 from barbariantuw import OPTS
 from barbariantuw.settings import IMG_PATH, SCALE_X, SCALE_Y, CHAR_W, CHAR_H, SND_PATH
@@ -85,13 +84,13 @@ class Frame:
     duration: int = 125
     angle: float = 0
     xflip: bool = False
-    fill: ColorLike = None
+    fill: Color = None  # import pygame.typing.ColorLike breaks WASM!!!
     blend_flags: int = 0
     mv: Tuple[float, float] = None
     pre_action: Action = None
     post_action: Action = None
     tick: int = -1
-    colorkey: ColorLike = None
+    colorkey: Color = None
     is_tickable: bool = field(init=False, compare=False)
     image: Surface = field(init=False, compare=False)
     rect: Rect = field(init=False, compare=False)
