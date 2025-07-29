@@ -958,7 +958,7 @@ class Barbarian(AnimatedSprite):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.xF = self.xLoc + (4 if self.rtl else 0)
         self.xT = self.xLoc + (4 if self.rtl else 0)
-        self.xM = self.xLoc + (4 if self.rtl else 0)
+        self.xM = self.xLoc + (0 if self.rtl else 4)
         self.xG = self.xLoc + (0 if self.rtl else 4)
         self.yT = YM
         self.set_frame('assis', 0)
