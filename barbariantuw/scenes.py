@@ -391,7 +391,7 @@ class Battle(EmptyScene):
                                        rtl_anims(anims.serpent()), self)
         self.temps = 0
         self.tempsfini = False
-        self.sense = 'normal'  # inverse
+        self.inverse = False
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
@@ -480,7 +480,7 @@ class Battle(EmptyScene):
 
     def start_sorcier(self):
         self.sorcier = True
-        self.sense = 'inverse'
+        self.inverse = True
         self.joueurA.animate('avance')
         self.joueurA.x = loc2pxX(36)
         if not self.joueurA.rtl:
@@ -546,7 +546,7 @@ class Battle(EmptyScene):
         #
         if self.joueurA.state == State.retourne:
             if self.temps == self.joueurA.reftemps + 16:
-                self.sense = "inverse" if self.joueurA.rtl else "normal"
+                self.inverse = self.joueurA.rtl
 
         elif self.joueurA.state == State.vainqueurKO:
             if self.temps == self.joueurA.reftemps + 231:
@@ -825,7 +825,7 @@ class Battle(EmptyScene):
         if self.entree:
             self.do_entree(ja.xLoc, jb.xLoc)
             return  #
-        if Game.Demo and self.sense == 'inverse':
+        if Game.Demo and self.inverse:
             self.on_menu()
             return  #
 

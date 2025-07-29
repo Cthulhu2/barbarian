@@ -1225,10 +1225,10 @@ class Barbarian(AnimatedSprite):
             self.state = State.debout
 
         elif temps == self.reftemps + 21:
-            if opponent.state in (State.araignee, State.devant):
+            if opponent.state == State.araignee:
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
-                if distance < 12 and not self.rtl:
+                if distance < 9 and not self.rtl:
                     anims.snd_play(next(soncling))
             else:
                 self.xAtt = self.xLoc + (-2 if self.rtl else 6)
