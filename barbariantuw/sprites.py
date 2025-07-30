@@ -244,7 +244,7 @@ class AnimatedSprite(DirtySprite):
             self.actTick = 0
 
     def call_acts(self):
-        self.act.act(self)
+        self.act.act(self, self.act.args)
         self.act = next(self.actions, None)
         if self.act:
             self.actTick = self._calc(self.act.tick)
@@ -258,7 +258,6 @@ class AnimatedSprite(DirtySprite):
     @x.setter
     def x(self, x: float):
         if self._topleft[0] != x:
-            self.dirty = 1
             self._topleft = (x, self._topleft[1])
             self._update_rect()
 
@@ -269,7 +268,6 @@ class AnimatedSprite(DirtySprite):
     @y.setter
     def y(self, y: float):
         if self._topleft[1] != y:
-            self.dirty = 1
             self._topleft = (self._topleft[0], y)
             self._update_rect()
 
@@ -280,7 +278,6 @@ class AnimatedSprite(DirtySprite):
     @topleft.setter
     def topleft(self, topleft: Tuple[float, float]):
         if self._topleft != topleft:
-            self.dirty = 1
             self._topleft = topleft
             self._update_rect()
 
@@ -363,7 +360,7 @@ class AnimatedSprite(DirtySprite):
         prev = self.frames[self.frameNum]
         if self.frame != prev:
             if self.frame.post_action:
-                self.frame.post_action(self)
+                self.frame.post_action(self, None)
             if self.frame.mv:  # Undo the current frame move_base
                 self.move(-self.frame.mv[0], -self.frame.mv[1])
             self.frame = prev
@@ -376,8 +373,7 @@ class AnimatedSprite(DirtySprite):
 
             self._update_rect()
             if self.frame.pre_action:
-                self.frame.pre_action(self)
-            self.dirty = 1
+                self.frame.pre_action(self, None)
 
     def next_frame(self):
         self.frameNum += 1
@@ -389,7 +385,7 @@ class AnimatedSprite(DirtySprite):
         if self.frame != next_ or len(self.frames) == 1:
             if self.frame and self.frame.post_action and not self.stopped:
                 cur_anim = self.anim
-                self.frame.post_action(self)
+                self.frame.post_action(self, None)
                 if cur_anim != self.anim or self.stopped:
                     # Animation changed or stopped, don't process next frame
                     return
@@ -404,13 +400,13 @@ class AnimatedSprite(DirtySprite):
                 self.move(self.frame.mv[0], self.frame.mv[1])
             self._update_rect()
             if self.frame.pre_action:
-                self.frame.pre_action(self)
-            self.dirty = 1
+                self.frame.pre_action(self, None)
 
     def _update_rect(self):
         self.rect.size = self.frame.rect.size
         self.rect.topleft = self.topleft
         self.rect.move_ip(self.frame.rect.x, self.frame.rect.y)
+        self.dirty = 1
 
     def move(self, dx, dy):
         self.topleft = (self.topleft[0] + dx, self.topleft[1] + dy)
@@ -656,9 +652,9 @@ class Barbarian(AnimatedSprite):
         self.anims = self.rtl_anims if rtl else self.ltr_anims
         self.frames = self.anims[self.anim].frames
         self.frame = self.frames[self.frameNum]
+        self.image = self.frame.image
         self.rtl = rtl
         self._update_rect()
-        self.dirty = 1
 
     def occupe_state(self, state: State, temps: int):
         self.state = state
@@ -1648,8 +1644,7 @@ class Sorcier(AnimatedSprite):
 
         elif temps == self.reftemps + 131:
             self.yAtt = YT
-            # noinspection PyTypeChecker
-            self.feu.add(self.groups())
+            self.feu.add(*self.groups())
             self.feu.topleft = loc(self.xAtt - 2, self.yAtt)
             self.feu.animate('feu_high', self.animTick)
 
@@ -1661,8 +1656,7 @@ class Sorcier(AnimatedSprite):
             self.yAtt = YG
 
         elif temps == self.reftemps + 51:
-            # noinspection PyTypeChecker
-            self.feu.add(self.groups())
+            self.feu.add(*self.groups())
             self.feu.topleft = loc(self.xAtt - 2, self.yAtt)
             self.feu.animate('feu_low', self.animTick)
 
