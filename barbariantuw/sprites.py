@@ -608,6 +608,10 @@ class Barbarian(AnimatedSprite):
         self.occupe = True
         self.reftemps = temps
 
+    def deoccupe_state(self, state: State):
+        self.state = state
+        self.occupe = False
+
     def clavier(self):
         if self.pressedUp and self.clavierY > 5:
             self.clavierY -= 1
@@ -764,7 +768,7 @@ class Barbarian(AnimatedSprite):
             self.gestion_assis(temps)
 
         elif self.state == State.assis2:
-            self.gestion_assis2(temps, opponent, soncling, songrogne, is_ai)
+            self.gestion_assis2(temps, opponent, soncling, songrogne)
 
         elif self.state == State.releve:
             self.gestion_releve(temps, opponent, soncling, songrogne)
@@ -846,9 +850,8 @@ class Barbarian(AnimatedSprite):
     def gestion_attente(self, temps):
         self.reset_xX_front()
         if temps > self.reftemps + 50:
-            self.occupe = False
             self.attente = 1
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
         elif temps == self.reftemps + 8:
             self.animate('attente', 8)
 
@@ -881,8 +884,7 @@ class Barbarian(AnimatedSprite):
         if self.attaque:
             self.occupe_state(State.cou, temps)
         elif temps > self.reftemps + 45:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
             self.yG = YG
             self.yM = YM
         elif temps > self.reftemps + 40:
@@ -910,8 +912,7 @@ class Barbarian(AnimatedSprite):
             self.state = State.assis2
 
     def gestion_assis2(self, temps, opponent: 'Barbarian',
-                       soncling: iter, songrogne: iter,
-                       is_ai: bool):
+                       soncling: iter, songrogne: iter):
         self.occupe = False
         self.assis = True
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
@@ -920,8 +921,6 @@ class Barbarian(AnimatedSprite):
         if self.attaque and self.levier == Levier.bas:
             self.occupe_state(State.genou, temps)
             self.gestion_genou(temps, opponent, soncling, songrogne)
-        elif is_ai and temps > self.reftemps + 20:
-            self.occupe = False
 
     def gestion_releve(self, temps, opponent: 'Barbarian',
                        soncling: iter, songrogne: iter):
@@ -931,8 +930,7 @@ class Barbarian(AnimatedSprite):
         self.yT = YT
         self.set_frame('releve', 0)
         if temps > self.reftemps + 10:
-            self.state = State.debout
-            self.occupe = False
+            self.deoccupe_state(State.debout)
         elif self.attaque and self.levier == Levier.bas:
             self.occupe_state(State.genou, temps)
             self.gestion_genou(temps, opponent, soncling, songrogne)
@@ -951,8 +949,6 @@ class Barbarian(AnimatedSprite):
             self.xT = self.xLoc + (0 if self.rtl else 4)
             self.xM = self.xLoc + (0 if self.rtl else 4)
             self.yT = YT
-            self.occupe = False
-            # finderoulade
             jax = self.xLoc
             jbx = opponent.xLoc
             if (not self.rtl and jax >= jbx - 1) or (self.rtl and jax <= jbx + 1):
@@ -961,7 +957,7 @@ class Barbarian(AnimatedSprite):
                 self.yAtt = 14
                 opponent.yAtt = 14
             else:
-                self.state = State.debout
+                self.deoccupe_state(State.debout)
                 self.xAtt = jax + (4 if self.rtl else 0)
                 self.yAtt = YT
                 self.reset_xX_front()
@@ -1005,8 +1001,7 @@ class Barbarian(AnimatedSprite):
         if temps > self.reftemps + 33:
             self.xT = self.xLoc + (0 if self.rtl else 4)
             self.xM = self.xLoc + (0 if self.rtl else 4)
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
         elif temps == self.reftemps + 2:
             self.animate('rouladeAR', 2)
 
@@ -1016,8 +1011,7 @@ class Barbarian(AnimatedSprite):
         self.yG = YG
         if temps > self.reftemps + 5:
             self.protegeH = True
-            self.state = State.protegeH
-            self.occupe = False
+            self.deoccupe_state(State.protegeH)
         elif temps == self.reftemps + 2:
             self.animate('protegeH', 1)
 
@@ -1041,9 +1035,8 @@ class Barbarian(AnimatedSprite):
             self.occupe_state(State.coupdetete, temps)
             self.gestion_coupdetete(temps)
         elif temps > self.reftemps + 5:
-            self.state = State.protegeD
+            self.deoccupe_state(State.protegeD)
             self.protegeD = True
-            self.occupe = False
         elif temps == self.reftemps + 2:
             anims.snd_play('protege.ogg')
 
@@ -1063,8 +1056,7 @@ class Barbarian(AnimatedSprite):
         self.reset_yX()
         self.yAtt = YT
         if temps > self.reftemps + 45:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
 
         elif temps > self.reftemps + 31:
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
@@ -1094,8 +1086,7 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_front()
         self.yG = YG
         if temps > self.reftemps + 45:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
 
         elif temps > self.reftemps + 21:
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
@@ -1122,12 +1113,12 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_assis()
         self.yG = YG
         if temps > self.reftemps + 45:
-            self.occupe = False
-            self.state = State.assis2
+            self.deoccupe_state(State.assis2)
         elif temps > self.reftemps + 21:
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 20:
-            if opponent.state == State.genou and opponent.frameNum == 2:  # genou3.gif
+            if (opponent.state == State.genou
+                    and 20 <= temps - opponent.reftemps < 30):  # genou3.gif
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
@@ -1152,8 +1143,7 @@ class Barbarian(AnimatedSprite):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
         if temps > self.reftemps + 32:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
 
         elif temps == self.reftemps + 21:
             if opponent.state == State.araignee:
@@ -1177,8 +1167,7 @@ class Barbarian(AnimatedSprite):
         self.yAtt = self.yM
         self.yM = YM
         if temps > self.reftemps + 50:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
             self.xF = self.xLoc + (0 if self.rtl else 4)
             self.xT = self.xLoc + (0 if self.rtl else 4)
         elif temps > self.reftemps + 30:
@@ -1201,8 +1190,7 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_front()
         self.yG = YG
         if temps > self.reftemps + 38:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
         elif temps > self.reftemps + 20:
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 19:
@@ -1221,8 +1209,7 @@ class Barbarian(AnimatedSprite):
         self.xM = self.xLoc + (0 if self.rtl else 4)
         self.xG = self.xLoc + (0 if self.rtl else 4)
         if temps > self.reftemps + 58:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
         elif temps > self.reftemps + 51:
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 50:
@@ -1236,8 +1223,7 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_front()
         self.yG = YG
         if temps > self.reftemps + 45:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
 
         elif temps > self.reftemps + 24:
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
@@ -1264,8 +1250,7 @@ class Barbarian(AnimatedSprite):
         self.reset_xX_front()
         self.yAtt = 14
         if temps > self.reftemps + 15:
-            self.state = State.debout
-            self.occupe = False
+            self.deoccupe_state(State.debout)
             self.turn_around(not self.rtl)
         elif self.anim != 'retourne':
             self.animate('retourne')
@@ -1385,8 +1370,7 @@ class Barbarian(AnimatedSprite):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.reset_xX_back()
         if temps > self.reftemps + 20:
-            self.occupe = False
-            self.state = State.debout
+            self.deoccupe_state(State.debout)
         elif temps == self.reftemps:
             self.animate('touche1')
 
@@ -1395,8 +1379,7 @@ class Barbarian(AnimatedSprite):
         self.attente = 0
         self.reset_xX_back()
         if temps == self.reftemps + 25:
-            self.state = State.debout
-            self.occupe = False
+            self.deoccupe_state(State.debout)
         elif temps == self.reftemps + 2:
             if opponent.state != State.coupdetete:
                 anims.snd_play('tombe.ogg')
