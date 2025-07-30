@@ -1568,8 +1568,7 @@ class Sorcier(AnimatedSprite):
         self.state: State = State.debout
         self.feu = AnimatedSprite(self.topleft, anims.feu())
         self.feu.layer = 3
-        self.sangSprite = AnimatedSprite(self.topleft,
-                                         anims.sang_decap())
+        self.sangSprite = AnimatedSprite(self.topleft, anims.sang_decap())
 
     @property
     def xLoc(self):
