@@ -24,13 +24,14 @@ from os.path import join
 import pygame
 from pygame import display, event, mixer, init, time, image
 
+import barbariantuw
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
 import barbariantuw.scenes as scenes
-import barbariantuw.settings as settings
 import barbariantuw.sprites as sprites
-from barbariantuw import OPTS, Game, Partie
-from barbariantuw.settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
+from barbariantuw import (
+    OPTS, Game, Partie, IMG_PATH, SCREEN_SIZE, FRAME_RATE, SCALE_X, SCALE_Y
+)
 from barbariantuw.sprites import Txt, loc2pxX
 
 psutil = None
@@ -205,16 +206,16 @@ class BarbarianMain(object):
 
     # noinspection PyTypeChecker
     @staticmethod
-    def reinit(size=settings.SCREEN_SIZE, scx=settings.SCALE_X, scy=settings.SCALE_Y):
+    def reinit(size=SCREEN_SIZE, scx=SCALE_X, scy=SCALE_Y):
         anims.img_cache.clear()
         Txt.cache.clear()
         gc.collect(generation=0)
         #
-        settings.SCREEN_SIZE = size
-        settings.SCALE_X = scx
-        settings.SCALE_Y = scy
-        settings.CHAR_W = int(320 / 40 * scx)
-        settings.CHAR_H = int(200 / 25 * scy)
+        barbariantuw.SCREEN_SIZE = size
+        barbariantuw.SCALE_X = scx
+        barbariantuw.SCALE_Y = scy
+        barbariantuw.CHAR_W = int(320 / 40 * scx)
+        barbariantuw.CHAR_H = int(200 / 25 * scy)
         #
         importlib.reload(anims)
         importlib.reload(sprites)

@@ -10,10 +10,8 @@ from pygame.time import get_ticks
 from pygame.transform import scale
 
 import barbariantuw.anims as anims
+from barbariantuw import CHAR_W, CHAR_H, FRAME_RATE, FONT, Theme
 from barbariantuw.anims import get_img
-from barbariantuw.settings import (
-    FONT, Theme, CHAR_H, CHAR_W, FRAME_RATE
-)
 
 
 def px2locX(x: float) -> int:

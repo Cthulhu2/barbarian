@@ -6,8 +6,9 @@ from typing import Dict, List, Callable, Tuple
 from pygame import Surface, image, Rect, Sound, Color
 from pygame.transform import scale, rotate, flip
 
-from barbariantuw import OPTS
-from barbariantuw.settings import IMG_PATH, SCALE_X, SCALE_Y, CHAR_W, CHAR_H, SND_PATH
+from barbariantuw import (
+    OPTS, IMG_PATH, SND_PATH, SCALE_X, SCALE_Y, CHAR_W, CHAR_H
+)
 
 img_cache: Dict[int, Surface] = {}
 

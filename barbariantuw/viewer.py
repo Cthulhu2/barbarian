@@ -1,17 +1,17 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
+import asyncio
 import gc
 import importlib
 from typing import Any
 
-import asyncio
 from pygame import key, Surface, display
 from pygame.locals import *
 
 import barbariantuw.anims as anims
+from barbariantuw import SCREEN_SIZE, Theme
 from barbariantuw.__main__ import BarbarianMain, option_parser
 from barbariantuw.scenes import EmptyScene
-from barbariantuw.settings import SCREEN_SIZE, Theme
 from barbariantuw.sprites import Barbarian, Rectangle, Txt
 
 BACKGROUND = Surface(SCREEN_SIZE)

@@ -6,9 +6,8 @@ from pygame.locals import *
 from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
 
-from barbariantuw import Game, Partie
-from barbariantuw.settings import (
-    Theme, SCREEN_SIZE, SCALE_X, SCALE_Y, CHAR_W, CHAR_H,
+from barbariantuw import (
+    Game, Partie, SCALE_X, SCALE_Y, SCREEN_SIZE, CHAR_W, CHAR_H, Theme
 )
 from barbariantuw.sprites import (
     Txt, AnimatedSprite, StaticSprite, Barbarian,
