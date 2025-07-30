@@ -224,22 +224,18 @@ class BarbarianMain(object):
     def on_fullscreen(self):
         # TODO: Toggle fullscreen with multi-display
         if not self.opts.web and not pygame.display.is_fullscreen():
-            country = Game.Country
             scx = self.desktopSize[0] / 320
             scy = self.desktopSize[1] / 200
             self.reinit(self.desktopSize, scx, scy)
             pygame.display.set_mode(self.desktopSize)
             pygame.display.toggle_fullscreen()
-            Game.Country = country
         self.show_logo()
 
     def on_window(self):
         if not self.opts.web and pygame.display.is_fullscreen():
-            country = Game.Country
             self.reinit()
             pygame.display.toggle_fullscreen()
             pygame.display.set_mode(SCREEN_SIZE)
-            Game.Country = country
         self.show_logo()
 
     async def main(self):

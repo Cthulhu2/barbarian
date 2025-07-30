@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from math import ceil
 from os.path import join
 from typing import Dict, List, Callable, Tuple
 
@@ -38,9 +39,10 @@ def get_img(name, w=0, h=0, angle: float = 0, xflip=False,
         img = img.copy()
         img.fill(fill, special_flags=blend_flags)
     if w > 0 or h > 0:
-        img = scale(img, (w * SCALE_X, h * SCALE_Y))
+        img = scale(img, (ceil(w * SCALE_X), ceil(h * SCALE_Y)))
     else:
-        img = scale(img, (img.get_width() * SCALE_X, img.get_height() * SCALE_Y))
+        img = scale(img, (ceil(img.get_width() * SCALE_X),
+                          ceil(img.get_height() * SCALE_Y)))
     if angle != 0:
         img = rotate(img, angle)
     if xflip:

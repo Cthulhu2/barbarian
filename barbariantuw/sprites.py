@@ -567,6 +567,12 @@ class Barbarian(AnimatedSprite):
     def reset_xX_back(self):
         self.reset_xX(4 if self.rtl else 0)
 
+    def reset_xX_assis(self):
+        self.xF = self.xLoc + (4 if self.rtl else 0)
+        self.xT = self.xLoc + (4 if self.rtl else 0)
+        self.xM = self.xLoc + (0 if self.rtl else 4)
+        self.xG = self.xLoc + (0 if self.rtl else 4)
+
     def reset_yX(self):
         self.yF = YF
         self.yT = YT
@@ -956,10 +962,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_assis(self, temps):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
-        self.xF = self.xLoc + (4 if self.rtl else 0)
-        self.xT = self.xLoc + (4 if self.rtl else 0)
-        self.xM = self.xLoc + (0 if self.rtl else 4)
-        self.xG = self.xLoc + (0 if self.rtl else 4)
+        self.reset_xX_assis()
         self.yT = YM
         self.set_frame('assis', 0)
         if temps > self.reftemps + 10:
@@ -971,10 +974,7 @@ class Barbarian(AnimatedSprite):
         self.occupe = False
         self.assis = True
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
-        self.xF = self.xLoc + (4 if self.rtl else 0)
-        self.xT = self.xLoc + (4 if self.rtl else 0)
-        self.xM = self.xLoc + (0 if self.rtl else 4)
-        self.xG = self.xLoc + (0 if self.rtl else 4)
+        self.reset_xX_assis()
         self.set_frame('assis', 1)
         if self.attaque and self.levier == Levier.bas:
             self.occupe_state(State.genou, temps)
@@ -986,10 +986,7 @@ class Barbarian(AnimatedSprite):
                        soncling: iter, songrogne: iter):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yAtt = 14
-        self.xF = self.xLoc + (4 if self.rtl else 0)
-        self.xT = self.xLoc + (4 if self.rtl else 0)
-        self.xM = self.xLoc + (0 if self.rtl else 4)
-        self.xG = self.xLoc + (0 if self.rtl else 4)
+        self.reset_xX_assis()
         self.yT = YT
         self.set_frame('releve', 0)
         if temps > self.reftemps + 10:
@@ -1163,8 +1160,7 @@ class Barbarian(AnimatedSprite):
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
 
         elif temps == self.reftemps + 21:
-            if (opponent.state == State.devant
-                    and (20 < temps - opponent.reftemps <= 30)):
+            if opponent.state == State.devant and opponent.frameNum == 2:  # devant3.gif
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 10 and not self.rtl:
@@ -1182,10 +1178,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_genou(self, temps, opponent: 'Barbarian',
                       soncling: iter, songrogne: iter):
-        self.xF = self.xLoc + (4 if self.rtl else 0)
-        self.xT = self.xLoc + (4 if self.rtl else 0)
-        self.xM = self.xLoc + (0 if self.rtl else 4)
-        self.xG = self.xLoc + (0 if self.rtl else 4)
+        self.reset_xX_assis()
         self.yG = YG
         if temps > self.reftemps + 45:
             self.occupe = False
@@ -1193,7 +1186,7 @@ class Barbarian(AnimatedSprite):
         elif temps > self.reftemps + 21:
             self.xAtt = self.xLoc + (4 if self.rtl else 0)
         elif temps > self.reftemps + 20:
-            if opponent.state == State.genou:
+            if opponent.state == State.genou and opponent.frameNum == 2:  # genou3.gif
                 distance = abs(self.xLoc - opponent.xLoc)
                 # cycle and play cling-sound once (for one player only)
                 if distance < 12 and not self.rtl:
@@ -1213,10 +1206,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_araignee(self, temps, opponent: 'Barbarian',
                          soncling: iter, songrogne: iter):
-        self.xF = self.xLoc + (0 if self.rtl else 4)
-        self.xT = self.xLoc + (0 if self.rtl else 4)
-        self.xM = self.xLoc + (0 if self.rtl else 4)
-        self.xG = self.xLoc + (0 if self.rtl else 4)
+        self.reset_xX_front()
         self.yAtt = YM
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yG = YG
