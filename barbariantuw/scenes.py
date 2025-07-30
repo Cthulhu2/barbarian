@@ -6,6 +6,7 @@ from pygame.locals import *
 from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
 
+from barbariantuw import Game, Partie
 from barbariantuw.settings import (
     Theme, SCREEN_SIZE, SCALE_X, SCALE_Y, CHAR_W, CHAR_H,
 )
@@ -16,16 +17,6 @@ from barbariantuw.sprites import (
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
 from barbariantuw.anims import get_img, rtl_anims, get_snd
-
-
-class Game:  # Mutable options
-    Country = 'Europe'  # USA, Europe
-    Decor = 'foret'  # foret, plaine, trone, arene
-    Partie = 'solo'  # solo, vs
-    Demo = False
-    IA = 0
-    ScoreA = 0
-    ScoreB = 0
 
 
 class EmptyScene(LayeredDirty):
@@ -361,11 +352,11 @@ class Battle(EmptyScene):
         self.joueurB = Barbarian(opts, loc2pxX(36), loc2pxY(14),
                                  f'spritesB/spritesB{Game.IA}', rtl=True)
         sz = CHAR_H
-        if Game.Partie == 'solo' and not Game.Demo:
+        if Game.Partie == Partie.solo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
-        elif Game.Partie == 'vs':
+        elif Game.Partie == Partie.vs:
             Txt(sz, 'TWO PLAYERS', Theme.TXT, loc(16, 25), self)
-        elif Game.Demo:
+        elif Game.Partie == Partie.demo:
             Txt(sz, 'DEMO', Theme.TXT, loc(18, 25), self)
 
         self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8),
@@ -373,13 +364,10 @@ class Battle(EmptyScene):
         self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8),
                              self, cached=False)
 
-        if Game.Partie == 'vs':
+        if Game.Partie == Partie.vs:
             self.txtChronometre = Txt(sz, f'{self.chronometre:02}',
-                                      Theme.TXT, loc(20, 8))
-            # noinspection PyTypeChecker
-            self.add(self.txtChronometre)
-
-        elif Game.Partie == 'solo':
+                                      Theme.TXT, loc(20, 8), self)
+        else:
             Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8), self)
         # noinspection PyTypeChecker
         self.add(self.joueurA, self.joueurB, layer=1)
@@ -440,7 +428,7 @@ class Battle(EmptyScene):
             else:
                 self.remove(self.attAreas)
 
-        if Game.Demo:
+        if Game.Partie == Partie.demo:
             return
 
         # TODO: Joystick events
@@ -527,7 +515,7 @@ class Battle(EmptyScene):
         self.joueurA.clavierY = 7
         self.joueurA.levier = Levier.neutre
 
-        if not Game.Demo:
+        if Game.Partie != Partie.demo:
             self.joueurA.clavier()
         else:
             if ai.demo_joueurA(self.joueurA, self.joueurB, self.temps):
@@ -542,7 +530,7 @@ class Battle(EmptyScene):
     def _gestion(self):
         self.joueurA.gestion(self.temps, self.joueurB,
                              self.soncling, self.songrogne, self.sontouche,
-                             Game.Demo)
+                             Game.Partie == Partie.demo)
         #
         if self.joueurA.state == State.retourne:
             if self.temps == self.joueurA.reftemps + 16:
@@ -611,10 +599,10 @@ class Battle(EmptyScene):
         self.joueurB.clavierY = 7
         self.joueurB.levier = Levier.neutre
 
-        if Game.Partie == 'vs':
+        if Game.Partie == Partie.vs:
             self.joueurB.clavier()
-        elif Game.Partie == 'solo':
-            if ai.joueurB(Game.Demo, Game.IA,
+        else:
+            if ai.joueurB(Game.Partie == Partie.demo, Game.IA,
                           self.joueurA, self.joueurB, self.temps):
                 return
         # redirection suivant les touches
@@ -626,7 +614,7 @@ class Battle(EmptyScene):
     def _gestionB(self):
         self.joueurB.gestion(self.temps, self.joueurA,
                              self.soncling, self.songrogne, self.sontouche,
-                             Game.Partie == 'solo')
+                             Game.Partie != Partie.vs)
         #
         if self.joueurB.state == State.vainqueurKO:
             if self.temps > self.joueurB.reftemps + 230:
@@ -726,9 +714,9 @@ class Battle(EmptyScene):
         if gnome.alive() and mort.xLoc > MORT_RIGHT_BORDER:
             gnome.kill()
             mort.kill()
-            if Game.Partie == 'vs':
+            if Game.Partie == Partie.vs:
                 vainqueur.bonus = True
-            if Game.Partie == 'solo':
+            else:
                 vainqueur.sortie = True
                 vainqueur.occupe = False
                 vainqueur.animate('recule')
@@ -742,7 +730,7 @@ class Battle(EmptyScene):
             if self.chronometre < 1:
                 self.chronometre = 0
                 self.chronoOn = False
-                if Game.Partie == 'vs':
+                if Game.Partie == Partie.vs:
                     ja.sortie = jb.sortie = True
                     ja.occupe = jb.occupe = False
                     self.tempsfini = True
@@ -773,21 +761,18 @@ class Battle(EmptyScene):
             self.joueurA.set_frame('debout', 0)
             self.joueurB.set_frame('debout', 0)
             self.entree = False
-            if Game.Partie == 'vs':
+            if Game.Partie == Partie.vs:
                 self.chronoOn = True
 
     def check_sortiedA(self, jax, jbx):
         if not self.tempsfini:
             if jbx >= MORT_RIGHT_BORDER and (jax <= 0 or 38 <= jax):
-                if Game.Partie == 'solo':
-                    if Game.Demo:
-                        self.finish()
-                    elif Game.IA < 7:
-                        self.next_stage()
-                    else:
-                        self.start_sorcier()
-                elif Game.Partie == 'vs':
+                if Game.Partie in (Partie.demo, Partie.vs):
                     self.finish()
+                elif Game.Partie == Partie.solo and Game.IA < 7:
+                    self.next_stage()
+                elif Game.Partie == Partie.solo:
+                    self.start_sorcier()
         elif (jax < 2 and 38 < jbx) or (jbx < 2 and 38 < jax):
             self.next_stage()
 
@@ -825,17 +810,13 @@ class Battle(EmptyScene):
         if self.entree:
             self.do_entree(ja.xLoc, jb.xLoc)
             return  #
-        if Game.Demo and self.inverse:
-            self.on_menu()
-            return  #
-
         if ja.sortie:
             self.check_sortiedA(ja.xLoc, jb.xLoc)
             return  #
-        elif jb.sortie:
+        if jb.sortie:
             self.check_sortiedB(ja.xLoc, jb.xLoc)
             return  #
-        elif self.gnome:
+        if self.gnome:
             self._gnome()
             return  #
 

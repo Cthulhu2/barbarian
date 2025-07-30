@@ -29,7 +29,7 @@ import barbariantuw.anims as anims
 import barbariantuw.scenes as scenes
 import barbariantuw.settings as settings
 import barbariantuw.sprites as sprites
-from barbariantuw import OPTS
+from barbariantuw import OPTS, Game, Partie
 from barbariantuw.settings import SCREEN_SIZE, IMG_PATH, FRAME_RATE
 from barbariantuw.sprites import Txt, loc2pxX
 
@@ -112,29 +112,26 @@ class BarbarianMain(object):
         self.scene = self.menu()
 
     def start_battle_demo(self):
-        scenes.Game.ScoreA = 0
-        scenes.Game.ScoreB = 0
-        scenes.Game.Decor = 'foret'
-        scenes.Game.Demo = True
-        scenes.Game.IA = 4
-        scenes.Game.Partie = "solo"
+        Game.ScoreA = 0
+        Game.ScoreB = 0
+        Game.Decor = 'foret'
+        Game.IA = 4
+        Game.Partie = Partie.demo
         self.start_battle()
 
     def start_battle_solo(self):
-        scenes.Game.ScoreA = 0
-        scenes.Game.ScoreB = 0
-        scenes.Game.Decor = 'foret'
-        scenes.Game.Demo = False
-        scenes.Game.IA = 0
-        scenes.Game.Partie = "solo"
+        Game.ScoreA = 0
+        Game.ScoreB = 0
+        Game.Decor = 'foret'
+        Game.IA = 0
+        Game.Partie = Partie.solo
         self.start_battle()
 
     def start_battle_duel(self):
-        scenes.Game.ScoreA = 0
-        scenes.Game.ScoreB = 0
-        scenes.Game.Demo = False
-        scenes.Game.IA = 0
-        scenes.Game.Partie = "vs"
+        Game.ScoreA = 0
+        Game.ScoreB = 0
+        Game.IA = 0
+        Game.Partie = Partie.vs
         self.scene = scenes.SelectStage(self.opts,
                                         on_start=self.start_battle,
                                         on_back=self.show_menu)
@@ -149,32 +146,32 @@ class BarbarianMain(object):
         self.show_menu()
 
     def next_stage(self):
-        if scenes.Game.Partie == 'solo':
-            scenes.Game.IA += 1
-            if scenes.Game.IA == 1:
-                scenes.Game.Decor = 'plaine'
-            if scenes.Game.IA == 2:
-                scenes.Game.Decor = 'foret'
-            if scenes.Game.IA == 3:
-                scenes.Game.Decor = 'plaine'
-            if scenes.Game.IA == 4:
-                scenes.Game.Decor = 'trone'
-            if scenes.Game.IA == 5:
-                scenes.Game.Decor = 'arene'
-            if scenes.Game.IA == 6:
-                scenes.Game.Decor = 'trone'
-            if scenes.Game.IA == 7:
-                scenes.Game.Decor = 'arene'
+        if Game.Partie == Partie.solo:
+            Game.IA += 1
+            if Game.IA == 1:
+                Game.Decor = 'plaine'
+            if Game.IA == 2:
+                Game.Decor = 'foret'
+            if Game.IA == 3:
+                Game.Decor = 'plaine'
+            if Game.IA == 4:
+                Game.Decor = 'trone'
+            if Game.IA == 5:
+                Game.Decor = 'arene'
+            if Game.IA == 6:
+                Game.Decor = 'trone'
+            if Game.IA == 7:
+                Game.Decor = 'arene'
 
-        if scenes.Game.Partie == 'vs':
-            if scenes.Game.Decor == 'plaine':
-                scenes.Game.Decor = 'foret'
-            elif scenes.Game.Decor == 'foret':
-                scenes.Game.Decor = 'plaine'
-            elif scenes.Game.Decor == 'trone':
-                scenes.Game.Decor = 'arene'
-            elif scenes.Game.Decor == 'arene':
-                scenes.Game.Decor = 'trone'
+        if Game.Partie == Partie.vs:
+            if Game.Decor == 'plaine':
+                Game.Decor = 'foret'
+            elif Game.Decor == 'foret':
+                Game.Decor = 'plaine'
+            elif Game.Decor == 'trone':
+                Game.Decor = 'arene'
+            elif Game.Decor == 'arene':
+                Game.Decor = 'trone'
 
         self.start_battle()
 
@@ -227,22 +224,22 @@ class BarbarianMain(object):
     def on_fullscreen(self):
         # TODO: Toggle fullscreen with multi-display
         if not self.opts.web and not pygame.display.is_fullscreen():
-            country = scenes.Game.Country
+            country = Game.Country
             scx = self.desktopSize[0] / 320
             scy = self.desktopSize[1] / 200
             self.reinit(self.desktopSize, scx, scy)
             pygame.display.set_mode(self.desktopSize)
             pygame.display.toggle_fullscreen()
-            scenes.Game.Country = country
+            Game.Country = country
         self.show_logo()
 
     def on_window(self):
         if not self.opts.web and pygame.display.is_fullscreen():
-            country = scenes.Game.Country
+            country = Game.Country
             self.reinit()
             pygame.display.toggle_fullscreen()
             pygame.display.set_mode(SCREEN_SIZE)
-            scenes.Game.Country = country
+            Game.Country = country
         self.show_logo()
 
     async def main(self):
