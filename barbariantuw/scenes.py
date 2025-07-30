@@ -6,16 +6,17 @@ from pygame.locals import *
 from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
 
-from barbariantuw import (
-    Game, Partie, SCALE_X, SCALE_Y, SCREEN_SIZE, CHAR_W, CHAR_H, Theme
-)
-from barbariantuw.sprites import (
-    Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2pxX, loc2pxY, loc, State, Levier, Sorcier, Rectangle,
-)
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
+from barbariantuw import (
+    SCALE_X, SCALE_Y, SCREEN_SIZE, CHAR_W, CHAR_H,
+    Game, Partie, Theme, Levier, State
+)
 from barbariantuw.anims import get_img, rtl_anims, get_snd
+from barbariantuw.sprites import (
+    Txt, AnimatedSprite, StaticSprite, Barbarian,
+    loc2pxX, loc2pxY, loc, Sorcier, Rectangle,
+)
 
 
 class EmptyScene(LayeredDirty):

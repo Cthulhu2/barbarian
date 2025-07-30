@@ -51,3 +51,57 @@ class Game:  # Mutable options
     IA = 0
     ScoreA = 0
     ScoreB = 0
+
+
+class Levier(enum.Enum):
+    bas = enum.auto()
+    basG = enum.auto()
+    basD = enum.auto()
+    droite = enum.auto()
+    gauche = enum.auto()
+    haut = enum.auto()
+    hautG = enum.auto()
+    hautD = enum.auto()
+    neutre = enum.auto()
+
+
+class State(enum.Enum):
+    araignee = enum.auto()
+    attente = enum.auto()
+    avance = enum.auto()
+    assis = enum.auto()
+    assis2 = enum.auto()
+    clingD = enum.auto()
+    clingH = enum.auto()
+    cou = enum.auto()
+    coupdepied = enum.auto()
+    coupdetete = enum.auto()
+    debout = enum.auto()
+    decapite = enum.auto()
+    devant = enum.auto()
+    retourne = enum.auto()
+    front = enum.auto()
+    genou = enum.auto()
+    protegeD1 = enum.auto()
+    protegeD = enum.auto()
+    protegeH1 = enum.auto()
+    protegeH = enum.auto()
+    recule = enum.auto()
+    releve = enum.auto()
+    rouladeAV = enum.auto()
+    rouladeAR = enum.auto()
+    saute = enum.auto()
+    tombe = enum.auto()
+    tombe1 = enum.auto()
+    touche = enum.auto()
+    touche1 = enum.auto()
+    #
+    mort = enum.auto()
+    mortdecap = enum.auto()
+    vainqueur = enum.auto()
+    vainqueurKO = enum.auto()
+    #
+    fini = enum.auto()
+    sorcier = enum.auto()
+    mortSORCIER = enum.auto()
+    sorcierFINI = enum.auto()

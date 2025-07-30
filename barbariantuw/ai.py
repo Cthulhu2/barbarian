@@ -1,4 +1,5 @@
-from barbariantuw.sprites import State, Levier, Barbarian
+from barbariantuw import Levier, State
+from barbariantuw.sprites import Barbarian
 
 
 # *****************************************

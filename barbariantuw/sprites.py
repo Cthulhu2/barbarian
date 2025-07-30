@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import enum
 from typing import Tuple, Dict, Callable, Optional, Iterator
 
 from pygame import Rect
@@ -10,7 +9,7 @@ from pygame.time import get_ticks
 from pygame.transform import scale
 
 import barbariantuw.anims as anims
-from barbariantuw import CHAR_W, CHAR_H, FRAME_RATE, FONT, Theme
+from barbariantuw import CHAR_W, CHAR_H, FRAME_RATE, FONT, Theme, Levier, State
 from barbariantuw.anims import get_img
 
 
@@ -244,12 +243,13 @@ class AnimatedSprite(DirtySprite):
             self.actTick = 0
 
     def call_acts(self):
-        self.act.act(self, self.act.args)
-        self.act = next(self.actions, None)
-        if self.act:
-            self.actTick = self._calc(self.act.tick)
-        else:
-            self.actTick = 0
+        while self.act and not self.stopped and self.animTick == self.actTick:
+            self.act.act(self, self.act.args)
+            self.act = next(self.actions, None)
+            if self.act:
+                self.actTick = self._calc(self.act.tick)
+            else:
+                self.actTick = 0
 
     @property
     def x(self) -> float:
@@ -311,8 +311,7 @@ class AnimatedSprite(DirtySprite):
             self.next_frame()
             self.visible = True
             self.init_acts()
-            while self.act and not self.stopped and self.animTick == self.actTick:
-                self.call_acts()
+            self.call_acts()
         else:
             self.visible = False
 
@@ -332,8 +331,7 @@ class AnimatedSprite(DirtySprite):
         if not self.visible or self.stopped or self.speed <= 0:
             return
         self.animTick += 1
-        while self.act and not self.stopped and self.animTick == self.actTick:
-            self.call_acts()
+        self.call_acts()
         if self.frame.is_tickable:
             while not self.stopped and self.animTick > self.frame_tick:
                 self.animTimer = current_time
@@ -412,60 +410,6 @@ class AnimatedSprite(DirtySprite):
         self.topleft = (self.topleft[0] + dx, self.topleft[1] + dy)
         self.rect.move_ip(dx, dy)
         self.dirty = 1
-
-
-class Levier(enum.Enum):
-    bas = enum.auto()
-    basG = enum.auto()
-    basD = enum.auto()
-    droite = enum.auto()
-    gauche = enum.auto()
-    haut = enum.auto()
-    hautG = enum.auto()
-    hautD = enum.auto()
-    neutre = enum.auto()
-
-
-class State(enum.Enum):
-    araignee = enum.auto()
-    attente = enum.auto()
-    avance = enum.auto()
-    assis = enum.auto()
-    assis2 = enum.auto()
-    clingD = enum.auto()
-    clingH = enum.auto()
-    cou = enum.auto()
-    coupdepied = enum.auto()
-    coupdetete = enum.auto()
-    debout = enum.auto()
-    decapite = enum.auto()
-    devant = enum.auto()
-    retourne = enum.auto()
-    front = enum.auto()
-    genou = enum.auto()
-    protegeD1 = enum.auto()
-    protegeD = enum.auto()
-    protegeH1 = enum.auto()
-    protegeH = enum.auto()
-    recule = enum.auto()
-    releve = enum.auto()
-    rouladeAV = enum.auto()
-    rouladeAR = enum.auto()
-    saute = enum.auto()
-    tombe = enum.auto()
-    tombe1 = enum.auto()
-    touche = enum.auto()
-    touche1 = enum.auto()
-    #
-    mort = enum.auto()
-    mortdecap = enum.auto()
-    vainqueur = enum.auto()
-    vainqueurKO = enum.auto()
-    #
-    fini = enum.auto()
-    sorcier = enum.auto()
-    mortSORCIER = enum.auto()
-    sorcierFINI = enum.auto()
 
 
 YF = 16
@@ -674,20 +618,20 @@ class Barbarian(AnimatedSprite):
 
         if self.clavierX <= 6 and self.clavierY <= 6:
             self.levier = Levier.hautG
-        if self.clavierX >= 8 and self.clavierY <= 6:
+        elif self.clavierX >= 8 and self.clavierY <= 6:
             self.levier = Levier.hautD
-        if self.clavierX <= 6 and self.clavierY >= 8:
+        elif self.clavierX <= 6 and self.clavierY >= 8:
             self.levier = Levier.basG
-        if self.clavierX >= 8 and self.clavierY >= 8:
+        elif self.clavierX >= 8 and self.clavierY >= 8:
             self.levier = Levier.basD
 
-        if self.clavierX <= 6 and self.clavierY == 7:
+        elif self.clavierX <= 6 and self.clavierY == 7:
             self.levier = Levier.gauche
-        if self.clavierX >= 8 and self.clavierY == 7:
+        elif self.clavierX >= 8 and self.clavierY == 7:
             self.levier = Levier.droite
-        if self.clavierX == 7 and self.clavierY >= 8:
+        elif self.clavierX == 7 and self.clavierY >= 8:
             self.levier = Levier.bas
-        if self.clavierX == 7 and self.clavierY <= 6:
+        elif self.clavierX == 7 and self.clavierY <= 6:
             self.levier = Levier.haut
 
     # region actions
@@ -1423,11 +1367,10 @@ class Barbarian(AnimatedSprite):
 
         elif temps == self.reftemps + 36:
             distance = abs(self.xLoc - opponent.xLoc)
-            rtl = self.rtl
-            if (distance < 5 and rtl) or (distance > 5 and not rtl):
+            if (distance < 5 and self.rtl) or (distance > 5 and not self.rtl):
                 self.set_frame('vainqueurKO', 4)  # 'marche3'
                 self.x = loc2pxX(self.xLoc + abs(5 - distance))
-            if (distance > 5 and rtl) or (distance < 5 and not rtl):
+            if (distance > 5 and self.rtl) or (distance < 5 and not self.rtl):
                 self.set_frame('vainqueurKO', 5)  # 'marche3' xflip=True
                 self.x = loc2pxX(self.xLoc - abs(5 - distance))
 
