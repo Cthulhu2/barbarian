@@ -477,7 +477,7 @@ class Battle(EmptyScene):
         self.joueurA.sortie = False
         self.joueurA.attaque = False
         self.entreesorcier = True
-        self.joueurB = Sorcier(self.opts, loc2pxX(9), loc2pxY(14))
+        self.joueurB = Sorcier(loc2pxX(9), loc2pxY(14))
         self.joueurB.occupe_state(State.debout, self.temps)
         # noinspection PyTypeChecker
         self.add(self.joueurB,

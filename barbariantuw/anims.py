@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from math import ceil
 from os.path import join
-from typing import Dict, List, Callable, Tuple, Any
+from typing import Dict, List, Callable, Tuple, TypedDict
 
 from pygame import Surface, image, Rect
 from pygame.mixer import Sound  # import pygame.Sound breaks WASM!!!
@@ -72,7 +72,8 @@ def snd_play(name: str):
         get_snd(name).play()
 
 
-Action = Callable[['AnimatedSprite', Any], None]
+Action = Callable[['AnimatedSprite'], None]
+Action2 = Callable[['AnimatedSprite', TypedDict], None]
 
 
 @dataclass(slots=True, frozen=True)
@@ -118,11 +119,13 @@ class Frame:
                      self.pre_action, self.post_action, self.tick, self.colorkey)
 
 
-@dataclass(slots=True, frozen=True)
 class Act:
-    act: Action
-    tick: int = -1
-    args: Any = None
+    __slots__ = ['act', 'tick', 'kwargs']
+
+    def __init__(self, *, tick: int = -1, act: Action | Action2 = None, **kwargs):
+        self.act = act
+        self.tick = tick
+        self.kwargs = kwargs
 
 
 @dataclass(slots=True, frozen=True)
@@ -133,20 +136,23 @@ class Animation:
 
 class Actions:
 
-    # noinspection PyUnusedLocal
     @staticmethod
-    def kill(sprite, *args):
+    def kill(sprite):
         sprite.kill()
 
-    # noinspection PyUnusedLocal
     @staticmethod
-    def stop(sprite, *args):
+    def stop(sprite):
         sprite.stopped = True
 
     # noinspection PyUnusedLocal
     @staticmethod
     def snd(sprite, snd: str = None):
         snd_play(snd)
+
+    @staticmethod
+    def val(sprite, **kwargs):
+        for k, v in kwargs:
+            setattr(sprite, k, v)
 
 
 def rtl_anims(animations: Dict[str, Animation]):
@@ -231,8 +237,8 @@ def tete_decap(subdir: str):
             Frame(f'{subdir}/tetedecap3.gif', tick=57, dx=-13 * CHAR_W, dy=65 * SCALE_Y),
             # @formatter:on
         ], actions=[
-            Act(tick=29, act=Actions.snd, args='tete.ogg'),
-            Act(tick=45, act=Actions.snd, args='tete.ogg'),
+            Act(tick=29, act=Actions.snd, snd='tete.ogg'),
+            Act(tick=45, act=Actions.snd, snd='tete.ogg'),
             Act(tick=58, act=Actions.stop),
         ]),
         'teteadroite': Animation(frames=[
@@ -254,8 +260,8 @@ def tete_decap(subdir: str):
             Frame(f'{subdir}/tetedecap3.gif', tick=57, dx=15 * CHAR_W,  dy=65 * SCALE_Y),
             # @formatter:on
         ], actions=[
-            Act(tick=29, act=Actions.snd, args='tete.ogg'),
-            Act(tick=45, act=Actions.snd, args='tete.ogg'),
+            Act(tick=29, act=Actions.snd, snd='tete.ogg'),
+            Act(tick=45, act=Actions.snd, snd='tete.ogg'),
             Act(tick=58, act=Actions.stop),
         ]),
         'teteagauche_rtl': Animation(frames=[
@@ -277,8 +283,8 @@ def tete_decap(subdir: str):
             Frame(f'{subdir}/tetedecap3.gif', xflip=True, tick=57, dx=-13 * CHAR_W, dy=65 * SCALE_Y),
             # @formatter:on
         ], actions=[
-            Act(tick=29, act=Actions.snd, args='tete.ogg'),
-            Act(tick=45, act=Actions.snd, args='tete.ogg'),
+            Act(tick=29, act=Actions.snd, snd='tete.ogg'),
+            Act(tick=45, act=Actions.snd, snd='tete.ogg'),
             Act(tick=58, act=Actions.stop),
         ]),
         'teteadroite_rtl': Animation(frames=[
@@ -300,8 +306,8 @@ def tete_decap(subdir: str):
             Frame(f'{subdir}/tetedecap3.gif', xflip=True, tick=57, dx=15 * CHAR_W, dy=65 * SCALE_Y),
             # @formatter:on
         ], actions=[
-            Act(tick=29, act=Actions.snd, args='tete.ogg'),
-            Act(tick=45, act=Actions.snd, args='tete.ogg'),
+            Act(tick=29, act=Actions.snd, snd='tete.ogg'),
+            Act(tick=45, act=Actions.snd, snd='tete.ogg'),
             Act(tick=58, act=Actions.stop),
         ]),
         'football': Animation(frames=[
@@ -324,9 +330,9 @@ def tete_decap(subdir: str):
             Frame(f'{subdir}/tetedecap3.gif', tick=112, mv=(CHAR_W, 0)),
             # @formatter:on
         ], actions=[
-            Act(tick=0, act=Actions.snd, args='tete2.ogg'),
-            Act(tick=38, act=Actions.snd, args='tete.ogg'),
-            Act(tick=83, act=Actions.snd, args='tete.ogg'),
+            Act(tick=0, act=Actions.snd, snd='tete2.ogg'),
+            Act(tick=38, act=Actions.snd, snd='tete.ogg'),
+            Act(tick=83, act=Actions.snd, snd='tete.ogg'),
             Act(tick=113, act=Actions.stop),
         ]),
     }
@@ -434,7 +440,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/attente2.gif', tick=37),
             Frame(f'{subdir}/attente1.gif', tick=50),
         ], actions=[
-            Act(tick=8, act=Actions.snd, args='attente.ogg')
+            Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),
         'avance': Animation(frames=[
             # @formatter:off
@@ -485,7 +491,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/debout.gif',               tick=40),
             # @formatter:on
         ], actions=[
-            Act(tick=2, act=Actions.snd, args='roule.ogg')
+            Act(tick=2, act=Actions.snd, snd='roule.ogg')
         ]),
         'rouladeAV-out': Animation(frames=[
             # non-movable roulade out
@@ -514,7 +520,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/roulade1.gif',             tick=35, mv=(-CHAR_W, 0)),
             # @formatter:on
         ], actions=[
-            Act(tick=2, act=Actions.snd, args='roule.ogg')
+            Act(tick=2, act=Actions.snd, snd='roule.ogg')
         ]),
         'protegeH': Animation(frames=[
             # @formatter:off
@@ -522,7 +528,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/protegeH.gif', tick=9, dx=-2 * SCALE_X),
             # @formatter:on
         ], actions=[
-            Act(tick=2, act=Actions.snd, args='protege.ogg')
+            Act(tick=2, act=Actions.snd, snd='protege.ogg')
         ]),
         'protegeD': Animation(frames=[
             Frame(f'{subdir}/protegeH.gif', tick=5, dx=-2 * SCALE_X),
@@ -535,7 +541,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/cou3.gif',     tick=46, dx=-1 * SCALE_X),
             # @formatter:on
         ], actions=[
-            Act(tick=15, act=Actions.snd, args='epee.ogg'),
+            Act(tick=15, act=Actions.snd, snd='epee.ogg'),
         ]),
         'devant': Animation(frames=[
             # @formatter:off
@@ -545,7 +551,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/devant2.gif', tick=46),
             # @formatter:on
         ], actions=[
-            Act(tick=10, act=Actions.snd, args='epee.ogg'),
+            Act(tick=10, act=Actions.snd, snd='epee.ogg'),
         ]),
         'genou': Animation(frames=[
             # @formatter:off
@@ -555,7 +561,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/assis2.gif', tick=46),
             # @formatter:on
         ], actions=[
-            Act(tick=10, act=Actions.snd, args='epee.ogg'),
+            Act(tick=10, act=Actions.snd, snd='epee.ogg'),
         ]),
         'araignee': Animation(frames=[
             # @formatter:off
@@ -565,8 +571,8 @@ def barb(subdir: str):
             Frame(f'{subdir}/toile4.gif', tick=33),
             # @formatter:on
         ], actions=[
-            Act(tick=8, act=Actions.snd, args='epee.ogg'),
-            Act(tick=20, act=Actions.snd, args='epee.ogg'),
+            Act(tick=8, act=Actions.snd, snd='epee.ogg'),
+            Act(tick=20, act=Actions.snd, snd='epee.ogg'),
         ]),
         'coupdepied': Animation(frames=[
             # @formatter:off
@@ -601,7 +607,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/cou2.gif',      tick=60, dx=-3 * SCALE_X),
             # @formatter:on
         ], actions=[
-            Act(tick=15, act=Actions.snd, args='decapite.ogg'),
+            Act(tick=15, act=Actions.snd, snd='decapite.ogg'),
         ]),
         'front': Animation(frames=[
             Frame(f'{subdir}/front1.gif', tick=5, dx=-1 * SCALE_X),
@@ -609,7 +615,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/front3.gif', tick=30),
             Frame(f'{subdir}/front2.gif', tick=46),
         ], actions=[
-            Act(tick=5, act=Actions.snd, args='epee.ogg'),
+            Act(tick=5, act=Actions.snd, snd='epee.ogg'),
         ]),
         'retourne': Animation(frames=[
             # @formatter:off
@@ -671,7 +677,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/mort4.gif',  tick=19, dx=-3 * CHAR_W),  # manual, see vainqueurKO
             # @formatter:on
         ], actions=[
-            Act(tick=1, act=Actions.snd, args='mortKO.ogg'),
+            Act(tick=1, act=Actions.snd, snd='mortKO.ogg'),
             Act(tick=17, act=Actions.stop),
         ]),
         'mortdecap': Animation(frames=[
@@ -682,7 +688,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/decap4.gif', tick=82, dx=2 * CHAR_W),
             # @formatter:on
         ], actions=[
-            Act(tick=1, act=Actions.snd, args='mortdecap.ogg'),
+            Act(tick=1, act=Actions.snd, snd='mortdecap.ogg'),
             Act(tick=82, act=Actions.stop),
         ]),
         'mortgnome': Animation(frames=[
@@ -706,7 +712,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-CHAR_W),
             Frame(f'{subdir}/attente1.gif', xflip=True, tick=50),
         ], actions=[
-            Act(tick=8, act=Actions.snd, args='attente.ogg')
+            Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),
         'avance': Animation(frames=[
             # @formatter:off
@@ -757,7 +763,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/debout.gif',   xflip=True, tick=40),
             # @formatter:on
         ], actions=[
-            Act(tick=2, act=Actions.snd, args='roule.ogg')
+            Act(tick=2, act=Actions.snd, snd='roule.ogg')
         ]),
         'rouladeAV-out': Animation(frames=[
             # non-movable roulade out
@@ -786,7 +792,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=35, mv=(CHAR_W, 0)),
             # @formatter:on
         ], actions=[
-            Act(tick=2, act=Actions.snd, args='roule.ogg')
+            Act(tick=2, act=Actions.snd, snd='roule.ogg')
         ]),
         'protegeH': Animation(frames=[
             # @formatter:off
@@ -794,7 +800,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/protegeH.gif', xflip=True, tick=9, dx=-CHAR_W + 2 * SCALE_X),
             # @formatter:on
         ], actions=[
-            Act(tick=2, act=Actions.snd, args='protege.ogg')
+            Act(tick=2, act=Actions.snd, snd='protege.ogg')
         ]),
         'protegeD': Animation(frames=[
             Frame(f'{subdir}/protegeH.gif', xflip=True, tick=5, dx=-CHAR_W + 2 * SCALE_X),
@@ -807,7 +813,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/cou3.gif',     xflip=True, tick=46, dx=-4 * CHAR_W + 1 * SCALE_X),
             # @formatter:on
         ], actions=[
-            Act(tick=15, act=Actions.snd, args='epee.ogg'),
+            Act(tick=15, act=Actions.snd, snd='epee.ogg'),
         ]),
         'devant': Animation(frames=[
             # @formatter:off
@@ -817,7 +823,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/devant2.gif', xflip=True, tick=46),
             # @formatter:on
         ], actions=[
-            Act(tick=10, act=Actions.snd, args='epee.ogg'),
+            Act(tick=10, act=Actions.snd, snd='epee.ogg'),
         ]),
         'genou': Animation(frames=[
             # @formatter:off
@@ -828,7 +834,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/assis2.gif', xflip=True, tick=46),
             # @formatter:on
         ], actions=[
-            Act(tick=10, act=Actions.snd, args='epee.ogg'),
+            Act(tick=10, act=Actions.snd, snd='epee.ogg'),
         ]),
         'araignee': Animation(frames=[
             # @formatter:off
@@ -838,8 +844,8 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/toile4.gif', xflip=True, tick=33, dx=-3 * CHAR_W),
             # @formatter:on
         ], actions=[
-            Act(tick=8, act=Actions.snd, args='epee.ogg'),
-            Act(tick=20, act=Actions.snd, args='epee.ogg'),
+            Act(tick=8, act=Actions.snd, snd='epee.ogg'),
+            Act(tick=20, act=Actions.snd, snd='epee.ogg'),
         ]),
         'coupdepied': Animation(frames=[
             # @formatter:off
@@ -874,7 +880,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60, dx=-CHAR_W + 3 * SCALE_X),
             # @formatter:on
         ], actions=[
-            Act(tick=15, act=Actions.snd, args='decapite.ogg'),
+            Act(tick=15, act=Actions.snd, snd='decapite.ogg'),
         ]),
         'front': Animation(frames=[
             # @formatter:off
@@ -884,7 +890,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/front2.gif', xflip=True, tick=46, dx=-CHAR_W),
             # @formatter:on
         ], actions=[
-            Act(tick=5, act=Actions.snd, args='epee.ogg'),
+            Act(tick=5, act=Actions.snd, snd='epee.ogg'),
         ]),
         'retourne': Animation(frames=[
             # @formatter:off
@@ -948,7 +954,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/mort4.gif',  xflip=True, tick=19),  # manual, see vainqueurKO
             # @formatter:on
         ], actions=[
-            Act(tick=1, act=Actions.snd, args='mortKO.ogg'),
+            Act(tick=1, act=Actions.snd, snd='mortKO.ogg'),
             Act(tick=17, act=Actions.stop),
         ]),
         'mortdecap': Animation(frames=[
@@ -959,7 +965,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/decap4.gif', xflip=True, tick=82, dx=-5 * CHAR_W),
             # @formatter:on
         ], actions=[
-            Act(tick=1, act=Actions.snd, args='mortdecap.ogg'),
+            Act(tick=1, act=Actions.snd, snd='mortdecap.ogg'),
             Act(tick=82, act=Actions.stop),
         ]),
         'mortgnome': Animation(frames=[
@@ -1081,8 +1087,8 @@ def sorcier():
             Frame('sprites/drax2.gif', tick=140),
             Frame('sprites/drax1.gif', tick=141),
         ], actions=[
-            Act(tick=50, act=Actions.snd, args='feu.ogg'),
-            Act(tick=130, act=Actions.snd, args='feu.ogg'),
+            Act(tick=50, act=Actions.snd, snd='feu.ogg'),
+            Act(tick=130, act=Actions.snd, snd='feu.ogg'),
             Act(tick=141, act=Actions.stop),
         ]),
     }

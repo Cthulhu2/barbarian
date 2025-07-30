@@ -244,7 +244,10 @@ class AnimatedSprite(DirtySprite):
 
     def call_acts(self):
         while self.act and not self.stopped and self.animTick == self.actTick:
-            self.act.act(self, self.act.args)
+            if self.act.kwargs:
+                self.act.act(self, **self.act.kwargs)
+            else:
+                self.act.act(self)
             self.act = next(self.actions, None)
             if self.act:
                 self.actTick = self._calc(self.act.tick)
@@ -358,7 +361,7 @@ class AnimatedSprite(DirtySprite):
         prev = self.frames[self.frameNum]
         if self.frame != prev:
             if self.frame.post_action:
-                self.frame.post_action(self, None)
+                self.frame.post_action(self)
             if self.frame.mv:  # Undo the current frame move_base
                 self.move(-self.frame.mv[0], -self.frame.mv[1])
             self.frame = prev
@@ -371,7 +374,7 @@ class AnimatedSprite(DirtySprite):
 
             self._update_rect()
             if self.frame.pre_action:
-                self.frame.pre_action(self, None)
+                self.frame.pre_action(self)
 
     def next_frame(self):
         self.frameNum += 1
@@ -383,7 +386,7 @@ class AnimatedSprite(DirtySprite):
         if self.frame != next_ or len(self.frames) == 1:
             if self.frame and self.frame.post_action and not self.stopped:
                 cur_anim = self.anim
-                self.frame.post_action(self, None)
+                self.frame.post_action(self)
                 if cur_anim != self.anim or self.stopped:
                     # Animation changed or stopped, don't process next frame
                     return
@@ -398,7 +401,7 @@ class AnimatedSprite(DirtySprite):
                 self.move(self.frame.mv[0], self.frame.mv[1])
             self._update_rect()
             if self.frame.pre_action:
-                self.frame.pre_action(self, None)
+                self.frame.pre_action(self)
 
     def _update_rect(self):
         self.rect.size = self.frame.rect.size
@@ -1484,9 +1487,8 @@ class Barbarian(AnimatedSprite):
 
 
 class Sorcier(AnimatedSprite):
-    def __init__(self, opts, x, y, anim='debout'):
+    def __init__(self, x, y, anim='debout'):
         super().__init__((x, y), anims.sorcier())
-        self.opts = opts
         self.rtl = False
         self._xLoc = px2locX(self.x)
         self.animate(anim)
