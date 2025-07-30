@@ -9,12 +9,12 @@ from pygame import key, Surface, display
 from pygame.locals import *
 
 import barbariantuw.anims as anims
-from barbariantuw import SCREEN_SIZE, Theme
+from barbariantuw import Game, Theme, OPTS
 from barbariantuw.__main__ import BarbarianMain, option_parser
 from barbariantuw.scenes import EmptyScene
 from barbariantuw.sprites import Barbarian, Rectangle, Txt
 
-BACKGROUND = Surface(SCREEN_SIZE)
+BACKGROUND = Surface(Game.screen)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
 ANIM_KEYS = [
     K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0,
@@ -185,8 +185,8 @@ class AnimationViewerScene(EmptyScene):
             self.target.move(-self.target.frame.move_base[0], 0)
         elif self.target.rect.left < 0:
             self.target.move(-self.target.rect.left, 0)
-        elif self.target.rect.right > SCREEN_SIZE[0]:
-            self.target.move(SCREEN_SIZE[0] - self.target.rect.right, 0)
+        elif self.target.rect.right > Game.screen[0]:
+            self.target.move(Game.screen[0] - self.target.rect.right, 0)
 
         self.frameTxt.msg = (
             f'{self.target.frameNum + 1} / {len(self.target.frames)}'
@@ -201,6 +201,8 @@ if __name__ == '__main__':
     options.sound = False
     options.web = False
     options.debug = 3
+    for k, v in options.__dict__.items():
+        OPTS.ensure_value(k, v)
     main = BarbarianMain(options)
     main.scene = AnimationViewerScene(options, main.screen, on_quit=main.quit)
     display.set_caption('Barbarian - Animation viewer')

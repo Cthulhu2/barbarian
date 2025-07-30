@@ -9,11 +9,6 @@ BASE_PATH = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else
 FONT_PATH = os.path.abspath(BASE_PATH + '/fnt') + '/'
 IMG_PATH = os.path.abspath(BASE_PATH + '/img') + '/'
 SND_PATH = os.path.abspath(BASE_PATH + '/snd') + '/'
-SCALE_X = 1 if sys.platform == 'emscripten' else 3
-SCALE_Y = 1 if sys.platform == 'emscripten' else 3
-SCREEN_SIZE = (320 * SCALE_X, 200 * SCALE_Y)
-CHAR_W = int(320 / 40 * SCALE_X)  # 24
-CHAR_H = int(200 / 25 * SCALE_Y)  # 24
 FRAME_RATE = 60
 FONT = FONT_PATH + 'PressStart2P-Regular.ttf'
 
@@ -45,12 +40,17 @@ class Partie(enum.Enum):
 
 
 class Game:  # Mutable options
-    Country = 'Europe'  # USA, Europe
-    Decor = 'foret'  # foret, plaine, trone, arene
-    Partie = Partie.solo
-    IA = 0
-    ScoreA = 0
-    ScoreB = 0
+    country = 'Europe'  # USA, Europe
+    decor = 'foret'  # foret, plaine, trone, arene
+    partie = Partie.solo
+    ia = 0
+    scoreA = 0
+    scoreB = 0
+    scx = 1 if sys.platform == 'emscripten' else 3  # scale X
+    scy = 1 if sys.platform == 'emscripten' else 3  # scale y
+    screen = (320 * scx, 200 * scy)
+    chw = int(320 / 40 * scx)  # character width, 24
+    chh = int(200 / 25 * scy)  # character height, 24
 
 
 class Levier(enum.Enum):

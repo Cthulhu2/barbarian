@@ -8,10 +8,7 @@ from pygame.time import get_ticks
 
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
-from barbariantuw import (
-    SCALE_X, SCALE_Y, SCREEN_SIZE, CHAR_W, CHAR_H,
-    Game, Partie, Theme, Levier, State
-)
+from barbariantuw import Game, Partie, Theme, Levier, State
 from barbariantuw.anims import get_img, rtl_anims, get_snd
 from barbariantuw.sprites import (
     Txt, AnimatedSprite, StaticSprite, Barbarian,
@@ -23,7 +20,7 @@ class EmptyScene(LayeredDirty):
     def __init__(self, opts, *sprites_, **kwargs):
         super(EmptyScene, self).__init__(*sprites_, **kwargs)
         self.set_timing_threshold(1000.0 / 25.0)
-        back = Surface(SCREEN_SIZE)
+        back = Surface(Game.screen)
         back.fill(Theme.BACK, back.get_rect())
         # noinspection PyTypeChecker
         self.clear(None, back)
@@ -50,23 +47,23 @@ class Logo(EmptyScene):
 
         # noinspection PyTypeChecker
         self.clear(None, get_img('menu/titreDS.png'))
-        self.repaint_rect(((0, 0), SCREEN_SIZE))
+        self.repaint_rect(((0, 0), Game.screen))
 
     def show_titre(self):
         if self.titre:
             return
         self.titre = True
 
-        if Game.Country == 'USA':
+        if Game.country == 'USA':
             img = get_img('menu/titre.png').copy()
             logo_ds = get_img('menu/logoDS.png')
-            img.blit(logo_ds, (46 * SCALE_X, 10 * SCALE_Y))
+            img.blit(logo_ds, (46 * Game.scx, 10 * Game.scy))
         else:
             img = get_img('menu/titre.png')
 
         # noinspection PyTypeChecker
         self.clear(None, img)
-        self.repaint_rect(((0, 0), SCREEN_SIZE))
+        self.repaint_rect(((0, 0), Game.screen))
 
     def do_load(self):
         if self.load:
@@ -192,7 +189,7 @@ class Logo(EmptyScene):
     def update(self, current_time, *args):
         super(Logo, self).update(current_time, *args)
         passed = current_time - self.timer
-        if Game.Country == 'USA':
+        if Game.country == 'USA':
             if passed < 4000:
                 self.show_usa_logo()
                 if self.skip:
@@ -222,10 +219,10 @@ class Logo(EmptyScene):
 class _MenuBackScene(EmptyScene):
     def __init__(self, opts, back: str):
         super(_MenuBackScene, self).__init__(opts)
-        if Game.Country == 'USA':
+        if Game.country == 'USA':
             back = get_img(back).copy()
             logo_ds = get_img('menu/logoDS.png')
-            back.blit(logo_ds, (46 * SCALE_X, 10 * SCALE_Y))
+            back.blit(logo_ds, (46 * Game.scx, 10 * Game.scy))
         else:
             back = get_img(back)
         # noinspection PyTypeChecker
@@ -269,7 +266,7 @@ class Menu(_MenuBackScene):
 
 
 def area(color, lbl, border_width=2):
-    return Rectangle(0, 0, CHAR_W, CHAR_H, color, border_width, lbl)
+    return Rectangle(0, 0, Game.chw, Game.chh, color, border_width, lbl)
 
 
 MORT_RIGHT_BORDER = 34
@@ -291,18 +288,18 @@ class Battle(EmptyScene):
         self.on_next = on_next
         self.jeu = 'encours'  # perdu, gagne
 
-        back = get_img(f'stage/{Game.Decor}.gif')
-        if Game.Country == 'USA':
+        back = get_img(f'stage/{Game.decor}.gif')
+        if Game.country == 'USA':
             back = back.copy()
-            if Game.Decor in ('foret', 'plaine'):
+            if Game.decor in ('foret', 'plaine'):
                 logo = get_img('stage/logoDS2.png')
-                if Game.Decor == 'foret':
-                    back.blit(logo, (59 * SCALE_X, 16 * SCALE_Y))
-                elif Game.Decor == 'plaine':
-                    back.blit(logo, (59 * SCALE_X, 14 * SCALE_Y))
-            if Game.Decor in ('arene', 'trone'):
+                if Game.decor == 'foret':
+                    back.blit(logo, (59 * Game.scx, 16 * Game.scy))
+                elif Game.decor == 'plaine':
+                    back.blit(logo, (59 * Game.scx, 14 * Game.scy))
+            if Game.decor in ('arene', 'trone'):
                 logo = get_img('stage/logoDS3.png')
-                back.blit(logo, (59 * SCALE_X, 16 * SCALE_Y))
+                back.blit(logo, (59 * Game.scx, 16 * Game.scy))
         # noinspection PyTypeChecker
         self.clear(None, back)
         self.debugAttArea = False
@@ -340,42 +337,42 @@ class Battle(EmptyScene):
                 self.jBAtt, self.jBF, self.jBT, self.jBM, self.jBG)
         # noinspection PyTypeChecker
         self.add(
-            StaticSprite((0, 104 * SCALE_Y),
-                         f'stage/{Game.Decor}ARBREG.gif'),
-            StaticSprite((272 * SCALE_X, 104 * SCALE_Y),
-                         f'stage/{Game.Decor}ARBRED.gif'),
+            StaticSprite((0, 104 * Game.scy),
+                         f'stage/{Game.decor}ARBREG.gif'),
+            StaticSprite((272 * Game.scx, 104 * Game.scy),
+                         f'stage/{Game.decor}ARBRED.gif'),
             layer=5)
 
         self.joueurA = Barbarian(opts, loc2pxX(1), loc2pxY(14),
                                  'spritesA', rtl=False)
         self.joueurA.infoCoup = 3
         self.joueurB = Barbarian(opts, loc2pxX(36), loc2pxY(14),
-                                 f'spritesB/spritesB{Game.IA}', rtl=True)
-        sz = CHAR_H
-        if Game.Partie == Partie.solo:
+                                 f'spritesB/spritesB{Game.ia}', rtl=True)
+        sz = Game.chh
+        if Game.partie == Partie.solo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
-        elif Game.Partie == Partie.vs:
+        elif Game.partie == Partie.vs:
             Txt(sz, 'TWO PLAYERS', Theme.TXT, loc(16, 25), self)
-        elif Game.Partie == Partie.demo:
+        elif Game.partie == Partie.demo:
             Txt(sz, 'DEMO', Theme.TXT, loc(18, 25), self)
 
-        self.txtScoreA = Txt(sz, f'{Game.ScoreA:05}', Theme.TXT, loc(13, 8),
+        self.txtScoreA = Txt(sz, f'{Game.scoreA:05}', Theme.TXT, loc(13, 8),
                              self, cached=False)
-        self.txtScoreB = Txt(sz, f'{Game.ScoreB:05}', Theme.TXT, loc(24, 8),
+        self.txtScoreB = Txt(sz, f'{Game.scoreB:05}', Theme.TXT, loc(24, 8),
                              self, cached=False)
 
-        if Game.Partie == Partie.vs:
+        if Game.partie == Partie.vs:
             self.txtChronometre = Txt(sz, f'{self.chronometre:02}',
                                       Theme.TXT, loc(20, 8), self)
         else:
-            Txt(sz, f'{Game.IA:02}', Theme.TXT, loc(20, 8), self)
+            Txt(sz, f'{Game.ia:02}', Theme.TXT, loc(20, 8), self)
         # noinspection PyTypeChecker
         self.add(self.joueurA, self.joueurB, layer=1)
         self.joueurA.animate('avance')
         self.joueurB.animate('avance')
-        self.serpentA = AnimatedSprite((11 * SCALE_X, 22 * SCALE_Y),
+        self.serpentA = AnimatedSprite((11 * Game.scx, 22 * Game.scy),
                                        anims.serpent(), self)
-        self.serpentB = AnimatedSprite((275 * SCALE_X, 22 * SCALE_Y),
+        self.serpentB = AnimatedSprite((275 * Game.scx, 22 * Game.scy),
                                        rtl_anims(anims.serpent()), self)
         self.temps = 0
         self.tempsfini = False
@@ -383,10 +380,10 @@ class Battle(EmptyScene):
         self.soncling = cycle(['block1.ogg', 'block2.ogg', 'block3.ogg'])
         self.songrogne = cycle([0, 0, 0, 'grogne1.ogg', 0, 0, 'grogne1.ogg'])
         self.sontouche = cycle(['touche.ogg', 'touche2.ogg', 'touche3.ogg'])
-        self.vieA0 = AnimatedSprite((43 * SCALE_X, 0), anims.vie(), self)
-        self.vieA1 = AnimatedSprite((43 * SCALE_X, 11 * SCALE_Y), anims.vie(), self)
-        self.vieB0 = AnimatedSprite((276 * SCALE_X, 0), anims.vie(), self)
-        self.vieB1 = AnimatedSprite((276 * SCALE_X, 11 * SCALE_Y), anims.vie(), self)
+        self.vieA0 = AnimatedSprite((43 * Game.scx, 0), anims.vie(), self)
+        self.vieA1 = AnimatedSprite((43 * Game.scx, 11 * Game.scy), anims.vie(), self)
+        self.vieB0 = AnimatedSprite((276 * Game.scx, 0), anims.vie(), self)
+        self.vieB1 = AnimatedSprite((276 * Game.scx, 11 * Game.scy), anims.vie(), self)
         self.joueurA.on_vie_changed = self.on_vieA_changed
         self.joueurA.on_score = self.on_scoreA
         self.joueurA.on_mort = self.on_mort
@@ -418,7 +415,7 @@ class Battle(EmptyScene):
                     get_snd('mortdecap.ogg').stop()
                     get_snd('mortKO.ogg').stop()
                     get_snd('prepare.ogg').stop()
-            Game.IA = 0
+            Game.ia = 0
             self.on_esc()
             return
         if evt.type == KEYUP and evt.key == K_F12 and self.opts.debug > 1:
@@ -428,7 +425,7 @@ class Battle(EmptyScene):
             else:
                 self.remove(self.attAreas)
 
-        if Game.Partie == Partie.demo:
+        if Game.partie == Partie.demo:
             return
 
         # TODO: Joystick events
@@ -481,9 +478,9 @@ class Battle(EmptyScene):
         self.joueurB.occupe_state(State.debout, self.temps)
         # noinspection PyTypeChecker
         self.add(self.joueurB,
-                 StaticSprite((114 * SCALE_X, 95 * SCALE_Y),
+                 StaticSprite((114 * Game.scx, 95 * Game.scy),
                               'fill', w=16, h=6, fill=Theme.BLACK),
-                 StaticSprite((109 * SCALE_X, 100 * SCALE_Y),
+                 StaticSprite((109 * Game.scx, 100 * Game.scy),
                               'fill', w=27, h=15.1, fill=Theme.BLACK),
                  layer=0)
         self.on_vieA_changed(0)
@@ -515,7 +512,7 @@ class Battle(EmptyScene):
         self.joueurA.clavierY = 7
         self.joueurA.levier = Levier.neutre
 
-        if Game.Partie != Partie.demo:
+        if Game.partie != Partie.demo:
             self.joueurA.clavier()
         else:
             if ai.demo_joueurA(self.joueurA, self.joueurB, self.temps):
@@ -530,7 +527,7 @@ class Battle(EmptyScene):
     def _gestion(self):
         self.joueurA.gestion(self.temps, self.joueurB,
                              self.soncling, self.songrogne, self.sontouche,
-                             Game.Partie == Partie.demo)
+                             Game.partie == Partie.demo)
         #
         if self.joueurA.state == State.retourne:
             if self.temps == self.joueurA.reftemps + 16:
@@ -555,15 +552,15 @@ class Battle(EmptyScene):
 
     @staticmethod
     def _center_txt(msg):
-        txt = Txt(CHAR_H, msg,
+        txt = Txt(Game.chh, msg,
                   color=(34, 34, 153), bgcolor=Theme.BLACK)
-        txt.rect.topleft = (SCREEN_SIZE[0] / 2 - txt.rect.w / 2, loc2pxY(11))
+        txt.rect.topleft = (Game.screen[0] / 2 - txt.rect.w / 2, loc2pxY(11))
         bg = StaticSprite((0, 0), 'fill',
-                          w=(txt.rect.w + 2 * CHAR_W) / SCALE_X,
-                          h=(txt.rect.h + 2 * CHAR_H) / SCALE_Y,
+                          w=(txt.rect.w + 2 * Game.chw) / Game.scx,
+                          h=(txt.rect.h + 2 * Game.chh) / Game.scy,
                           fill=Theme.BLACK)
-        bg.rect.topleft = (txt.rect.topleft[0] - CHAR_W,
-                           txt.rect.topleft[1] - CHAR_H)
+        bg.rect.topleft = (txt.rect.topleft[0] - Game.chw,
+                           txt.rect.topleft[1] - Game.chh)
         return bg, txt
 
     def _win(self):
@@ -577,9 +574,9 @@ class Battle(EmptyScene):
         # noinspection PyTypeChecker
         self.add(
             StaticSprite(loc(16.5, 14), 'sprites/marianna.gif'),
-            StaticSprite((186 * SCALE_X, 95 * SCALE_Y), 'fill',
+            StaticSprite((186 * Game.scx, 95 * Game.scy), 'fill',
                          w=15, h=20, fill=Theme.BLACK),
-            StaticSprite((185 * SCALE_X, 113 * SCALE_Y), 'fill',
+            StaticSprite((185 * Game.scx, 113 * Game.scy), 'fill',
                          w=18, h=2.1, fill=Theme.BLACK),
             self._center_txt('Thanks big boy.'))
         self.jeu = 'gagne'
@@ -599,10 +596,10 @@ class Battle(EmptyScene):
         self.joueurB.clavierY = 7
         self.joueurB.levier = Levier.neutre
 
-        if Game.Partie == Partie.vs:
+        if Game.partie == Partie.vs:
             self.joueurB.clavier()
         else:
-            if ai.joueurB(Game.Partie == Partie.demo, Game.IA,
+            if ai.joueurB(Game.partie == Partie.demo, Game.ia,
                           self.joueurA, self.joueurB, self.temps):
                 return
         # redirection suivant les touches
@@ -614,7 +611,7 @@ class Battle(EmptyScene):
     def _gestionB(self):
         self.joueurB.gestion(self.temps, self.joueurA,
                              self.soncling, self.songrogne, self.sontouche,
-                             Game.Partie != Partie.vs)
+                             Game.partie != Partie.vs)
         #
         if self.joueurB.state == State.vainqueurKO:
             if self.temps > self.joueurB.reftemps + 230:
@@ -675,12 +672,12 @@ class Battle(EmptyScene):
         self.serpentB.animate('bite')
 
     def on_scoreA(self, increment):
-        Game.ScoreA += increment
-        self.txtScoreA.msg = f'{Game.ScoreA:05}'
+        Game.scoreA += increment
+        self.txtScoreA.msg = f'{Game.scoreA:05}'
 
     def on_scoreB(self, increment):
-        Game.ScoreB += increment
-        self.txtScoreB.msg = f'{Game.ScoreB:05}'
+        Game.scoreB += increment
+        self.txtScoreB.msg = f'{Game.scoreB:05}'
 
     def on_mort(self, mort: Barbarian):
         self.chronoOn = False
@@ -697,24 +694,24 @@ class Battle(EmptyScene):
         gnome = self.gnomeSprite
 
         if mort.state == State.mort:
-            if (gnome.rect.left >= mort.rect.right - CHAR_W
+            if (gnome.rect.left >= mort.rect.right - Game.chw
                     and mort.anim != 'mortgnome'):
                 mort.topleft = mort.rect.topleft
                 mort.animate('mortgnome')
         elif mort.state == State.mortdecap:
-            if (gnome.rect.left >= mort.rect.right - CHAR_W
+            if (gnome.rect.left >= mort.rect.right - Game.chw
                     and mort.anim != 'mortdecapgnome'):
                 mort.topleft = mort.rect.topleft
                 mort.animate('mortdecapgnome')
             if mort.tete.alive():
                 if gnome.rect.right >= mort.tete.rect.center[0]:
                     mort.animate_football()
-                if mort.tete.rect.left > SCREEN_SIZE[0]:
+                if mort.tete.rect.left > Game.screen[0]:
                     mort.stop_football()
         if gnome.alive() and mort.xLoc > MORT_RIGHT_BORDER:
             gnome.kill()
             mort.kill()
-            if Game.Partie == Partie.vs:
+            if Game.partie == Partie.vs:
                 vainqueur.bonus = True
             else:
                 vainqueur.sortie = True
@@ -730,7 +727,7 @@ class Battle(EmptyScene):
             if self.chronometre < 1:
                 self.chronometre = 0
                 self.chronoOn = False
-                if Game.Partie == Partie.vs:
+                if Game.partie == Partie.vs:
                     ja.sortie = jb.sortie = True
                     ja.occupe = jb.occupe = False
                     self.tempsfini = True
@@ -761,17 +758,17 @@ class Battle(EmptyScene):
             self.joueurA.set_frame('debout', 0)
             self.joueurB.set_frame('debout', 0)
             self.entree = False
-            if Game.Partie == Partie.vs:
+            if Game.partie == Partie.vs:
                 self.chronoOn = True
 
     def check_sortiedA(self, jax, jbx):
         if not self.tempsfini:
             if jbx >= MORT_RIGHT_BORDER and (jax <= 0 or 38 <= jax):
-                if Game.Partie in (Partie.demo, Partie.vs):
+                if Game.partie in (Partie.demo, Partie.vs):
                     self.finish()
-                elif Game.Partie == Partie.solo and Game.IA < 7:
+                elif Game.partie == Partie.solo and Game.ia < 7:
                     self.next_stage()
-                elif Game.Partie == Partie.solo:
+                elif Game.partie == Partie.solo:
                     self.start_sorcier()
         elif (jax < 2 and 38 < jbx) or (jbx < 2 and 38 < jax):
             self.next_stage()
@@ -869,10 +866,10 @@ class Version(_MenuBackScene):
         if evt.type != KEYUP:
             return
         elif evt.key == K_1:
-            Game.Country = 'Europe'
+            Game.country = 'Europe'
             self.on_display()
         elif evt.key == K_2:
-            Game.Country = 'USA'
+            Game.country = 'USA'
             self.on_display()
         elif evt.key == K_ESCAPE:
             self.on_back()
@@ -906,16 +903,16 @@ class SelectStage(_MenuBackScene):
         if evt.type != KEYUP:
             return
         elif evt.key == K_1:
-            Game.Decor = 'plaine'
+            Game.decor = 'plaine'
             self.on_start()
         elif evt.key == K_2:
-            Game.Decor = 'foret'
+            Game.decor = 'foret'
             self.on_start()
         elif evt.key == K_3:
-            Game.Decor = 'trone'
+            Game.decor = 'trone'
             self.on_start()
         elif evt.key == K_4:
-            Game.Decor = 'arene'
+            Game.decor = 'arene'
             self.on_start()
         elif evt.key in (K_6, K_ESCAPE):
             self.on_back()
@@ -925,11 +922,11 @@ class ControlsKeys(_MenuBackScene):
     def __init__(self, opts, *, on_next):
         super(ControlsKeys, self).__init__(opts, 'menu/titre2.png')
         self.on_next = on_next
-        sz = CHAR_H
+        sz = Game.chh
         self.add([
             StaticSprite((0, 0), 'menu/playerA.png',
                          color=(255, 255, 255)),
-            StaticSprite((280 * SCALE_X, 0), 'menu/playerB.png',
+            StaticSprite((280 * Game.scx, 0), 'menu/playerB.png',
                          color=(255, 255, 255)),
             Txt(sz, 'CONTROLS KEYS', Theme.OPTS_TITLE, loc(14, 11)),
 
@@ -964,9 +961,9 @@ class ControlsMoves(EmptyScene):
     def __init__(self, opts, *, on_next):
         super(ControlsMoves, self).__init__(opts)
         self.on_next = on_next
-        sz = CHAR_H
+        sz = Game.chh
         self.add([
-            StaticSprite((100 * SCALE_X, 40 * SCALE_Y), 'menu/controls1.gif'),
+            StaticSprite((100 * Game.scx, 40 * Game.scy), 'menu/controls1.gif'),
             Txt(sz, 'MOVING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
 
             Txt(sz, 'jump', Theme.OPTS_TXT, loc(19, 5)),
@@ -996,9 +993,9 @@ class ControlsFight(EmptyScene):
     def __init__(self, opts, *, on_next):
         super(ControlsFight, self).__init__(opts)
         self.on_next = on_next
-        sz = CHAR_H
+        sz = Game.chh
         self.add([
-            StaticSprite((100 * SCALE_X, 40 * SCALE_Y), 'menu/controls2.gif'),
+            StaticSprite((100 * Game.scx, 40 * Game.scy), 'menu/controls2.gif'),
             Txt(sz, 'FIGHTING CONTROLS', Theme.OPTS_TITLE, loc(13, 2)),
             Txt(sz, '(with attack key)', Theme.OPTS_TITLE, loc(13, 3)),
 
@@ -1029,7 +1026,7 @@ class Credits(EmptyScene):
     def __init__(self, opts, *, on_back):
         super(Credits, self).__init__(opts)
         self.on_back = on_back
-        sz = CHAR_H
+        sz = Game.chh
         col = Theme.OPTS_TXT
         self.add([
             StaticSprite((0, 0), 'menu/team.png'),
@@ -1068,7 +1065,7 @@ class History(EmptyScene):
     def __init__(self, opts, *, on_back):
         super(History, self).__init__(opts)
         self.on_back = on_back
-        sz = CHAR_H
+        sz = Game.chh
         col = Theme.OPTS_TXT
         self.add([
             Txt(sz, 'The evil sorcerer Drax desires        ', col, loc(2, 2)),

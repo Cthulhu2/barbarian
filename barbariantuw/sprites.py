@@ -9,7 +9,7 @@ from pygame.time import get_ticks
 from pygame.transform import scale
 
 import barbariantuw.anims as anims
-from barbariantuw import CHAR_W, CHAR_H, FRAME_RATE, FONT, Theme, Levier, State
+from barbariantuw import Game, FRAME_RATE, FONT, Theme, Levier, State
 from barbariantuw.anims import get_img
 
 
@@ -19,7 +19,7 @@ def px2locX(x: float) -> int:
     :param x: 0..959
     :return: 1..40
     """
-    return int(x / CHAR_W + 1)
+    return int(x / Game.chw + 1)
 
 
 def px2locY(y: float) -> int:
@@ -28,7 +28,7 @@ def px2locY(y: float) -> int:
     :param y: 0..599
     :return: 1..25
     """
-    return int(y / CHAR_H + 1)
+    return int(y / Game.chh + 1)
 
 
 def loc2pxX(x: int) -> int:
@@ -37,7 +37,7 @@ def loc2pxX(x: int) -> int:
     :param x: 1..40
     :return:
     """
-    return (x - 1) * CHAR_W
+    return (x - 1) * Game.chw
 
 
 def loc2pxY(y: int) -> int:
@@ -46,7 +46,7 @@ def loc2pxY(y: int) -> int:
     :param y: 1..25
     :return:
     """
-    return (y - 1) * CHAR_H
+    return (y - 1) * Game.chh
 
 
 def loc(x: int, y: int) -> Tuple[int, int]:
@@ -1442,9 +1442,9 @@ class Barbarian(AnimatedSprite):
             # noinspection PyTypeChecker
             gr.add(self.sang, layer=3)
         if self.rtl:
-            self.sang.topleft = (self.x + 1 * CHAR_W, y)
+            self.sang.topleft = (self.x + 1 * Game.chw, y)
         else:
-            self.sang.topleft = (self.x + 2 * CHAR_W, y)
+            self.sang.topleft = (self.x + 2 * Game.chw, y)
         self.sang.animate('sang_touche')
 
     def animate(self, anim: str, tick=0):
@@ -1555,7 +1555,7 @@ class Sorcier(AnimatedSprite):
         for gr in self.groups():  # type:LayeredDirty
             # noinspection PyTypeChecker
             gr.add(self.sangSprite, layer=3)
-        self.sangSprite.topleft = (self.x + 2 * CHAR_W, y)
+        self.sangSprite.topleft = (self.x + 2 * Game.chw, y)
         self.sangSprite.animate('sang_touche')
         anims.snd_play('touche.ogg')
 

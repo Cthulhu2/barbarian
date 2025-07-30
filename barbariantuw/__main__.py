@@ -24,14 +24,9 @@ from os.path import join
 import pygame
 from pygame import display, event, mixer, init, time, image
 
-import barbariantuw
-import barbariantuw.ai as ai
 import barbariantuw.anims as anims
 import barbariantuw.scenes as scenes
-import barbariantuw.sprites as sprites
-from barbariantuw import (
-    OPTS, Game, Partie, IMG_PATH, SCREEN_SIZE, FRAME_RATE, SCALE_X, SCALE_Y
-)
+from barbariantuw import OPTS, Game, Partie, IMG_PATH, FRAME_RATE
 from barbariantuw.sprites import Txt, loc2pxX
 
 psutil = None
@@ -49,7 +44,7 @@ class BarbarianMain(object):
         init()
         pgdi = display.Info()
         self.desktopSize = (pgdi.current_w, pgdi.current_h)
-        self.screen = display.set_mode(SCREEN_SIZE)
+        self.screen = display.set_mode(Game.screen)
         if opts.sound:
             mixer.pre_init(44100, -16, 1, 4096)
         display.set_caption('BARBARIAN AMIGA (PyGame)', 'BARBARIAN')
@@ -113,26 +108,26 @@ class BarbarianMain(object):
         self.scene = self.menu()
 
     def start_battle_demo(self):
-        Game.ScoreA = 0
-        Game.ScoreB = 0
-        Game.Decor = 'foret'
-        Game.IA = 4
-        Game.Partie = Partie.demo
+        Game.scoreA = 0
+        Game.scoreB = 0
+        Game.decor = 'foret'
+        Game.ia = 4
+        Game.partie = Partie.demo
         self.start_battle()
 
     def start_battle_solo(self):
-        Game.ScoreA = 0
-        Game.ScoreB = 0
-        Game.Decor = 'foret'
-        Game.IA = 0
-        Game.Partie = Partie.solo
+        Game.scoreA = 0
+        Game.scoreB = 0
+        Game.decor = 'foret'
+        Game.ia = 0
+        Game.partie = Partie.solo
         self.start_battle()
 
     def start_battle_duel(self):
-        Game.ScoreA = 0
-        Game.ScoreB = 0
-        Game.IA = 0
-        Game.Partie = Partie.vs
+        Game.scoreA = 0
+        Game.scoreB = 0
+        Game.ia = 0
+        Game.partie = Partie.vs
         self.scene = scenes.SelectStage(self.opts,
                                         on_start=self.start_battle,
                                         on_back=self.show_menu)
@@ -147,32 +142,32 @@ class BarbarianMain(object):
         self.show_menu()
 
     def next_stage(self):
-        if Game.Partie == Partie.solo:
-            Game.IA += 1
-            if Game.IA == 1:
-                Game.Decor = 'plaine'
-            if Game.IA == 2:
-                Game.Decor = 'foret'
-            if Game.IA == 3:
-                Game.Decor = 'plaine'
-            if Game.IA == 4:
-                Game.Decor = 'trone'
-            if Game.IA == 5:
-                Game.Decor = 'arene'
-            if Game.IA == 6:
-                Game.Decor = 'trone'
-            if Game.IA == 7:
-                Game.Decor = 'arene'
+        if Game.partie == Partie.solo:
+            Game.ia += 1
+            if Game.ia == 1:
+                Game.decor = 'plaine'
+            if Game.ia == 2:
+                Game.decor = 'foret'
+            if Game.ia == 3:
+                Game.decor = 'plaine'
+            if Game.ia == 4:
+                Game.decor = 'trone'
+            if Game.ia == 5:
+                Game.decor = 'arene'
+            if Game.ia == 6:
+                Game.decor = 'trone'
+            if Game.ia == 7:
+                Game.decor = 'arene'
 
-        if Game.Partie == Partie.vs:
-            if Game.Decor == 'plaine':
-                Game.Decor = 'foret'
-            elif Game.Decor == 'foret':
-                Game.Decor = 'plaine'
-            elif Game.Decor == 'trone':
-                Game.Decor = 'arene'
-            elif Game.Decor == 'arene':
-                Game.Decor = 'trone'
+        if Game.partie == Partie.vs:
+            if Game.decor == 'plaine':
+                Game.decor = 'foret'
+            elif Game.decor == 'foret':
+                Game.decor = 'plaine'
+            elif Game.decor == 'trone':
+                Game.decor = 'arene'
+            elif Game.decor == 'arene':
+                Game.decor = 'trone'
 
         self.start_battle()
 
@@ -206,21 +201,16 @@ class BarbarianMain(object):
 
     # noinspection PyTypeChecker
     @staticmethod
-    def reinit(size=SCREEN_SIZE, scx=SCALE_X, scy=SCALE_Y):
+    def reinit(size=Game.screen, scx=Game.scx, scy=Game.scy):
         anims.img_cache.clear()
         Txt.cache.clear()
-        gc.collect(generation=0)
+        gc.collect()
         #
-        barbariantuw.SCREEN_SIZE = size
-        barbariantuw.SCALE_X = scx
-        barbariantuw.SCALE_Y = scy
-        barbariantuw.CHAR_W = int(320 / 40 * scx)
-        barbariantuw.CHAR_H = int(200 / 25 * scy)
-        #
-        importlib.reload(anims)
-        importlib.reload(sprites)
-        importlib.reload(ai)
-        importlib.reload(scenes)
+        Game.screen = size
+        Game.scx = scx
+        Game.scy = scy
+        Game.chw = int(320 / 40 * scx)
+        Game.chh = int(200 / 25 * scy)
 
     def on_fullscreen(self):
         # TODO: Toggle fullscreen with multi-display
@@ -236,7 +226,7 @@ class BarbarianMain(object):
         if not self.opts.web and pygame.display.is_fullscreen():
             self.reinit()
             pygame.display.toggle_fullscreen()
-            pygame.display.set_mode(SCREEN_SIZE)
+            pygame.display.set_mode(Game.screen)
         self.show_logo()
 
     async def main(self):
