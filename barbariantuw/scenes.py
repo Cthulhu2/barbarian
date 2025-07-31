@@ -55,12 +55,21 @@ class Logo(EmptyScene):
         self.titre = True
 
         if Game.country == 'USA':
-            img = get_img('menu/titre.png').copy()
+            img = get_img('menu/menu_.png').copy()
             logo_ds = get_img('menu/logoDS.png')
             img.blit(logo_ds, (46 * Game.scx, 10 * Game.scy))
         else:
-            img = get_img('menu/titre.png')
+            img = get_img('menu/menu_.png')
 
+        heroes = StaticSprite((0, 86 * Game.scy), 'menu/heroes.png', self)
+        heroes.rect.x = Game.screen[0] / 2 - heroes.rect.w / 2
+        hiscores = Game.get_hiscores()
+        sz = int(8 * Game.scy)
+        top = 114 * Game.scy
+        for i, (name, score) in enumerate(hiscores):
+            col = Theme.LEADER_TXT if i == 0 else Theme.TXT
+            txt = Txt(sz, f'{name:3} {score:05}', col, (121 * Game.scx, top), self)
+            top = txt.rect.bottom + 4 * Game.scy
         # noinspection PyTypeChecker
         self.clear(None, img)
         self.repaint_rect(((0, 0), Game.screen))
@@ -233,7 +242,7 @@ class Menu(_MenuBackScene):
                  on_demo, on_solo, on_duel,
                  on_options, on_controls,
                  on_history, on_credits, on_quit):
-        super(Menu, self).__init__(opts, 'menu/menu.png')
+        super(Menu, self).__init__(opts, 'menu/menu_.png')
         self.on_demo = on_demo
         self.on_solo = on_solo
         self.on_duel = on_duel
@@ -242,6 +251,20 @@ class Menu(_MenuBackScene):
         self.on_history = on_history
         self.on_credits = on_credits
         self.on_quit = on_quit
+        sz = int(7 * Game.scy)
+        col = Theme.MENU_TXT
+        txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, 'OPTION', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, '0 DEMO', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
+        txt = Txt(sz, '1 ONE PLAYER', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, '2 TWO PLAYERS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, '3 OPTIONS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, '4 CONTROLS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, '5 STORY', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, '6 CREDITS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        Txt(sz, '7 QUIT', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -854,9 +877,17 @@ class Battle(EmptyScene):
 
 class Version(_MenuBackScene):
     def __init__(self, opts, *, on_display, on_back):
-        super(Version, self).__init__(opts, 'menu/version.png')
+        super(Version, self).__init__(opts, 'menu/menu_.png')
         self.on_display = on_display
         self.on_back = on_back
+        sz = int(7 * Game.scy)
+        col = Theme.MENU_TXT
+        txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, 'VERSION', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, '1 EUROPE', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
+        Txt(sz, '2 USA', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -873,10 +904,18 @@ class Version(_MenuBackScene):
 
 class Display(_MenuBackScene):
     def __init__(self, opts, *, on_fullscreen, on_window, on_back):
-        super(Display, self).__init__(opts, 'menu/display.png')
+        super(Display, self).__init__(opts, 'menu/menu_.png')
         self.on_fullscreen = on_fullscreen
         self.on_window = on_window
         self.on_back = on_back
+        sz = int(7 * Game.scy)
+        col = Theme.MENU_TXT
+        txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, 'DISPLAY', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, '1 FULLSCREEN', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
+        Txt(sz, '2 WINDOWS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
 
     def process_event(self, evt):
         if evt.type != KEYUP:
@@ -891,9 +930,20 @@ class Display(_MenuBackScene):
 
 class SelectStage(_MenuBackScene):
     def __init__(self, opts, *, on_start, on_back):
-        super(SelectStage, self).__init__(opts, 'menu/stage.png')
+        super(SelectStage, self).__init__(opts, 'menu/menu_.png')
         self.on_start = on_start
         self.on_back = on_back
+        sz = int(7 * Game.scy)
+        col = Theme.MENU_TXT
+        txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, 'STAGE', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt = Txt(sz, '1 WASTELAND', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
+        txt = Txt(sz, '2 FOREST', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, '3 THRONE', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, '4 ARENA', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        Txt(sz, '6 BACK', col, (112 * Game.scx, txt.rect.bottom + sz + 4 * Game.scy), self)
 
     def process_event(self, evt):
         if evt.type != KEYUP:

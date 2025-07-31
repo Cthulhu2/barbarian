@@ -20,8 +20,10 @@ class Theme:
     DEBUG = (38, 213, 255)  # cyan
     OPTS_TITLE = (255, 238, 0)
     OPTS_TXT = (255, 255, 255)  # white
+    MENU_TXT = (187, 102, 0)
     BACK = (0, 0, 0)  # black
     TXT = (0, 0, 0)  # black
+    LEADER_TXT = (128, 128, 128)
     #
     VIEWER_BACK = (55, 55, 55)  # dark gray
     VIEWER_TXT = (225, 225, 225)  # light gray
@@ -54,6 +56,16 @@ class Game:  # Mutable options
     screen = (320 * scx, 200 * scy)
     chw = int(320 / 40 * scx)  # character width, 24
     chh = int(200 / 25 * scy)  # character height, 24
+
+    @staticmethod
+    def get_hiscores():
+        # TODO: Store/Load hiscores
+        return [('RL', 10000),
+                ('SB', 5000),
+                ('GC', 4000),
+                ('JW', 3000),
+                ('RJ', 2000),
+                ('KC', 1000)]
 
 
 class Levier(enum.Enum):

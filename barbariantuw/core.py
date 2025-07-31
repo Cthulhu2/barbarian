@@ -299,9 +299,10 @@ class StaticSprite(DirtySprite):
     def __init__(self,
                  pos: Tuple[int, int],
                  img: str,
+                 /,
+                 *groups: AbstractGroup,
                  w=0, h=0, xflip: bool = False, fill=None,
-                 color: Tuple[int, int, int] = None,
-                 *groups: AbstractGroup):
+                 color: Tuple[int, int, int] = None):
         super().__init__(*groups)
         self.image = get_img(img, w=w, h=h, xflip=xflip, fill=fill, color=color)
         self.rect = self.image.get_rect()
