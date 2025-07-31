@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "barbariantuw"
-version = "0.1.0"
+dynamic = ["version"]
 authors = [{ name = "Cthulhu Fhtagn" }, ]
 description = "'Barbarian - The Ultimate Warrior' game clone"
 readme = "README.MD"
@@ -22,6 +22,9 @@ optional-dependencies.dev = ["psutil", "build", "nuitka", "pygbag"]
 scripts.barbariantuw = "barbariantuw.__main__:run"
 urls.Homepage = "https://codeberg.org/cthulhu/barbarian"
 urls.Issues = "https://codeberg.org/cthulhu/barbarian/issues"
+
+[tool.setuptools.dynamic]
+version = { attr = "barbariantuw.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["."]

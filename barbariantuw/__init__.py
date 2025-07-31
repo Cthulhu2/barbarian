@@ -3,6 +3,9 @@ import os
 import sys
 from optparse import Values
 
+__version__ = '0.1.0'
+PROG = 'barbariantuw'
+
 OPTS = Values()
 BASE_PATH = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else
                             __file__)

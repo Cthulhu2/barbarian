@@ -86,5 +86,5 @@ WebAssembly zip-archive for itch.io:
 ### Nuitka
 Executable:
 ```shell
-(.venv) $ nuitka barbariantuw
+(.venv) $ python3 -m build_nuitka
 ```

@@ -1,18 +1,5 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
-
-# TODO: Define version in single place
-# See also pyproject.toml version.
-
-# nuitka-project: --product-name=barbariantuw
-# nuitka-project: --product-version=0.1.0
-# nuitka-project: --file-description="'Barbarian - The Ultimate Warrior' game clone"
-# nuitka-project: --onefile
-# nuitka-project: --onefile-tempdir-spec="{CACHE_DIR}/{PRODUCT}/{VERSION}"
-# nuitka-project: --include-data-dir=barbariantuw/fnt=barbariantuw/fnt
-# nuitka-project: --include-data-dir=barbariantuw/img=barbariantuw/img
-# nuitka-project: --include-data-dir=barbariantuw/snd=barbariantuw/snd
-
 import asyncio
 import gc
 import importlib
@@ -26,7 +13,9 @@ from pygame import display, event, mixer, init, time, image
 
 import barbariantuw.anims as anims
 import barbariantuw.scenes as scenes
-from barbariantuw import OPTS, Game, Partie, IMG_PATH, FRAME_RATE
+from barbariantuw import (
+    __version__, PROG, OPTS, Game, Partie, IMG_PATH, FRAME_RATE,
+)
 from barbariantuw.sprites import Txt, loc2pxX
 
 psutil = None
@@ -287,8 +276,9 @@ class BarbarianMain(object):
 
 
 def option_parser():
-    parser = OptionParser(usage='usage: %prog [options]',
-                          version='%prog 0.1')
+    parser = OptionParser(prog=PROG,
+                          usage='usage: %prog [options]',
+                          version=f'%prog {__version__}')
 
     parser.add_option('--no-sound',
                       action='store_false',
