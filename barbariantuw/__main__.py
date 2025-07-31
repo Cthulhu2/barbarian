@@ -12,11 +12,13 @@ import pygame
 from pygame import display, event, mixer, init, time, image
 
 import barbariantuw.anims as anims
+import barbariantuw.core
 import barbariantuw.scenes as scenes
 from barbariantuw import (
     __version__, PROG, OPTS, Game, Partie, IMG_PATH, FRAME_RATE,
 )
-from barbariantuw.sprites import Txt, loc2pxX
+from barbariantuw.sprites import loc2pxX
+from barbariantuw.core import Txt
 
 psutil = None
 if sys.platform != 'emscripten':
@@ -191,7 +193,7 @@ class BarbarianMain(object):
     # noinspection PyTypeChecker
     @staticmethod
     def reinit(size=Game.screen, scx=Game.scx, scy=Game.scy):
-        anims.img_cache.clear()
+        barbariantuw.core.img_cache.clear()
         Txt.cache.clear()
         gc.collect()
         #

@@ -9,11 +9,11 @@ from pygame.time import get_ticks
 import barbariantuw.ai as ai
 import barbariantuw.anims as anims
 from barbariantuw import Game, Partie, Theme, Levier, State
-from barbariantuw.anims import get_img, rtl_anims, get_snd
-from barbariantuw.sprites import (
-    Txt, AnimatedSprite, StaticSprite, Barbarian,
-    loc2pxX, loc2pxY, loc, Sorcier, Rectangle,
+from barbariantuw.core import (
+    get_img, get_snd, snd_play, snd_stop, rtl_anims,
+    Rectangle, Txt, StaticSprite, AnimatedSprite
 )
+from barbariantuw.sprites import Barbarian, loc2pxX, loc2pxY, loc, Sorcier
 
 
 class EmptyScene(LayeredDirty):
@@ -157,7 +157,6 @@ class Logo(EmptyScene):
         get_img('sprites/marianna.gif')
 
         # gnome
-
         get_img('sprites/gnome1.gif')
         get_img('sprites/gnome2.gif')
         get_img('sprites/gnome3.gif')
@@ -396,25 +395,24 @@ class Battle(EmptyScene):
 
     def finish(self):
         if self.opts.sound:
-            get_snd('mortdecap.ogg').stop()
-            get_snd('mortKO.ogg').stop()
-            get_snd('prepare.ogg').stop()
+            snd_stop('mortdecap.ogg')
+            snd_stop('mortKO.ogg')
+            snd_stop('prepare.ogg')
         self.on_menu()
 
     def next_stage(self):
         if self.opts.sound:
-            get_snd('mortdecap.ogg').stop()
-            get_snd('mortKO.ogg').stop()
-            get_snd('prepare.ogg').stop()
+            snd_stop('mortdecap.ogg')
+            snd_stop('mortKO.ogg')
+            snd_stop('prepare.ogg')
         self.on_next()
 
     def process_event(self, evt):
         if evt.type == KEYUP and evt.key == K_ESCAPE:
-            if self.jeu == 'encours':
-                if self.opts.sound:
-                    get_snd('mortdecap.ogg').stop()
-                    get_snd('mortKO.ogg').stop()
-                    get_snd('prepare.ogg').stop()
+            if self.jeu == 'encours' and self.opts.sound:
+                snd_stop('mortdecap.ogg')
+                snd_stop('mortKO.ogg')
+                snd_stop('prepare.ogg')
             Game.ia = 0
             self.on_esc()
             return
@@ -800,7 +798,7 @@ class Battle(EmptyScene):
             self.joueurX_bonus(jb, ja)
         if self.lancerintro:
             self.lancerintro = False
-            anims.snd_play('prepare.ogg')
+            snd_play('prepare.ogg')
 
         if self.entree:
             self.do_entree(ja.xLoc, jb.xLoc)

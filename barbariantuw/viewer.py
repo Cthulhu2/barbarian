@@ -11,8 +11,9 @@ from pygame.locals import *
 import barbariantuw.anims as anims
 from barbariantuw import Game, Theme, OPTS
 from barbariantuw.__main__ import BarbarianMain, option_parser
+from barbariantuw.core import Rectangle, Txt, img_cache
 from barbariantuw.scenes import EmptyScene
-from barbariantuw.sprites import Barbarian, Rectangle, Txt
+from barbariantuw.sprites import Barbarian
 
 BACKGROUND = Surface(Game.screen)
 BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
@@ -104,9 +105,9 @@ class AnimationViewerScene(EmptyScene):
             if evt.key == K_SPACE:
                 self.target.kill()
 
-                for v in anims.img_cache.values():
+                for v in img_cache.values():
                     del v
-                anims.img_cache.clear()
+                img_cache.clear()
                 importlib.reload(anims)
 
                 speed = self.target.speed
