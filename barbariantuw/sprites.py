@@ -1181,8 +1181,7 @@ class Sorcier(AnimatedSprite):
 
     # noinspection PyUnusedLocal
     def gestion(self, temps, opponent: 'Barbarian',
-                soncling: iter, songrogne: iter, sontouche: iter,
-                is_ai: bool):
+                soncling: iter, songrogne: iter, sontouche: iter):
 
         if self.state == State.debout:
             self.gestion_debout()
