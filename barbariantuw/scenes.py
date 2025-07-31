@@ -920,10 +920,9 @@ class ControlsKeys(_MenuBackScene):
         self.on_next = on_next
         sz = Game.chh
         self.add([
-            StaticSprite((0, 0), 'menu/playerA.png',
-                         color=(255, 255, 255)),
-            StaticSprite((280 * Game.scx, 0), 'menu/playerB.png',
-                         color=(255, 255, 255)),
+            StaticSprite((0, 0), 'spritesA/debout.gif'),
+            StaticSprite((280 * Game.scx, 0), 'spritesB/spritesB4/debout.gif',
+                         xflip=True),
             Txt(sz, 'CONTROLS KEYS', Theme.OPTS_TITLE, loc(14, 11)),
 
             Txt(sz, ' PLAYER A      ', Theme.OPTS_TXT, loc(2, 11)),

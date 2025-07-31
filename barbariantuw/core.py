@@ -299,11 +299,11 @@ class StaticSprite(DirtySprite):
     def __init__(self,
                  pos: Tuple[int, int],
                  img: str,
-                 w=0, h=0, fill=None,
+                 w=0, h=0, xflip: bool = False, fill=None,
                  color: Tuple[int, int, int] = None,
                  *groups: AbstractGroup):
         super().__init__(*groups)
-        self.image = get_img(img, w=w, h=h, fill=fill, color=color)
+        self.image = get_img(img, w=w, h=h, xflip=xflip, fill=fill, color=color)
         self.rect = self.image.get_rect()
         self.rect.move_ip(pos[0], pos[1])
 
