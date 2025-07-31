@@ -804,6 +804,7 @@ class Barbarian(AnimatedSprite):
         self.xT = self.xLoc + 2
         self.yAtt = self.yM
         self.yM = YM
+        self.yT = YT
         if temps > self.reftemps + 50:
             self.deoccupe_state(State.debout)
             self.xF = self.xLoc + (0 if self.rtl else 4)
