@@ -9,16 +9,15 @@ from barbariantuw import __version__, PROG
 arch = getArchitecture()
 
 
-def main():
+def main(*args):
     nuitka_args = [
         f'--product-name={PROG}',
         f'--product-version={__version__}',
         '--file-description=\'Barbarian - The Ultimate Warrior\' game clone',
         '--onefile',
         '--onefile-tempdir-spec={CACHE_DIR}/{PRODUCT}/{VERSION}',
-        '--noinclude-setuptools-mode=nofollow',
-        '--noinclude-unittest-mode=nofollow',
-        '--noinclude-pytest-mode=nofollow',
+        '--nofollow-import-to=*.tests',
+        '--noinclude-default-mode=nofollow',
         '--include-data-dir=barbariantuw/fnt=barbariantuw/fnt',
         '--include-data-dir=barbariantuw/img=barbariantuw/img',
         '--include-data-dir=barbariantuw/snd=barbariantuw/snd',
@@ -35,10 +34,12 @@ def main():
             '--windows-console-mode=disable',
             f'--output-filename=barbariantuw-{__version__}_win_{arch}.exe',
         ])
+    if args:
+        nuitka_args.extend(args)
     subprocess.run([
         'nuitka', *nuitka_args, 'barbariantuw'
     ], check=True)
 
 
 if __name__ == "__main__":
-    main()
+    main(*sys.argv[1:])
