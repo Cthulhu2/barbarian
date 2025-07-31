@@ -55,11 +55,11 @@ class Logo(EmptyScene):
         self.titre = True
 
         if Game.country == 'USA':
-            img = get_img('menu/menu_.png').copy()
+            img = get_img('menu/menu.png').copy()
             logo_ds = get_img('menu/logoDS.png')
             img.blit(logo_ds, (46 * Game.scx, 10 * Game.scy))
         else:
-            img = get_img('menu/menu_.png')
+            img = get_img('menu/menu.png')
 
         heroes = StaticSprite((0, 86 * Game.scy), 'menu/heroes.png', self)
         heroes.rect.x = Game.screen[0] / 2 - heroes.rect.w / 2
@@ -242,7 +242,7 @@ class Menu(_MenuBackScene):
                  on_demo, on_solo, on_duel,
                  on_options, on_controls,
                  on_history, on_credits, on_quit):
-        super(Menu, self).__init__(opts, 'menu/menu_.png')
+        super(Menu, self).__init__(opts, 'menu/menu.png')
         self.on_demo = on_demo
         self.on_solo = on_solo
         self.on_duel = on_duel
@@ -877,7 +877,7 @@ class Battle(EmptyScene):
 
 class Version(_MenuBackScene):
     def __init__(self, opts, *, on_display, on_back):
-        super(Version, self).__init__(opts, 'menu/menu_.png')
+        super(Version, self).__init__(opts, 'menu/menu.png')
         self.on_display = on_display
         self.on_back = on_back
         sz = int(7 * Game.scy)
@@ -904,7 +904,7 @@ class Version(_MenuBackScene):
 
 class Display(_MenuBackScene):
     def __init__(self, opts, *, on_fullscreen, on_window, on_back):
-        super(Display, self).__init__(opts, 'menu/menu_.png')
+        super(Display, self).__init__(opts, 'menu/menu.png')
         self.on_fullscreen = on_fullscreen
         self.on_window = on_window
         self.on_back = on_back
@@ -930,7 +930,7 @@ class Display(_MenuBackScene):
 
 class SelectStage(_MenuBackScene):
     def __init__(self, opts, *, on_start, on_back):
-        super(SelectStage, self).__init__(opts, 'menu/menu_.png')
+        super(SelectStage, self).__init__(opts, 'menu/menu.png')
         self.on_start = on_start
         self.on_back = on_back
         sz = int(7 * Game.scy)
