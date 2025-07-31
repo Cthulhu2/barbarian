@@ -526,8 +526,7 @@ class Battle(EmptyScene):
 
     def _gestion(self):
         self.joueurA.gestion(self.temps, self.joueurB,
-                             self.soncling, self.songrogne, self.sontouche,
-                             Game.partie == Partie.demo)
+                             self.soncling, self.songrogne, self.sontouche)
         #
         if self.joueurA.state == State.retourne:
             if self.temps == self.joueurA.reftemps + 16:
@@ -610,8 +609,7 @@ class Battle(EmptyScene):
 
     def _gestionB(self):
         self.joueurB.gestion(self.temps, self.joueurA,
-                             self.soncling, self.songrogne, self.sontouche,
-                             Game.partie != Partie.vs)
+                             self.soncling, self.songrogne, self.sontouche)
         #
         if self.joueurB.state == State.vainqueurKO:
             if self.temps > self.joueurB.reftemps + 230:

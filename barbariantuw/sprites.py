@@ -746,14 +746,13 @@ class Barbarian(AnimatedSprite):
 
     # region gestions
     def gestion(self, temps, opponent: 'Barbarian',
-                soncling: iter, songrogne: iter, sontouche: iter,
-                is_ai: bool):
+                soncling: iter, songrogne: iter, sontouche: iter):
 
         if self.state == State.attente:
             self.gestion_attente(temps)
 
         elif self.state == State.debout:
-            self.gestion_debout(temps, is_ai)
+            self.gestion_debout(temps)
 
         elif self.state == State.avance:
             self.gestion_avance(temps, opponent, soncling, songrogne)
@@ -1255,7 +1254,7 @@ class Barbarian(AnimatedSprite):
         elif self.anim != 'retourne':
             self.animate('retourne')
 
-    def gestion_debout(self, temps, is_ai):
+    def gestion_debout(self, temps):
         if self.anim != 'debout':
             self.set_frame('debout', 0)
         self.decapite = True
@@ -1263,7 +1262,7 @@ class Barbarian(AnimatedSprite):
         self.yAtt = 14
         self.reset_yX()
         self.reset_xX_front()
-        if is_ai and temps > self.reftemps + 20:
+        if temps > self.reftemps + 20:  # for ai, see occupe debout
             self.occupe = False
 
     def gestion_touche(self, temps, opponent: 'Barbarian', sontouche: iter):
