@@ -3,7 +3,8 @@ from math import ceil
 from os.path import join
 from typing import Dict, Callable, TypedDict, Tuple, List, Optional, Iterator
 
-from pygame import Surface, image, Sound, Rect, Font
+from pygame import Surface, image, Rect, Font
+from pygame.mixer import Sound  # import pygame.Sound breaks WASM!!!
 from pygame.sprite import Group, AbstractGroup, DirtySprite
 from pygame.time import get_ticks
 from pygame.transform import scale, rotate, flip

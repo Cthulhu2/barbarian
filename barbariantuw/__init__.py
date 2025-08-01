@@ -1,9 +1,12 @@
+__version__ = '0.1.0'
+
 import enum
 import os
 import sys
 from optparse import Values
+from pathlib import Path
+from typing import List, Tuple, Union
 
-__version__ = '0.1.0'
 PROG = 'barbariantuw'
 
 OPTS = Values()
@@ -44,6 +47,16 @@ class Partie(enum.Enum):
     vs = enum.auto()
 
 
+def appdata(file: str) -> Union[Path, str]:
+    if sys.platform == 'emscripten':
+        return f'{PROG}/{file}'
+
+    if sys.platform == 'windows':
+        return Path(os.getenv('LOCALAPPDATA')) / f'{PROG}/{file}'
+
+    return Path.home() / f'.local/share/{PROG}/{file}'
+
+
 class Game:  # Mutable options
     country = 'Europe'  # USA, Europe
     decor = 'foret'  # foret, plaine, trone, arene
@@ -58,14 +71,53 @@ class Game:  # Mutable options
     chh = int(200 / 25 * scy)  # character height, 24
 
     @staticmethod
-    def get_hiscores():
-        # TODO: Store/Load hiscores
-        return [('RL', 10000),
-                ('SB', 5000),
-                ('GC', 4000),
-                ('JW', 3000),
-                ('RJ', 2000),
-                ('KC', 1000)]
+    def load_hiscores() -> List[Tuple[int, str]]:
+        hiscores = None
+        try:
+            fScores = appdata('hiscores.dat')
+            if sys.platform == 'emscripten':
+                # noinspection PyUnresolvedReferences
+                from platform import window
+                hiscores = window.localStorage.getItem(f'{fScores}')
+            elif fScores.is_file():
+                hiscores = fScores.read_text()
+
+            if hiscores:
+                scores = []
+
+                for line in hiscores.split(os.linesep):
+                    if line:
+                        score, name = line.split(' ', maxsplit=1)
+                        scores.append((min(99999, int(score)), name[0:3]))
+                if scores:
+                    return scores  #
+        except Exception as ex:
+            print(f'get_hiscores error: {ex}')
+
+        return [(10000, 'RL'),
+                (5000, 'SB'),
+                (4000, 'GC'),
+                (3000, 'JW'),
+                (2000, 'RJ'),
+                (1000, 'KC')]
+
+    @staticmethod
+    def save_hiscores(hiscores: List[Tuple[int, str]]):
+        hiscores = os.linesep.join([f'{score} {name}'
+                                    for score, name in hiscores])
+        #
+        try:
+            fScores = appdata('hiscores.dat')
+            if sys.platform == 'emscripten':
+                # noinspection PyUnresolvedReferences
+                from platform import window
+                window.localStorage.setItem(fScores, hiscores)
+            else:
+                if not fScores.exists():
+                    fScores.parent.mkdir(parents=True, exist_ok=True)
+                fScores.write_text(hiscores)
+        except Exception as ex:
+            print(f'set_hiscores error: {ex}')
 
 
 class Levier(enum.Enum):

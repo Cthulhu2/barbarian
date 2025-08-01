@@ -130,8 +130,7 @@ class BarbarianMain(object):
 
     def finish_battle(self):
         if Game.partie == Partie.solo:
-            # TODO: Check hiscore and write name of the Winner
-            self.show_menu()
+            self.show_hiscores()
         else:
             self.show_menu()
 
@@ -192,6 +191,9 @@ class BarbarianMain(object):
 
     def show_history(self):
         self.scene = scenes.History(self.opts, on_back=self.show_menu)
+
+    def show_hiscores(self):
+        self.scene = scenes.HiScores(self.opts, on_finish=self.show_menu)
 
     # noinspection PyTypeChecker
     @staticmethod

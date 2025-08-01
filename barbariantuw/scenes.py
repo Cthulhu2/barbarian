@@ -2,7 +2,9 @@
 import enum
 from itertools import cycle
 
+import pygame.key
 from pygame import Surface, mixer
+from pygame.event import Event
 from pygame.locals import *
 from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
@@ -64,10 +66,10 @@ class Logo(EmptyScene):
 
         heroes = StaticSprite((0, 86 * Game.scy), 'menu/heroes.png', self)
         heroes.rect.x = Game.screen[0] / 2 - heroes.rect.w / 2 - 3 * Game.scx
-        hiscores = Game.get_hiscores()
+        hiscores = Game.load_hiscores()
         sz = int(8 * Game.scy)
         top = 114 * Game.scy
-        for i, (name, score) in enumerate(hiscores):
+        for i, (score, name) in enumerate(hiscores):
             col = Theme.LEADER_TXT if i == 0 else Theme.TXT
             txt = Txt(sz, f'{name:3} {score:05}', col, (121 * Game.scx, top), self)
             top = txt.rect.bottom + 4 * Game.scy
@@ -875,6 +877,113 @@ class Battle(EmptyScene):
                                 f' ({ja.frame.name})')
             self.jBframe.msg = (f'{jb.frameNum + 1} / {len(jb.frames)}'
                                 f' ({jb.frame.name})')
+
+
+class HiScores(_MenuBackScene):
+    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+'
+    charIdx = 0
+    cursorLoc = 0
+
+    def __init__(self, opts, *, on_finish):
+        super(HiScores, self).__init__(opts, 'menu/menu.png')
+        self.on_finish = on_finish
+        heroes = StaticSprite((0, 86 * Game.scy), 'menu/heroes.png', self)
+        heroes.rect.x = Game.screen[0] / 2 - heroes.rect.w / 2 - 3 * Game.scx
+        #
+        hiscores = Game.load_hiscores()
+        self.pos = 6
+        for i, (score, _) in enumerate(hiscores):
+            if Game.scoreA > score:
+                hiscores.insert(i, (Game.scoreA, 'AAA'))
+                self.pos = i
+                break
+        if self.pos < 6:
+            hiscores = hiscores[0:6]
+            top = 114 * Game.scy
+        else:
+            hiscores.append((Game.scoreA, '---'))
+            top = 108 * Game.scy
+        #
+        self.sz = int(8 * Game.scy)
+        for i, (score, name) in enumerate(hiscores):
+            col = Theme.LEADER_TXT if i == 0 else Theme.TXT
+            txt = Txt(self.sz, f'{name:3} {score:05}', col,
+                      (121 * Game.scx, top),
+                      self, cached=False)
+            top = txt.rect.bottom + 4 * Game.scy
+            if i == self.pos:
+                self.txt = txt
+                self.cursor = Rectangle(
+                    self.txt.rect.left - 1 * Game.scx - 1,
+                    self.txt.rect.top - 1 * Game.scy - 1,
+                    self.sz + 2 * Game.scx + 1,
+                    self.sz + 2 * Game.scy + 1,
+                    col, border_width=1 * Game.scx)
+        self.hiscores = hiscores
+        if self.pos < 6:
+            self.add(self.cursor)
+        pygame.key.set_repeat(600, 100)
+
+    def process_event(self, evt: Event):
+        if evt.type != KEYDOWN:
+            return
+        if self.pos >= 6:
+            if evt.key == K_ESCAPE:
+                self.on_finish()
+            return
+
+        if evt.unicode and evt.unicode.upper() in self.chars:
+            self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
+                            evt.unicode.upper() +
+                            self.txt.msg[self.cursorLoc + 1:])
+            self.charIdx = self.chars.index(evt.unicode.upper())
+
+        elif evt.key in (K_UP, K_KP_8):
+            self.charIdx += 1
+            if self.charIdx >= len(self.chars):
+                self.charIdx = 0
+            self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
+                            self.chars[self.charIdx] +
+                            self.txt.msg[self.cursorLoc + 1:])
+
+        elif evt.key in (K_DOWN, K_KP_2):
+            self.charIdx -= 1
+            if self.charIdx < 0:
+                self.charIdx = len(self.chars) - 1
+            self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
+                            self.chars[self.charIdx] +
+                            self.txt.msg[self.cursorLoc + 1:])
+
+        elif evt.key in (K_LEFT, K_KP_4):
+            self.cursorLoc -= 1
+            if self.cursorLoc < 0:
+                self.cursorLoc = 0
+            else:
+                self.cursor.move_to(self.cursor.rect.x - self.sz,
+                                    self.cursor.rect.y)
+                self.charIdx = self.chars.index(self.txt.msg[self.cursorLoc])
+
+        elif evt.key in (K_RIGHT, K_KP_6):
+            self.cursorLoc += 1
+            if self.cursorLoc > 2:
+                self.cursorLoc = 2
+            else:
+                self.cursor.move_to(self.cursor.rect.x + self.sz,
+                                    self.cursor.rect.y)
+                self.charIdx = self.chars.index(self.txt.msg[self.cursorLoc])
+
+        elif evt.key in (K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER):
+            self.cursorLoc += 1
+            self.cursor.move_to(self.cursor.rect.x + self.sz,
+                                self.cursor.rect.y)
+            self.charIdx = 0
+            self.hiscores[self.pos] = (self.hiscores[self.pos][0],
+                                       self.txt.msg[0:3])
+            if self.cursorLoc > 2:
+                pygame.key.set_repeat(0, 0)  # disable
+                Game.save_hiscores(self.hiscores)
+                self.on_finish()
+                return
 
 
 class Version(_MenuBackScene):
