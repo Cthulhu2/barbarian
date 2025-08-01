@@ -5,16 +5,20 @@ from barbariantuw.core import Frame, Act, Animation, Actions
 def serpent():
     return {
         'idle': Animation(frames=[
-            Frame('stage/serpent1.gif', post_action=Actions.stop),
+            Frame('stage/serpent1.gif'),
+        ], actions=[
+            Act(tick=1, act=Actions.stop),
         ]),
         'bite': Animation(frames=[
-            Frame('stage/serpent1.gif'),
-            Frame('stage/serpent2.gif'),
-            Frame('stage/serpent3.gif'),
-            Frame('stage/serpent4.gif', dx=-3 * Game.scx, dy=-1 * Game.scy),
-            Frame('stage/serpent3.gif'),
-            Frame('stage/serpent2.gif'),
-            Frame('stage/serpent1.gif', post_action=Actions.stop),
+            Frame('stage/serpent1.gif', tick=1),
+            Frame('stage/serpent2.gif', tick=6),
+            Frame('stage/serpent3.gif', tick=11),
+            Frame('stage/serpent4.gif', tick=16, dx=-3 * Game.scx, dy=-1 * Game.scy),
+            Frame('stage/serpent3.gif', tick=21),
+            Frame('stage/serpent2.gif', tick=26),
+            Frame('stage/serpent1.gif', tick=27),
+        ], actions=[
+            Act(tick=28, act=Actions.stop),
         ]),
     }
 
@@ -22,8 +26,10 @@ def serpent():
 def sang_decap():
     return {
         'sang_touche': Animation(frames=[
-            Frame('sprites/sang.gif', tick=11, post_action=Actions.kill),
+            Frame('sprites/sang.gif', tick=11),
             Frame('empty')
+        ], actions=[
+            Act(tick=12, act=Actions.kill),
         ]),
         'sang': Animation(frames=[
             # @formatter:off
@@ -36,8 +42,10 @@ def sang_decap():
             Frame('sprites/gicle1.gif', tick=45, dx=3 * Game.chw, dy=(2 + 0.7) * Game.chh),
             Frame('sprites/gicle2.gif', tick=50, dx=3 * Game.chw, dy=(2 + 0.7) * Game.chh),
             Frame('sprites/gicle3.gif', tick=55, dx=3 * Game.chw, dy=(2 + 0.7) * Game.chh),
-            Frame('empty',              tick=56, post_action=Actions.kill),
+            Frame('empty',              tick=56),
             # @formatter:on
+        ], actions=[
+            Act(tick=57, act=Actions.kill),
         ]),
         'sang_rtl': Animation(frames=[
             # @formatter:off
@@ -49,9 +57,11 @@ def sang_decap():
             Frame('sprites/gicle1.gif', tick=45, dx=-1.75 * Game.chw, dy=(2 + 0.7) * Game.chh),
             Frame('sprites/gicle2.gif', tick=50, dx=-1.75 * Game.chw, dy=(2 + 0.7) * Game.chh),
             Frame('sprites/gicle3.gif', tick=55, dx=-1.75 * Game.chw, dy=(2 + 0.7) * Game.chh),
-            Frame('empty', tick=56, post_action=Actions.kill),
+            Frame('empty',              tick=56),
             # @formatter:om
-        ])
+        ], actions=[
+            Act(tick=56, act=Actions.kill),
+        ]),
     }
 
 
@@ -195,9 +205,10 @@ def teteombre_decap():
             Frame('spritesA/teteombre.gif', tick=48, dx=-10 * Game.chw, dy=71 * Game.scy),
             Frame('spritesA/teteombre.gif', tick=52, dx=-11 * Game.chw, dy=71 * Game.scy),
             Frame('spritesA/teteombre.gif', tick=56, dx=-12 * Game.chw, dy=71 * Game.scy),
-            Frame('spritesA/teteombre.gif', tick=57, dx=-13 * Game.chw, dy=71 * Game.scy,
-                  post_action=Actions.stop),
+            Frame('spritesA/teteombre.gif', tick=57, dx=-13 * Game.chw, dy=71 * Game.scy),
             # @formatter:on
+        ], actions=[
+            Act(tick=58, act=Actions.stop),
         ]),
         'teteadroite': Animation(frames=[
             # @formatter:off
@@ -215,9 +226,10 @@ def teteombre_decap():
             Frame('spritesA/teteombre.gif', tick=48, dx=12 * Game.chw,  dy=71 * Game.scy),
             Frame('spritesA/teteombre.gif', tick=52, dx=13 * Game.chw,  dy=71 * Game.scy),
             Frame('spritesA/teteombre.gif', tick=56, dx=14 * Game.chw,  dy=71 * Game.scy),
-            Frame('spritesA/teteombre.gif', tick=57, dx=15 * Game.chw,  dy=71 * Game.scy,
-                  post_action=Actions.stop),
+            Frame('spritesA/teteombre.gif', tick=57, dx=15 * Game.chw,  dy=71 * Game.scy),
             # @formatter:on
+        ], actions=[
+            Act(tick=58, act=Actions.stop),
         ]),
         'football': Animation(frames=[
             # @formatter:off
@@ -236,8 +248,10 @@ def teteombre_decap():
             Frame(f'spritesA/teteombre.gif', tick=90,  mv=(Game.chw, 0)),
             Frame(f'spritesA/teteombre.gif', tick=97,  mv=(Game.chw, 0)),
             Frame(f'spritesA/teteombre.gif', tick=105, mv=(Game.chw, 0)),
-            Frame(f'spritesA/teteombre.gif', tick=112, mv=(Game.chw, 0), post_action=Actions.stop),
+            Frame(f'spritesA/teteombre.gif', tick=112, mv=(Game.chw, 0)),
             # @formatter:on
+        ], actions=[
+            Act(tick=113, act=Actions.stop),
         ]),
     }
 
@@ -246,7 +260,7 @@ def vie():
     return {
         'vie': Animation(frames=[
             # @formatter:off
-            Frame('fill', w=1,    h=10, fill=(0, 0, 0), dx=0, post_action=Actions.stop),
+            Frame('fill', w=1,    h=10, fill=(0, 0, 0), dx=0),
             Frame('fill', w=6,    h=10, fill=(0, 0, 0), dx=-5 * Game.scx),
             Frame('fill', w=17,   h=10, fill=(0, 0, 0), dx=-16 * Game.scx),
             Frame('fill', w=22,   h=10, fill=(0, 0, 0), dx=-21 * Game.scx),
@@ -254,10 +268,12 @@ def vie():
             Frame('fill', w=38,   h=10, fill=(0, 0, 0), dx=-37 * Game.scx),
             Frame('fill', w=43.1, h=10, fill=(0, 0, 0), dx=-42.1 * Game.scx),
             # @formatter:on
+        ], actions=[
+            Act(tick=1, act=Actions.stop),
         ]),
         'vie_rtl': Animation(frames=[
             # @formatter:off
-            Frame('fill', w=1,    h=10, fill=(0, 0, 0), post_action=Actions.stop),
+            Frame('fill', w=1,    h=10, fill=(0, 0, 0)),
             Frame('fill', w=6,    h=10, fill=(0, 0, 0)),
             Frame('fill', w=17,   h=10, fill=(0, 0, 0)),
             Frame('fill', w=22,   h=10, fill=(0, 0, 0)),
@@ -265,6 +281,8 @@ def vie():
             Frame('fill', w=38,   h=10, fill=(0, 0, 0)),
             Frame('fill', w=43.1, h=10, fill=(0, 0, 0)),
             # @formatter:on
+        ], actions=[
+            Act(tick=1, act=Actions.stop),
         ]),
     }
 
@@ -470,7 +488,9 @@ def barb(subdir: str):
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=35),
             Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=100),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101, post_action=Actions.stop),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101),
+        ], actions=[
+            Act(tick=102, act=Actions.stop),
         ]),
         'vainqueurKO': Animation(frames=[
             # @formatter:off
@@ -489,8 +509,10 @@ def barb(subdir: str):
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140),
             Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, post_action=Actions.stop),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231),
             # @formatter:on
+        ], actions=[
+            Act(tick=232, act=Actions.stop),
         ]),
         'touche1': Animation(frames=[
             # @formatter:off
@@ -746,8 +768,10 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=35,  dx=-Game.chw),
             Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85,  dx=-Game.chw),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=100, dx=-Game.chw),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101, dx=-Game.chw, post_action=Actions.stop),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101, dx=-Game.chw),
             # @formatter:on
+        ], actions=[
+            Act(tick=102, act=Actions.stop),
         ]),
         'vainqueurKO': Animation(frames=[
             # @formatter:off
@@ -766,8 +790,10 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=-Game.chw),
             Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=-Game.chw),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205, dx=-Game.chw),
-            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, dx=-Game.chw, post_action=Actions.stop),
+            Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, dx=-Game.chw),
             # @formatter:oon
+        ], actions=[
+            Act(tick=232, act=Actions.stop),
         ]),
         'touche1': Animation(frames=[
             # @formatter:off
@@ -820,8 +846,10 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/assis1.gif', xflip=True, tick=15),
             Frame(f'{subdir}/mort2.gif',  xflip=True, tick=70, dx=-1 * Game.chw),
             Frame(f'{subdir}/mort3.gif',  xflip=True, tick=85),
-            Frame(f'{subdir}/mort4.gif',  xflip=True, tick=87, post_action=Actions.stop),
+            Frame(f'{subdir}/mort4.gif',  xflip=True, tick=87),
             # @formatter:on
+        ], actions=[
+            Act(tick=88, act=Actions.stop),
         ]),
     }
 
@@ -873,8 +901,10 @@ def feu():
             Frame('sprites/feu1.gif', tick=89, mv=(0.75 * Game.chw, 0   * Game.chh), colorkey=(255, 0, 255)),  # noqa loc 35.0
             Frame('sprites/feu1.gif', tick=90, mv=(0.75 * Game.chw, 0   * Game.chh), colorkey=(255, 0, 255)),  # noqa
             Frame('sprites/feu1.gif', tick=91, mv=(0.75 * Game.chw, 0   * Game.chh), colorkey=(255, 0, 255)),  # noqa
-            Frame('sprites/feu1.gif', tick=92, mv=(0.75 * Game.chw, 0   * Game.chh), colorkey=(255, 0, 255), post_action=Actions.kill),  # noqa
+            Frame('sprites/feu1.gif', tick=92, mv=(0.75 * Game.chw, 0   * Game.chh), colorkey=(255, 0, 255)),  # noqa
             # @formatter:on
+        ], actions=[
+            Act(tick=93, act=Actions.kill),
         ]),
         'feu_high': Animation(frames=[
             # @formatter:off
@@ -910,8 +940,10 @@ def feu():
             Frame('sprites/feu1.gif', tick=169, mv=(0.75 * Game.chw, 0), colorkey=(255, 0, 255)),  # noqa loc 35.0
             Frame('sprites/feu1.gif', tick=170, mv=(0.75 * Game.chw, 0), colorkey=(255, 0, 255)),  # noqa
             Frame('sprites/feu1.gif', tick=171, mv=(0.75 * Game.chw, 0), colorkey=(255, 0, 255)),  # noqa
-            Frame('sprites/feu1.gif', tick=172, mv=(0.75 * Game.chw, 0), colorkey=(255, 0, 255), post_action=Actions.kill),  # noqa
+            Frame('sprites/feu1.gif', tick=172, mv=(0.75 * Game.chw, 0), colorkey=(255, 0, 255)),  # noqa
             # @formatter:on
+        ], actions=[
+            Act(tick=173, act=Actions.kill),
         ]),
     }
 
