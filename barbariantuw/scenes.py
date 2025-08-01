@@ -62,7 +62,7 @@ class Logo(EmptyScene):
             img = get_img('menu/menu.png')
 
         heroes = StaticSprite((0, 86 * Game.scy), 'menu/heroes.png', self)
-        heroes.rect.x = Game.screen[0] / 2 - heroes.rect.w / 2
+        heroes.rect.x = Game.screen[0] / 2 - heroes.rect.w / 2 - 3 * Game.scx
         hiscores = Game.get_hiscores()
         sz = int(8 * Game.scy)
         top = 114 * Game.scy
@@ -254,9 +254,9 @@ class Menu(_MenuBackScene):
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, 'OPTION', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, '0 DEMO', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
         txt = Txt(sz, '1 ONE PLAYER', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
         txt = Txt(sz, '2 TWO PLAYERS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
@@ -883,9 +883,9 @@ class Version(_MenuBackScene):
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, 'VERSION', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, '1 EUROPE', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
         Txt(sz, '2 USA', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
 
@@ -911,9 +911,9 @@ class Display(_MenuBackScene):
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, 'DISPLAY', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, '1 FULLSCREEN', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
         Txt(sz, '2 WINDOWS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
 
@@ -936,9 +936,9 @@ class SelectStage(_MenuBackScene):
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, 'STAGE', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2
+        txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, '1 WASTELAND', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
         txt = Txt(sz, '2 FOREST', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
         txt = Txt(sz, '3 THRONE', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
