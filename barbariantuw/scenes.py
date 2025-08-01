@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import enum
 from itertools import cycle
 
-from pygame import Surface
+from pygame import Surface, mixer
 from pygame.locals import *
 from pygame.sprite import LayeredDirty, Group
 from pygame.time import get_ticks
@@ -10,7 +11,7 @@ import barbariantuw.ai as ai
 import barbariantuw.anims as anims
 from barbariantuw import Game, Partie, Theme, Levier, State
 from barbariantuw.core import (
-    get_img, get_snd, snd_play, snd_stop, rtl_anims,
+    get_img, get_snd, snd_play, rtl_anims,
     Rectangle, Txt, StaticSprite, AnimatedSprite
 )
 from barbariantuw.sprites import Barbarian, loc2pxX, loc2pxY, loc, Sorcier
@@ -294,6 +295,12 @@ def area(color, lbl, border_width=2):
 MORT_RIGHT_BORDER = 34
 
 
+class BattleState(enum.Enum):
+    in_progress = enum.auto()
+    win = enum.auto()
+    loose = enum.auto()
+
+
 class Battle(EmptyScene):
     chrono: int = 0  # current millisecond
     chronoOn: bool = False
@@ -302,14 +309,13 @@ class Battle(EmptyScene):
     sorcier: bool = False
     entreesorcier: bool = False
     lancerintro: bool = True
+    bState: BattleState = BattleState.in_progress
 
-    def __init__(self, opts, *, on_esc, on_next, on_menu):
+    def __init__(self, opts, *, on_esc, on_next, on_finish):
         super(Battle, self).__init__(opts)
         self.on_esc = on_esc
-        self.on_menu = on_menu
+        self.on_finish = on_finish
         self.on_next = on_next
-        self.jeu = 'encours'  # perdu, gagne
-
         back = get_img(f'stage/{Game.decor}.gif')
         if Game.country == 'USA':
             back = back.copy()
@@ -418,26 +424,22 @@ class Battle(EmptyScene):
 
     def finish(self):
         if self.opts.sound:
-            snd_stop('mortdecap.ogg')
-            snd_stop('mortKO.ogg')
-            snd_stop('prepare.ogg')
-        self.on_menu()
+            mixer.stop()
+        self.on_finish()
 
     def next_stage(self):
         if self.opts.sound:
-            snd_stop('mortdecap.ogg')
-            snd_stop('mortKO.ogg')
-            snd_stop('prepare.ogg')
+            mixer.stop()
         self.on_next()
 
     def process_event(self, evt):
         if evt.type == KEYUP and evt.key == K_ESCAPE:
-            if self.jeu == 'encours' and self.opts.sound:
-                snd_stop('mortdecap.ogg')
-                snd_stop('mortKO.ogg')
-                snd_stop('prepare.ogg')
-            Game.ia = 0
-            self.on_esc()
+            if self.bState == BattleState.in_progress:
+                if self.opts.sound:
+                    mixer.stop()
+                self.on_esc()
+            else:
+                self.finish()
             return
         if evt.type == KEYUP and evt.key == K_F12 and self.opts.debug > 1:
             self.debugAttArea = not self.debugAttArea
@@ -518,7 +520,7 @@ class Battle(EmptyScene):
                     or (jb.yAtt == ja.yG and ja.xG <= jb.xAtt <= ja.xG + 2)
                     or (jb.yAtt == ja.yM and ja.xM <= jb.xAtt <= ja.xM + 2)
             )):
-                if self.jeu == 'perdu' or ja.state == State.mortSORCIER:
+                if self.bState == BattleState.loose or ja.state == State.mortSORCIER:
                     return
                 ja.occupe_state(State.mortSORCIER, self.temps)
                 jb.occupe_state(State.sorcierFINI, self.temps)
@@ -565,7 +567,7 @@ class Battle(EmptyScene):
             if self.temps > self.joueurA.reftemps + 86:
                 self.joueurA.state = State.sorcierFINI
                 self.add(self._center_txt('Your end has come!'))
-                self.jeu = 'perdu'
+                self.bState = BattleState.loose
             elif self.temps == self.joueurA.reftemps:
                 self.joueurB.stopped = True
                 self.joueurA.animate('mortSORCIER')
@@ -599,7 +601,7 @@ class Battle(EmptyScene):
             StaticSprite((185 * Game.scx, 113 * Game.scy), 'fill',
                          w=18, h=2.1, fill=Theme.BLACK),
             self._center_txt('Thanks big boy.'))
-        self.jeu = 'gagne'
+        self.bState = BattleState.win
 
     def _joueur2(self):
         # debut joueur 2
@@ -803,7 +805,7 @@ class Battle(EmptyScene):
         ja.xLocPrev = ja.xLoc  # for collision
         jb.xLocPrev = jb.xLoc  # for collision
         super(Battle, self).update(current_time, *args)
-        if self.jeu in ('gagne', 'perdu'):
+        if self.bState != BattleState.in_progress:
             return
         if self.chronoOn:
             self.tick_chrono(current_time, ja, jb)

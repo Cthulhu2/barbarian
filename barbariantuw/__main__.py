@@ -11,7 +11,6 @@ from os.path import join
 import pygame
 from pygame import display, event, mixer, init, time, image
 
-import barbariantuw.anims as anims
 import barbariantuw.core
 import barbariantuw.scenes as scenes
 from barbariantuw import (
@@ -125,12 +124,16 @@ class BarbarianMain(object):
 
     def start_battle(self):
         self.scene = scenes.Battle(self.opts,
-                                   on_esc=self.cancel_battle,
-                                   on_menu=self.show_menu,
+                                   on_esc=self.show_menu,
+                                   on_finish=self.finish_battle,
                                    on_next=self.next_stage)
 
-    def cancel_battle(self):
-        self.show_menu()
+    def finish_battle(self):
+        if Game.partie == Partie.solo:
+            # TODO: Check hiscore and write name of the Winner
+            self.show_menu()
+        else:
+            self.show_menu()
 
     def next_stage(self):
         if Game.partie == Partie.solo:
