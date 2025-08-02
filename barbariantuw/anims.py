@@ -544,10 +544,10 @@ def barb(subdir: str):
             Act(tick=17, act=Actions.stop),
         ]),
         'mortdecap': Animation(frames=[
-            Frame(f'{subdir}/decap1.gif', tick=35),
-            Frame(f'{subdir}/decap2.gif', tick=70, dx=16 * Game.scy, dy=45 * Game.scy),
-            Frame(f'{subdir}/decap3.gif', tick=80, dx=16 * Game.scy, dy=53 * Game.scy),
-            Frame(f'{subdir}/decap4.gif', tick=82, dx=16 * Game.scy, dy=68 * Game.scy),
+            Frame(f'{subdir}/decap1.gif', tick=35, dx=6 * Game.scx, dy=30 * Game.scy),
+            Frame(f'{subdir}/decap2.gif', tick=70, dx=16 * Game.scx, dy=45 * Game.scy),
+            Frame(f'{subdir}/decap3.gif', tick=80, dx=16 * Game.scx, dy=53 * Game.scy),
+            Frame(f'{subdir}/decap4.gif', tick=82, dx=16 * Game.scx, dy=68 * Game.scy),
         ], actions=[
             Act(tick=1, act=Actions.snd, snd='mortdecap.ogg'),
             Act(tick=82, act=Actions.stop),
@@ -823,7 +823,7 @@ def barb_rtl(subdir: str):
             Act(tick=17, act=Actions.stop),
         ]),
         'mortdecap': Animation(frames=[
-            Frame(f'{subdir}/decap1.gif', xflip=True, tick=35, dx=-1 * Game.chw),
+            Frame(f'{subdir}/decap1.gif', xflip=True, tick=35, dx=2 * Game.scx, dy=30 * Game.scy),
             Frame(f'{subdir}/decap2.gif', xflip=True, tick=70, dx=-22 * Game.scx, dy=45 * Game.scy),
             Frame(f'{subdir}/decap3.gif', xflip=True, tick=80, dx=-32 * Game.scx, dy=53 * Game.scy),
             Frame(f'{subdir}/decap4.gif', xflip=True, tick=82, dx=-43 * Game.scx, dy=68 * Game.scy),
