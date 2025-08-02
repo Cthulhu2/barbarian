@@ -13,7 +13,7 @@ def main(*args):
     nuitka_args = [
         f'--product-name={PROG}',
         f'--product-version={__version__}',
-        '--file-description=\'Barbarian - The Ultimate Warrior\' game clone',
+        '--file-description=\'Barbarian - The Ultimate Warrior\' game remake',
         '--onefile',
         '--onefile-tempdir-spec={CACHE_DIR}/{PRODUCT}/{VERSION}',
         '--nofollow-import-to=*.tests',

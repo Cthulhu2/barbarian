@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "barbariantuw"
 dynamic = ["version"]
 authors = [{ name = "Cthulhu Fhtagn" }, ]
-description = "'Barbarian - The Ultimate Warrior' game clone"
+description = "'Barbarian - The Ultimate Warrior' game remake"
 readme = "README.MD"
 license = "MIT"
 license-files = ["LICENSE"]
