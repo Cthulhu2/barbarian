@@ -10,7 +10,7 @@ from pygame.locals import *
 
 import barbariantuw.anims as anims
 from barbariantuw import Game, Theme, OPTS
-from barbariantuw.__main__ import BarbarianMain, option_parser
+from barbariantuw.__main__ import BarbarianMain, arg_parser
 from barbariantuw.core import Rectangle, Txt, img_cache
 from barbariantuw.scenes import EmptyScene
 from barbariantuw.sprites import Barbarian
@@ -198,13 +198,13 @@ class AnimationViewerScene(EmptyScene):
 
 
 if __name__ == '__main__':
-    (options, args) = option_parser().parse_args()
-    options.sound = False
-    options.web = False
-    options.debug = 3
-    for k, v in options.__dict__.items():
-        OPTS.ensure_value(k, v)
-    main = BarbarianMain(options)
-    main.scene = AnimationViewerScene(options, main.screen, on_quit=main.quit)
+    args = arg_parser().parse_args()
+    args.sound = False
+    args.web = False
+    args.debug = 3
+    for k, v in args.__dict__.items():
+        OPTS.__setattr__(k, v)
+    main = BarbarianMain(args)
+    main.scene = AnimationViewerScene(args, main.screen, on_quit=main.quit)
     display.set_caption('Barbarian - Animation viewer')
     asyncio.run(main.main())
