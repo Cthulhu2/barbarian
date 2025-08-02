@@ -544,7 +544,9 @@ class Barbarian(AnimatedSprite):
     def gestion_assis(self, temps):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.reset_xX_assis()
+        self.reset_yX()
         self.yT = YM
+        self.yF = YM
         self.set_frame('assis', 0)
         if temps > self.reftemps + 10:
             self.state = State.assis2
@@ -555,6 +557,9 @@ class Barbarian(AnimatedSprite):
         self.assis = True
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.reset_xX_assis()
+        self.reset_yX()
+        self.yT = YM
+        self.yF = YM
         self.set_frame('assis', 1)
         if self.attaque and self.levier == Levier.bas:
             self.occupe_state(State.genou, temps)
@@ -565,7 +570,7 @@ class Barbarian(AnimatedSprite):
         self.xAtt = self.xLoc + (4 if self.rtl else 0)
         self.yAtt = 14
         self.reset_xX_assis()
-        self.yT = YT
+        self.reset_yX()
         self.set_frame('releve', 0)
         if temps > self.reftemps + 10:
             self.deoccupe_state(State.debout)
