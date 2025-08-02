@@ -3,13 +3,13 @@ __version__ = '0.1.0'
 import enum
 import os
 import sys
-from optparse import Values
+from argparse import Namespace
 from pathlib import Path
 from typing import List, Tuple, Union
 
 PROG = 'barbariantuw'
 
-OPTS = Values()
+OPTS = Namespace()
 BASE_PATH = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else
                             __file__)
 FONT_PATH = os.path.abspath(BASE_PATH + '/fnt') + '/'

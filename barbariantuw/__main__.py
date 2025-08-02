@@ -4,7 +4,7 @@ import asyncio
 import gc
 import importlib
 import sys
-from optparse import OptionParser, OptionGroup
+from argparse import Action, ArgumentParser
 from os import getpid
 from os.path import join
 
@@ -289,49 +289,60 @@ class BarbarianMain(object):
             pygame.mixer.quit()
 
 
-def option_parser():
-    parser = OptionParser(prog=PROG,
-                          usage='usage: %prog [options]',
-                          version=f'%prog {__version__}')
+class BooleanAction(Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, not option_string.startswith('--no'))
 
-    parser.add_option('--no-sound',
-                      action='store_false',
-                      dest='sound',
-                      default=True,
-                      help='turn sound off')
 
-    debug = OptionGroup(parser, 'Debug Options', description='')
+def arg_parser():
+    parser = ArgumentParser(prog=PROG)
+    parser.add_argument('-v', '--version', action='version',
+                        version=f'{PROG} {__version__}')
 
-    debug.add_option('-d', '--debug',
-                     action='count',
-                     dest='debug',
-                     default=0,
-                     help='show debug info (CPU, VMS, RSS, FPS),'
-                          ' psutil module required')
-    debug.add_option('-c', '--cpu-time',
-                     action='store',
-                     dest='cpu_time',
-                     type='int',
-                     default=500,
-                     help='CPU usage refresh time (ms). Default: 500 ms')
-    debug.add_option('-m', '--mem-time',
-                     action='store',
-                     dest='mem_time',
-                     type='int',
-                     default=500,
-                     help='memory usage refresh time (ms). Default: 500 ms')
+    parser.add_argument(
+        '--no-sound', '--sound',
+        dest='sound', default=True, nargs=0, action=BooleanAction,
+        help='turn sound on/off (default on)')
 
-    parser.add_option_group(debug)
+    parser.add_argument(
+        '--no-usa', '--usa',
+        dest='usa', nargs=0, action=BooleanAction,
+        help='USA version (default options.dat or Europe)')
+
+    parser.add_argument(
+        '--no-fullscreen', '--fullscreen',
+        dest='fullscreen', nargs=0, action=BooleanAction,
+        help='no/fullscreen (default options.dat or window)')
+
+    debug = parser.add_argument_group('Debug Options', description='')
+
+    debug.add_argument(
+        '-d', '--debug',
+        action='count', dest='debug', default=0,
+        help='show debug info (CPU, VMS, RSS, FPS), psutil module required')
+    debug.add_argument(
+        '-c', '--cpu-time',
+        action='store', dest='cpu_time', type=int, default=500,
+        help='CPU usage refresh time (ms). Default: 500 ms')
+    debug.add_argument(
+        '-m', '--mem-time',
+        action='store', dest='mem_time', type=int, default=500,
+        help='memory usage refresh time (ms). Default: 500 ms')
+
     return parser
 
 
 def run():
-    (options, args) = option_parser().parse_args()
-    options.web = (sys.platform == 'emscripten')
-    for k, v in options.__dict__.items():
-        OPTS.ensure_value(k, v)
+    args = arg_parser().parse_args()
+    args.web = (sys.platform == 'emscripten')
+    for k, v in args.__dict__.items():
+        OPTS.__setattr__(k, v)
     Game.load_options()
-    asyncio.run(BarbarianMain(options).main())
+    if args.usa is not None:
+        Game.country = 'USA' if args.usa else 'EUROPE'
+    if args.fullscreen is not None:
+        Game.fullscreen = args.fullscreen
+    asyncio.run(BarbarianMain(args).main())
 
 
 if __name__ == '__main__':
