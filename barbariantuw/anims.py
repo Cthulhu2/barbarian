@@ -290,7 +290,7 @@ def vie():
 def barb(subdir: str):
     return {
         'debout': Animation(frames=[
-            Frame(f'{subdir}/debout.gif'),
+            Frame(f'{subdir}/debout.gif', dx=4 * Game.scx, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
             Frame(f'{subdir}/attente1.gif', tick=15),
@@ -306,8 +306,8 @@ def barb(subdir: str):
             Frame(f'{subdir}/marche1.gif', tick=9,  mv=(Game.chw, 0)),
             Frame(f'{subdir}/marche2.gif', tick=17, mv=(Game.chw, 0)),
             Frame(f'{subdir}/marche3.gif', tick=27, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  tick=36, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  tick=37),
+            Frame(f'{subdir}/debout.gif',  tick=36, mv=(Game.chw, 0), dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/debout.gif',  tick=37,                   dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'recule': Animation(frames=[
@@ -315,8 +315,8 @@ def barb(subdir: str):
             Frame(f'{subdir}/marche3.gif', tick=9,  mv=(-Game.chw, 0)),
             Frame(f'{subdir}/marche2.gif', tick=18, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/marche1.gif', tick=26, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  tick=36, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  tick=37),
+            Frame(f'{subdir}/debout.gif',  tick=36, mv=(-Game.chw, 0), dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/debout.gif',  tick=37,                    dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'saute': Animation(frames=[
@@ -324,7 +324,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/saut1.gif',  tick=13),
             Frame(f'{subdir}/saut2.gif',  tick=30),
             Frame(f'{subdir}/saut1.gif',  tick=40),
-            Frame(f'{subdir}/debout.gif', tick=47),
+            Frame(f'{subdir}/debout.gif', tick=47, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'assis': Animation(frames=[
@@ -347,7 +347,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(Game.chw, 0)),
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(Game.chw, 0)),
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',               tick=40),
+            Frame(f'{subdir}/debout.gif',               tick=40, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=2, act=Actions.snd, snd='roule.ogg')
@@ -362,7 +362,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28),
             Frame(f'{subdir}/roulade5.gif',             tick=30),
             Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34),
-            Frame(f'{subdir}/debout.gif',               tick=40),
+            Frame(f'{subdir}/debout.gif',               tick=40, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'rouladeAR': Animation(frames=[
@@ -438,16 +438,16 @@ def barb(subdir: str):
             Frame(f'{subdir}/pied1.gif',  tick=9),
             Frame(f'{subdir}/pied2.gif',  tick=30),
             Frame(f'{subdir}/pied1.gif',  tick=45),
-            Frame(f'{subdir}/debout.gif', tick=51),
+            Frame(f'{subdir}/debout.gif', tick=51, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'coupdetete': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/debout.gif', tick=8),
+            Frame(f'{subdir}/debout.gif', tick=8,  dx=4 * Game.scx, dy=18 * Game.scy),
             Frame(f'{subdir}/tete1.gif',  tick=18),
             Frame(f'{subdir}/tete2.gif',  tick=28, mv=(Game.chw, 0)),
             Frame(f'{subdir}/tete1.gif',  tick=38, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif', tick=40),
+            Frame(f'{subdir}/debout.gif', tick=40, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'decapite': Animation(frames=[
@@ -497,14 +497,14 @@ def barb(subdir: str):
             Frame(f'{subdir}/retourne1.gif',              tick=15),
             Frame(f'{subdir}/retourne2.gif',              tick=23),
             Frame(f'{subdir}/retourne3.gif',              tick=30),
-            Frame(f'{subdir}/debout.gif',                 tick=40),
+            Frame(f'{subdir}/debout.gif',                 tick=40, dx=4 * Game.scx, dy=18 * Game.scy),
             Frame(f'{subdir}/marche3.gif',                tick=40),  # optional frame, see gestion on tick 35
             Frame(f'{subdir}/marche3.gif',    xflip=True, tick=40),  # optional frame, see gestion on tick 35
-            Frame(f'{subdir}/debout.gif',                 tick=55),
+            Frame(f'{subdir}/debout.gif',                 tick=55, dx=4 * Game.scx, dy=18 * Game.scy),
             Frame(f'{subdir}/pied1.gif',                  tick=70),
             Frame(f'{subdir}/pied2.gif',                  tick=75),
             Frame(f'{subdir}/pied1.gif',                  tick=100),
-            Frame(f'{subdir}/debout.gif',                 tick=105),
+            Frame(f'{subdir}/debout.gif',                 tick=105, dx=4 * Game.scx, dy=18 * Game.scy),
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140),
             Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195),
@@ -520,7 +520,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/touche2.gif', tick=5,  mv=(-Game.chw,     0)),
             Frame(f'{subdir}/touche1.gif', tick=10, mv=(-2 * Game.chw, 0)),
             Frame(f'{subdir}/touche2.gif', tick=20, mv=(-Game.chw,     0)),
-            Frame(f'{subdir}/debout.gif',  tick=21),
+            Frame(f'{subdir}/debout.gif',  tick=21, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'tombe1': Animation(frames=[
@@ -529,7 +529,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/tombe1.gif', tick=9,  mv=(-Game.chw, 0), dx=-2 * Game.chw),
             Frame(f'{subdir}/tombe2.gif', tick=15, mv=(-Game.chw, 0), dx=-3 * Game.chw),
             Frame(f'{subdir}/tombe3.gif', tick=25,                    dx=-3 * Game.chw),
-            Frame(f'{subdir}/debout.gif', tick=27, mv=(-Game.chw, 0)),
+            Frame(f'{subdir}/debout.gif', tick=27, mv=(-Game.chw, 0), dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'mort': Animation(frames=[
@@ -564,7 +564,7 @@ def barb(subdir: str):
 def barb_rtl(subdir: str):
     return {
         'debout': Animation(frames=[
-            Frame(f'{subdir}/debout.gif', xflip=True),
+            Frame(f'{subdir}/debout.gif', xflip=True, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
             Frame(f'{subdir}/attente1.gif', xflip=True, tick=15),
@@ -580,8 +580,8 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/marche1.gif', xflip=True, tick=9,  mv=(-Game.chw, 0)),
             Frame(f'{subdir}/marche2.gif', xflip=True, tick=17, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/marche3.gif', xflip=True, tick=27, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  xflip=True, tick=37),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(-Game.chw, 0), dy=18 * Game.scy),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=37,                    dy=18 * Game.scy),
             # @formatter:on
         ]),
         'recule': Animation(frames=[
@@ -589,8 +589,8 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/marche3.gif', xflip=True, tick=9,  mv=(Game.chw, 0)),
             Frame(f'{subdir}/marche2.gif', xflip=True, tick=18, mv=(Game.chw, 0)),
             Frame(f'{subdir}/marche1.gif', xflip=True, tick=26, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',  xflip=True, tick=37),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=36, mv=(Game.chw, 0), dy=18 * Game.scy),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=37,                   dy=18 * Game.scy),
             # @formatter:on
         ]),
         'saute': Animation(frames=[
@@ -598,7 +598,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/saut1.gif',  xflip=True, tick=13, dx=-Game.chw),
             Frame(f'{subdir}/saut2.gif',  xflip=True, tick=30, dx=-Game.chw),
             Frame(f'{subdir}/saut1.gif',  xflip=True, tick=40, dx=-Game.chw),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=47),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=47, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'assis': Animation(frames=[
@@ -621,7 +621,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif',   xflip=True, tick=40),
+            Frame(f'{subdir}/debout.gif',   xflip=True, tick=40, dy=18 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=2, act=Actions.snd, snd='roule.ogg')
@@ -636,7 +636,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/roulade5.gif',             tick=28),
             Frame(f'{subdir}/roulade5.gif',             tick=30),
             Frame(f'{subdir}/roulade1.gif',             tick=34),
-            Frame(f'{subdir}/debout.gif',   xflip=True, tick=40),
+            Frame(f'{subdir}/debout.gif',   xflip=True, tick=40, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'rouladeAR': Animation(frames=[
@@ -713,16 +713,16 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/pied1.gif',  xflip=True, tick=9,  dx=-Game.chw),
             Frame(f'{subdir}/pied2.gif',  xflip=True, tick=30, dx=-Game.chw),
             Frame(f'{subdir}/pied1.gif',  xflip=True, tick=45, dx=-Game.chw),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=51),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=51, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'coupdetete': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=8),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=8,                    dy=18 * Game.scy),
             Frame(f'{subdir}/tete1.gif',  xflip=True, tick=18, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/tete2.gif',  xflip=True, tick=28),
             Frame(f'{subdir}/tete1.gif',  xflip=True, tick=38),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=40, mv=(Game.chw, 0)),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=40, mv=(Game.chw, 0), dy=18 * Game.scy),
             # @formatter:on
         ]),
         'decapite': Animation(frames=[
@@ -776,14 +776,14 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/retourne1.gif',  xflip=True, tick=15),
             Frame(f'{subdir}/retourne2.gif',  xflip=True, tick=23),
             Frame(f'{subdir}/retourne3.gif',  xflip=True, tick=30),
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=40),
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=40,  dy=18 * Game.scy),
             Frame(f'{subdir}/marche3.gif',                tick=40),  # optional frame, see gestion on tick 35
             Frame(f'{subdir}/marche3.gif',    xflip=True, tick=40),  # optional frame, see gestion on tick 35
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=55),
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=55,  dy=18 * Game.scy),
             Frame(f'{subdir}/pied1.gif',      xflip=True, tick=70,  dx=-Game.chw),
             Frame(f'{subdir}/pied2.gif',      xflip=True, tick=75,  dx=-Game.chw),
             Frame(f'{subdir}/pied1.gif',      xflip=True, tick=100, dx=-Game.chw),
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=105),
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=105, dy=18 * Game.scy),
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123, dx=-Game.chw),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=-Game.chw),
             Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=-Game.chw),
@@ -799,16 +799,16 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/touche2.gif', xflip=True, tick=5,  mv=(Game.chw,     0)),
             Frame(f'{subdir}/touche1.gif', xflip=True, tick=10, mv=(2 * Game.chw, 0)),
             Frame(f'{subdir}/touche2.gif', xflip=True, tick=20, mv=(Game.chw,     0)),
-            Frame(f'{subdir}/debout.gif',  xflip=True, tick=21),
+            Frame(f'{subdir}/debout.gif',  xflip=True, tick=21, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'tombe1': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=1,                  dx=Game.chw),
+            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=1,                    dx=Game.chw),
             Frame(f'{subdir}/tombe1.gif', xflip=True, tick=9,  mv=(Game.chw, 0), dx=Game.chw),
             Frame(f'{subdir}/tombe2.gif', xflip=True, tick=15, mv=(Game.chw, 0), dx=Game.chw),
-            Frame(f'{subdir}/tombe3.gif', xflip=True, tick=25,                 dx=Game.chw),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=27, mv=(Game.chw, 0)),
+            Frame(f'{subdir}/tombe3.gif', xflip=True, tick=25,                   dx=Game.chw),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=27, mv=(Game.chw, 0), dy=18 * Game.scy),
             # @formatter:on
         ]),
         'mort': Animation(frames=[
