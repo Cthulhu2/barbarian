@@ -55,6 +55,8 @@ class BarbarianMain(object):
             self.fps = Txt.Debug(0, self.mem_vms.rect.bottom)
             self.lblSlowmo = Txt.Debug(loc2pxX(18), 10)
         self.show_logo()
+        if Game.fullscreen:
+            self.on_fullscreen()
 
     @property
     def scene(self) -> scenes.EmptyScene:
@@ -170,6 +172,7 @@ class BarbarianMain(object):
                                     on_back=self.show_menu)
 
     def show_opts_display(self):
+        Game.save_options()
         self.scene = scenes.Display(self.opts,
                                     on_fullscreen=self.on_fullscreen,
                                     on_window=self.on_window,
@@ -209,6 +212,7 @@ class BarbarianMain(object):
         Game.chh = int(200 / 25 * scy)
 
     def on_fullscreen(self):
+        Game.fullscreen = True
         # TODO: Toggle fullscreen with multi-display
         if not self.opts.web and not pygame.display.is_fullscreen():
             scx = self.desktopSize[0] / 320
@@ -216,13 +220,16 @@ class BarbarianMain(object):
             self.reinit(self.desktopSize, scx, scy)
             pygame.display.set_mode(self.desktopSize)
             pygame.display.toggle_fullscreen()
+        Game.save_options()
         self.show_logo()
 
     def on_window(self):
+        Game.fullscreen = False
         if not self.opts.web and pygame.display.is_fullscreen():
             self.reinit()
             pygame.display.toggle_fullscreen()
             pygame.display.set_mode(Game.screen)
+        Game.save_options()
         self.show_logo()
 
     async def main(self):
@@ -323,6 +330,7 @@ def run():
     options.web = (sys.platform == 'emscripten')
     for k, v in options.__dict__.items():
         OPTS.ensure_value(k, v)
+    Game.load_options()
     asyncio.run(BarbarianMain(options).main())
 
 

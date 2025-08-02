@@ -918,7 +918,7 @@ class HiScores(_MenuBackScene):
                     self.txt.rect.top - 1 * Game.scy - 1,
                     self.sz + 2 * Game.scx + 1,
                     self.sz + 2 * Game.scy + 1,
-                    col, border_width=1 * Game.scx)
+                    col, border_width=int(1 * Game.scx))
         self.hiscores = hiscores
         if self.pos < 6:
             self.add(self.cursor)
@@ -1004,7 +1004,7 @@ class Version(_MenuBackScene):
         if evt.type != KEYUP:
             return
         elif evt.key == K_1:
-            Game.country = 'Europe'
+            Game.country = 'EUROPE'
             self.on_display()
         elif evt.key == K_2:
             Game.country = 'USA'

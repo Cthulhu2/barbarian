@@ -167,7 +167,7 @@ class Rectangle(Group):
     def __init__(self,
                  x, y, w, h,
                  color: Tuple[int, int, int],
-                 border_width=1,
+                 border_width: int = 1,
                  lbl='',
                  *groups: AbstractGroup):
         super().__init__(*groups)

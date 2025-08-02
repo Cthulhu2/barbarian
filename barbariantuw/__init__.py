@@ -58,7 +58,9 @@ def appdata(file: str) -> Union[Path, str]:
 
 
 class Game:  # Mutable options
-    country = 'Europe'  # USA, Europe
+    country = 'EUROPE'
+    fullscreen = False
+    #
     decor = 'foret'  # foret, plaine, trone, arene
     partie = Partie.solo
     ia = 0
@@ -69,6 +71,44 @@ class Game:  # Mutable options
     screen = (320 * scx, 200 * scy)
     chw = int(320 / 40 * scx)  # character width, 24
     chh = int(200 / 25 * scy)  # character height, 24
+
+    @staticmethod
+    def load_options():
+        opts = ''
+        try:
+            fOptions = appdata('options.dat')
+            if sys.platform == 'emscripten':
+                # noinspection PyUnresolvedReferences
+                from platform import window
+                opts = window.localStorage.getItem(f'{fOptions}')
+            elif fOptions.is_file():
+                opts = fOptions.read_text()
+
+            for line in opts.split(os.linesep):
+                opt, val = line.split('=', maxsplit=1) if '=' in line else ('', '')
+                if opt.strip().lower() == 'country' and val:
+                    Game.country = 'USA' if val.strip().upper() == 'USA' else 'EUROPE'
+                elif opt.strip().lower() == 'fullscreen' and val:
+                    Game.fullscreen = (val.strip().upper() == 'TRUE')
+        except Exception as ex:
+            print(f'load_options error: {ex}')
+
+    @staticmethod
+    def save_options():
+        opts = os.linesep.join((f'country={Game.country.upper()}',
+                                f'fullscreen={Game.fullscreen}'))
+        try:
+            fOptions = appdata('options.dat')
+            if sys.platform == 'emscripten':
+                # noinspection PyUnresolvedReferences
+                from platform import window
+                window.localStorage.setItem(fOptions, opts)
+            else:
+                if not fOptions.exists():
+                    fOptions.parent.mkdir(parents=True, exist_ok=True)
+                fOptions.write_text(opts)
+        except Exception as ex:
+            print(f'save_options error: {ex}')
 
     @staticmethod
     def load_hiscores() -> List[Tuple[int, str]]:
@@ -92,7 +132,7 @@ class Game:  # Mutable options
                 if scores:
                     return scores  #
         except Exception as ex:
-            print(f'get_hiscores error: {ex}')
+            print(f'load_hiscores error: {ex}')
 
         return [(10000, 'RL'),
                 (5000, 'SB'),
@@ -117,7 +157,7 @@ class Game:  # Mutable options
                     fScores.parent.mkdir(parents=True, exist_ok=True)
                 fScores.write_text(hiscores)
         except Exception as ex:
-            print(f'set_hiscores error: {ex}')
+            print(f'save_hiscores error: {ex}')
 
 
 class Levier(enum.Enum):
