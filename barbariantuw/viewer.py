@@ -115,6 +115,11 @@ class AnimationViewerScene(EmptyScene):
                                              self.target.y,
                                              self.target.rtl,
                                              self.target.anim)
+                barb.frameNum = self.target.frameNum - 1
+                barb.frame_tick = self.target.frame_tick
+                barb.frame_duration = self.target.frame_duration
+                barb.frame = barb.frames[barb.frameNum]
+                barb.next_frame()
                 self.target.kill()
                 del self.target
                 gc.collect()
