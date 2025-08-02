@@ -66,8 +66,8 @@ class Game:  # Mutable options
     ia = 0
     scoreA = 0
     scoreB = 0
-    scx = 1 if sys.platform == 'emscripten' else 3  # scale X
-    scy = 1 if sys.platform == 'emscripten' else 3  # scale y
+    scx = 2 if sys.platform == 'emscripten' else 3  # scale X
+    scy = 2 if sys.platform == 'emscripten' else 3  # scale y
     screen = (320 * scx, 200 * scy)
     chw = int(320 / 40 * scx)  # character width, 24
     chh = int(200 / 25 * scy)  # character height, 24
