@@ -328,11 +328,11 @@ def barb(subdir: str):
             # @formatter:on
         ]),
         'assis': Animation(frames=[
-            Frame(f'{subdir}/assis1.gif'),
-            Frame(f'{subdir}/assis2.gif'),
+            Frame(f'{subdir}/assis1.gif', dx=4 * Game.scx, dy=26 * Game.scy),
+            Frame(f'{subdir}/assis2.gif', dx=2 * Game.scx, dy=38 * Game.scy),
         ]),
         'releve': Animation(frames=[
-            Frame(f'{subdir}/assis1.gif'),
+            Frame(f'{subdir}/assis1.gif', dx=4 * Game.scx, dy=26 * Game.scy),
         ]),
         'rouladeAV': Animation(frames=[
             # @formatter:off
@@ -602,11 +602,11 @@ def barb_rtl(subdir: str):
             # @formatter:on
         ]),
         'assis': Animation(frames=[
-            Frame(f'{subdir}/assis1.gif', xflip=True),
-            Frame(f'{subdir}/assis2.gif', xflip=True),
+            Frame(f'{subdir}/assis1.gif', xflip=True, dy=26 * Game.scy),
+            Frame(f'{subdir}/assis2.gif', xflip=True, dy=38 * Game.scy),
         ]),
         'releve': Animation(frames=[
-            Frame(f'{subdir}/assis1.gif', xflip=True),
+            Frame(f'{subdir}/assis1.gif', xflip=True, dy=26 * Game.scy),
         ]),
         'rouladeAV': Animation(frames=[
             # @formatter:off
