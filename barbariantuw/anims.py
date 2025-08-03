@@ -293,11 +293,11 @@ def barb(subdir: str):
             Frame(f'{subdir}/debout.gif', dx=4 * Game.scx, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
-            Frame(f'{subdir}/attente1.gif', tick=15),
-            Frame(f'{subdir}/attente2.gif', tick=23),
-            Frame(f'{subdir}/attente3.gif', tick=30),
-            Frame(f'{subdir}/attente2.gif', tick=37),
-            Frame(f'{subdir}/attente1.gif', tick=50),
+            Frame(f'{subdir}/attente1.gif', tick=15, dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', tick=23, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente3.gif', tick=30, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', tick=37, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente1.gif', tick=50, dx=4 * Game.scx, dy=18 * Game.scy),
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),
@@ -567,11 +567,11 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/debout.gif', xflip=True, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
-            Frame(f'{subdir}/attente1.gif', xflip=True, tick=15),
-            Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-Game.chw),
-            Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-Game.chw),
-            Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-Game.chw),
-            Frame(f'{subdir}/attente1.gif', xflip=True, tick=50),
+            Frame(f'{subdir}/attente1.gif', xflip=True, tick=15,                   dy=18 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente1.gif', xflip=True, tick=50,                   dy=18 * Game.scy),
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),
