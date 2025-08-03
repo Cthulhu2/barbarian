@@ -396,8 +396,8 @@ def barb(subdir: str):
         'cou': Animation(frames=[
             # @formatter:off
             Frame(f'{subdir}/protegeH.gif', tick=15, dx=-2 * Game.scx),
-            Frame(f'{subdir}/cou2.gif',     tick=30, dx=-4 * Game.scx),
-            Frame(f'{subdir}/cou3.gif',     tick=46, dx=-1 * Game.scx),
+            Frame(f'{subdir}/cou2.gif',     tick=30, dx=-2 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/cou3.gif',     tick=46, dx=1 * Game.scx,  dy=19 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=15, act=Actions.snd, snd='epee.ogg'),
@@ -415,9 +415,9 @@ def barb(subdir: str):
         'genou': Animation(frames=[
             # @formatter:off
             Frame(f'{subdir}/genou1.gif', tick=10, dx=Game.chw / 4),
-            Frame(f'{subdir}/assis2.gif', tick=20),
+            Frame(f'{subdir}/assis2.gif', tick=20, dx=2 * Game.scx, dy=38 * Game.scy),
             Frame(f'{subdir}/genou3.gif', tick=30, dx=Game.chw / 4),
-            Frame(f'{subdir}/assis2.gif', tick=46),
+            Frame(f'{subdir}/assis2.gif', tick=46, dx=2 * Game.scx, dy=38 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=10, act=Actions.snd, snd='epee.ogg'),
@@ -461,9 +461,9 @@ def barb(subdir: str):
             Frame(f'{subdir}/retourne3.gif', tick=24, mv=(Game.chw, 0)),
             Frame(f'{subdir}/retourne3.gif', tick=29),
             Frame(f'{subdir}/protegeH.gif',  tick=33),
-            Frame(f'{subdir}/cou2.gif',      tick=39, dx=-2 * Game.scx),
-            Frame(f'{subdir}/cou3.gif',      tick=51),
-            Frame(f'{subdir}/cou2.gif',      tick=60, dx=-3 * Game.scx),
+            Frame(f'{subdir}/cou2.gif',      tick=39, dx=-2 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/cou3.gif',      tick=51, dx=1 * Game.scx,  dy=19 * Game.scy),
+            Frame(f'{subdir}/cou2.gif',      tick=60, dx=-2 * Game.scx, dy=17 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=15, act=Actions.snd, snd='decapite.ogg'),
@@ -534,7 +534,7 @@ def barb(subdir: str):
         ]),
         'mort': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/assis1.gif', tick=15),
+            Frame(f'{subdir}/assis1.gif', tick=15, dx=4 * Game.scx, dy=26 * Game.scy),
             Frame(f'{subdir}/mort2.gif',  tick=17),
             Frame(f'{subdir}/mort3.gif',  tick=18, dx=-1 * Game.chw),  # manual, see vainqueurKO
             Frame(f'{subdir}/mort4.gif',  tick=19, dx=-3 * Game.chw),  # manual, see vainqueurKO
@@ -669,9 +669,9 @@ def barb_rtl(subdir: str):
         ]),
         'cou': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=15, dx=-Game.chw + 2 * Game.scx),
-            Frame(f'{subdir}/cou2.gif',     xflip=True, tick=30, dx=-Game.chw + 4 * Game.scx),
-            Frame(f'{subdir}/cou3.gif',     xflip=True, tick=46, dx=-4 * Game.chw + 1 * Game.scx),
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=15, dx=-6 * Game.scx),
+            Frame(f'{subdir}/cou2.gif',     xflip=True, tick=30,                    dy=17 * Game.scy),
+            Frame(f'{subdir}/cou3.gif',     xflip=True, tick=46, dx=-31 * Game.scx, dy=19 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=15, act=Actions.snd, snd='epee.ogg'),
@@ -689,10 +689,10 @@ def barb_rtl(subdir: str):
         'genou': Animation(frames=[
             # @formatter:off
             Frame(f'{subdir}/genou1.gif', xflip=True, tick=10, dx=-Game.chw / 4),
-            Frame(f'{subdir}/assis2.gif', xflip=True, tick=20),
+            Frame(f'{subdir}/assis2.gif', xflip=True, tick=20, dy=38 * Game.scy),
             Frame(f'{subdir}/genou3.gif', xflip=True, tick=30, dx=-Game.chw / 4
                                                                   - 3 * Game.chw),
-            Frame(f'{subdir}/assis2.gif', xflip=True, tick=46),
+            Frame(f'{subdir}/assis2.gif', xflip=True, tick=46, dy=38 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=10, act=Actions.snd, snd='epee.ogg'),
@@ -736,9 +736,9 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=24, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=29),
             Frame(f'{subdir}/protegeH.gif',  xflip=True, tick=33, dx=-Game.chw),
-            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=39, dx=-Game.chw + 2 * Game.scx),
-            Frame(f'{subdir}/cou3.gif',      xflip=True, tick=51, dx=-4 * Game.chw),
-            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60, dx=-Game.chw + 3 * Game.scx),
+            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=39,                    dy=17 * Game.scy),
+            Frame(f'{subdir}/cou3.gif',      xflip=True, tick=51, dx=-31 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60,                    dy=17 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=15, act=Actions.snd, snd='decapite.ogg'),
@@ -813,7 +813,7 @@ def barb_rtl(subdir: str):
         ]),
         'mort': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/assis1.gif', xflip=True, tick=15),
+            Frame(f'{subdir}/assis1.gif', xflip=True, tick=15, dy=26 * Game.scy),
             Frame(f'{subdir}/mort2.gif',  xflip=True, tick=17, dx=-1 * Game.chw),
             Frame(f'{subdir}/mort3.gif',  xflip=True, tick=18),  # manual, see vainqueurKO
             Frame(f'{subdir}/mort4.gif',  xflip=True, tick=19),  # manual, see vainqueurKO
@@ -839,7 +839,7 @@ def barb_rtl(subdir: str):
         ]),
         'mortSORCIER': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/assis1.gif', xflip=True, tick=15),
+            Frame(f'{subdir}/assis1.gif', xflip=True, tick=15, dy=26 * Game.scy),
             Frame(f'{subdir}/mort2.gif',  xflip=True, tick=70, dx=-1 * Game.chw),
             Frame(f'{subdir}/mort3.gif',  xflip=True, tick=85),
             Frame(f'{subdir}/mort4.gif',  xflip=True, tick=87),
