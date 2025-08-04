@@ -56,8 +56,9 @@ class AnimationViewerScene(EmptyScene):
         lbl = txt('(S)lower / (F)aster', (10, int(lbl.rect.bottom + 5)), self)
         #
         lbl = txt('(M)ove enabled: ', (10, int(lbl.rect.bottom + 5)), self)
-        self.canMoveTxt = txt(f'{self.canMove}',
-                              (int(lbl.rect.right), int(lbl.rect.top)), self)
+        self.canMoveTxt = txt_selected(f'{self.canMove}',
+                                       (int(lbl.rect.right), int(lbl.rect.top)),
+                                       self)
         #
         lbl = txt('(SPACE) to reload anims',
                   (10, int(lbl.rect.bottom + 5)), self)
@@ -186,9 +187,10 @@ class AnimationViewerScene(EmptyScene):
                 self.animsTxtList[ix].color = Theme.VIEWER_TXT_SELECTED
 
     def update(self, *args: Any, **kwargs: Any) -> None:
+        prev = self.target.rect.left
         super().update(*args, **kwargs)
-        if not self.canMove and self.target.frame.move_base:
-            self.target.move(-self.target.frame.move_base[0], 0)
+        if not self.canMove and self.target.frame.mv and prev != self.target.rect.left:
+            self.target.move(-self.target.frame.mv[0], 0)
         elif self.target.rect.left < 0:
             self.target.move(-self.target.rect.left, 0)
         elif self.target.rect.right > Game.screen[0]:
