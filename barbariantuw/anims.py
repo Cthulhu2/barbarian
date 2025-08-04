@@ -336,17 +336,17 @@ def barb(subdir: str):
         ]),
         'rouladeAV': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif',             tick=4,  mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif',             tick=7,  mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif',             tick=10, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif',             tick=13, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=22, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=25, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(Game.chw, 0)),
+            Frame(f'{subdir}/roulade1.gif',             tick=4,  mv=(Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif',             tick=7,  mv=(Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif',             tick=10, mv=(Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=13, mv=(Game.chw, 0), dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=22, mv=(Game.chw, 0),                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=25, mv=(Game.chw, 0),                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, mv=(Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
             Frame(f'{subdir}/debout.gif',               tick=40, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ], actions=[
@@ -355,28 +355,28 @@ def barb(subdir: str):
         'rouladeAV-out': Animation(frames=[
             # non-movable roulade out
             # @formatter:off
-            Frame(f'{subdir}/roulade3.gif',             tick=16),
-            Frame(f'{subdir}/roulade3.gif',             tick=19),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=22),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=25),
-            Frame(f'{subdir}/roulade5.gif',             tick=28),
-            Frame(f'{subdir}/roulade5.gif',             tick=30),
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34),
-            Frame(f'{subdir}/debout.gif',               tick=40, dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=16, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=19, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=22,                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=25,                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=28, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=30, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=34, dx=3 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/debout.gif',               tick=40, dx=4 * Game.scx,  dy=18 * Game.scy),
             # @formatter:on
         ]),
         'rouladeAR': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=5,  mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=11, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=14, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=17, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=20, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif',             tick=23, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif',             tick=26, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif',             tick=29, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif',             tick=35, mv=(-Game.chw, 0)),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=5,  mv=(-Game.chw, 0), dx=3 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(-Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=11, mv=(-Game.chw, 0),                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=14, mv=(-Game.chw, 0),                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=17, mv=(-Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=20, mv=(-Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=23, mv=(-Game.chw, 0), dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=26, mv=(-Game.chw, 0), dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif',             tick=29, mv=(-Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif',             tick=35, mv=(-Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=2, act=Actions.snd, snd='roule.ogg')
@@ -612,17 +612,17 @@ def barb_rtl(subdir: str):
         ]),
         'rouladeAV': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=4,  mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=7,  mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=10, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=13, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif',             tick=22, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif',             tick=25, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-Game.chw, 0)),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=4,  mv=(-Game.chw, 0), dx=3 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=7,  mv=(-Game.chw, 0), dx=3 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=10, mv=(-Game.chw, 0), dx=3 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=13, mv=(-Game.chw, 0),                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=16, mv=(-Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=19, mv=(-Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=22, mv=(-Game.chw, 0), dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=25, mv=(-Game.chw, 0), dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=28, mv=(-Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=30, mv=(-Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif',             tick=34, mv=(-Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
             Frame(f'{subdir}/debout.gif',   xflip=True, tick=40, dy=18 * Game.scy),
             # @formatter:on
         ], actions=[
@@ -631,28 +631,28 @@ def barb_rtl(subdir: str):
         'rouladeAV-out': Animation(frames=[
             # non-movable roulade out
             # @formatter:off
-            Frame(f'{subdir}/roulade3.gif',             tick=16),
-            Frame(f'{subdir}/roulade3.gif',             tick=19),
-            Frame(f'{subdir}/roulade2.gif',             tick=22),
-            Frame(f'{subdir}/roulade2.gif',             tick=25),
-            Frame(f'{subdir}/roulade5.gif',             tick=28),
-            Frame(f'{subdir}/roulade5.gif',             tick=30),
-            Frame(f'{subdir}/roulade1.gif',             tick=34),
+            Frame(f'{subdir}/roulade3.gif',             tick=16, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=19, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=22, dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=25, dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=28, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=30, dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif',             tick=34, dx=4 * Game.scx,  dy=38 * Game.scy),
             Frame(f'{subdir}/debout.gif',   xflip=True, tick=40, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'rouladeAR': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/roulade1.gif',             tick=5,  mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif',             tick=11, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif',             tick=14, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=17, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade3.gif',             tick=20, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=23, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=26, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=29, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=35, mv=(Game.chw, 0)),
+            Frame(f'{subdir}/roulade1.gif',             tick=5,  mv=(Game.chw, 0), dx=4 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade5.gif',             tick=8,  mv=(Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=11, mv=(Game.chw, 0), dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif',             tick=14, mv=(Game.chw, 0), dx=8 * Game.scx,  dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=17, mv=(Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade3.gif',             tick=20, mv=(Game.chw, 0), dx=10 * Game.scx, dy=56 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=23, mv=(Game.chw, 0),                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade2.gif', xflip=True, tick=26, mv=(Game.chw, 0),                   dy=63 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=29, mv=(Game.chw, 0), dx=3 * Game.scx,  dy=38 * Game.scy),
+            Frame(f'{subdir}/roulade1.gif', xflip=True, tick=35, mv=(Game.chw, 0), dx=3 * Game.scx,  dy=38 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=2, act=Actions.snd, snd='roule.ogg')
