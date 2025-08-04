@@ -249,10 +249,10 @@ class BarbarianMain(object):
                     if not self.opts.web:
                         self.quit()
                 if self.opts.debug:
-                    if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKSPACE:
+                    if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKQUOTE:
                         slowmo = True
                         self.lblSlowmo.msg = 'SlowMo'
-                    if evt.type == pygame.KEYUP and evt.key == pygame.K_BACKSPACE:
+                    if evt.type == pygame.KEYUP and evt.key == pygame.K_BACKQUOTE:
                         slowmo = False
                         self.lblSlowmo.msg = ''
                 self.scene.process_event(evt)

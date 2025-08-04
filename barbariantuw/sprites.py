@@ -832,7 +832,7 @@ class Barbarian(AnimatedSprite):
 
     def gestion_coupdetete(self, temps):
         self.reset_xX_front()
-        self.yG = YG
+        self.reset_yX()
         if temps > self.reftemps + 38:
             self.deoccupe_state(State.debout)
         elif temps > self.reftemps + 20:
