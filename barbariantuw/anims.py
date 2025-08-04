@@ -384,18 +384,18 @@ def barb(subdir: str):
         'protegeH': Animation(frames=[
             # @formatter:off
             Frame(f'{subdir}/marche1.gif',  tick=5, mv=(-Game.chw, 0), dx=8 * Game.scx, dy=18 * Game.scy),
-            Frame(f'{subdir}/protegeH.gif', tick=9, dx=-2 * Game.scx),
+            Frame(f'{subdir}/protegeH.gif', tick=9,                                     dy=21 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=2, act=Actions.snd, snd='protege.ogg')
         ]),
         'protegeD': Animation(frames=[
-            Frame(f'{subdir}/protegeH.gif', tick=5, dx=-2 * Game.scx),
-            Frame(f'{subdir}/protegeD.gif', tick=9, dx=-2 * Game.scx),
+            Frame(f'{subdir}/protegeH.gif', tick=5, dy=21 * Game.scy),
+            Frame(f'{subdir}/protegeD.gif', tick=9, dy=19 * Game.scy),
         ]),
         'cou': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/protegeH.gif', tick=15, dx=-2 * Game.scx),
+            Frame(f'{subdir}/protegeH.gif', tick=15,                   dy=21 * Game.scy),
             Frame(f'{subdir}/cou2.gif',     tick=30, dx=-2 * Game.scx, dy=17 * Game.scy),
             Frame(f'{subdir}/cou3.gif',     tick=46, dx=1 * Game.scx,  dy=19 * Game.scy),
             # @formatter:on
@@ -460,7 +460,7 @@ def barb(subdir: str):
             Frame(f'{subdir}/retourne3.gif', tick=19, mv=(Game.chw, 0)),
             Frame(f'{subdir}/retourne3.gif', tick=24, mv=(Game.chw, 0)),
             Frame(f'{subdir}/retourne3.gif', tick=29),
-            Frame(f'{subdir}/protegeH.gif',  tick=33),
+            Frame(f'{subdir}/protegeH.gif',  tick=33,                   dy=21 * Game.scy),
             Frame(f'{subdir}/cou2.gif',      tick=39, dx=-2 * Game.scx, dy=17 * Game.scy),
             Frame(f'{subdir}/cou3.gif',      tick=51, dx=1 * Game.scx,  dy=19 * Game.scy),
             Frame(f'{subdir}/cou2.gif',      tick=60, dx=-2 * Game.scx, dy=17 * Game.scy),
@@ -659,19 +659,19 @@ def barb_rtl(subdir: str):
         ]),
         'protegeH': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/marche1.gif',  xflip=True, tick=5, mv=(Game.chw, 0), dx=6 * Game.scx, dy=18 * Game.scy),
-            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=9, dx=-Game.chw + 2 * Game.scx),
+            Frame(f'{subdir}/marche1.gif',  xflip=True, tick=5, mv=(Game.chw, 0), dx=6 * Game.scx,  dy=18 * Game.scy),
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=9,                                     dy=21 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=2, act=Actions.snd, snd='protege.ogg')
         ]),
         'protegeD': Animation(frames=[
-            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=5, dx=-Game.chw + 2 * Game.scx),
-            Frame(f'{subdir}/protegeD.gif', xflip=True, tick=9, dx=-Game.chw + 2 * Game.scx),
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=5, dy=21 * Game.scy),
+            Frame(f'{subdir}/protegeD.gif', xflip=True, tick=9, dy=19 * Game.scy),
         ]),
         'cou': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=15, dx=-6 * Game.scx),
+            Frame(f'{subdir}/protegeH.gif', xflip=True, tick=15,                    dy=21 * Game.scy),
             Frame(f'{subdir}/cou2.gif',     xflip=True, tick=30,                    dy=17 * Game.scy),
             Frame(f'{subdir}/cou3.gif',     xflip=True, tick=46, dx=-31 * Game.scx, dy=19 * Game.scy),
             # @formatter:on
@@ -737,7 +737,7 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=19, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=24, mv=(-Game.chw, 0)),
             Frame(f'{subdir}/retourne3.gif', xflip=True, tick=29),
-            Frame(f'{subdir}/protegeH.gif',  xflip=True, tick=33, dx=-Game.chw),
+            Frame(f'{subdir}/protegeH.gif',  xflip=True, tick=33,                    dy=21 * Game.scy),
             Frame(f'{subdir}/cou2.gif',      xflip=True, tick=39,                    dy=17 * Game.scy),
             Frame(f'{subdir}/cou3.gif',      xflip=True, tick=51, dx=-31 * Game.scx, dy=19 * Game.scy),
             Frame(f'{subdir}/cou2.gif',      xflip=True, tick=60,                    dy=17 * Game.scy),
