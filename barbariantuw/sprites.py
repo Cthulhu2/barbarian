@@ -988,7 +988,7 @@ class Barbarian(AnimatedSprite):
         self.yAtt = 14
         self.reset_xX_front()
 
-        if temps == self.reftemps + 75:
+        if temps == self.reftemps + 80:
             opponent.set_frame('mort', 3)  # mort4
 
         elif temps == self.reftemps + 72:

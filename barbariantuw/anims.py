@@ -536,10 +536,10 @@ def barb(subdir: str):
         ]),
         'mort': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/assis1.gif', tick=15, dx=4 * Game.scx, dy=26 * Game.scy),
-            Frame(f'{subdir}/mort2.gif',  tick=17),
-            Frame(f'{subdir}/mort3.gif',  tick=18, dx=-1 * Game.chw),  # manual, see vainqueurKO
-            Frame(f'{subdir}/mort4.gif',  tick=19, dx=-3 * Game.chw),  # manual, see vainqueurKO
+            Frame(f'{subdir}/assis1.gif', tick=15, dx=4 * Game.scx,   dy=26 * Game.scy),
+            Frame(f'{subdir}/mort2.gif',  tick=17, dx=4 * Game.scx,   dy=54 * Game.scy),
+            Frame(f'{subdir}/mort3.gif',  tick=18, dx=-10 * Game.scx, dy=52 * Game.scy),  # manual, see vainqueurKO
+            Frame(f'{subdir}/mort4.gif',  tick=19, dx=-22 * Game.scx, dy=66 * Game.scy),  # manual, see vainqueurKO
             # @formatter:on
         ], actions=[
             Act(tick=1, act=Actions.snd, snd='mortKO.ogg'),
@@ -816,9 +816,9 @@ def barb_rtl(subdir: str):
         'mort': Animation(frames=[
             # @formatter:off
             Frame(f'{subdir}/assis1.gif', xflip=True, tick=15, dy=26 * Game.scy),
-            Frame(f'{subdir}/mort2.gif',  xflip=True, tick=17, dx=-1 * Game.chw),
-            Frame(f'{subdir}/mort3.gif',  xflip=True, tick=18),  # manual, see vainqueurKO
-            Frame(f'{subdir}/mort4.gif',  xflip=True, tick=19),  # manual, see vainqueurKO
+            Frame(f'{subdir}/mort2.gif',  xflip=True, tick=17, dx=-6 * Game.scx, dy=54 * Game.scy),
+            Frame(f'{subdir}/mort3.gif',  xflip=True, tick=18,                   dy=52 * Game.scy),  # manual, see vainqueurKO
+            Frame(f'{subdir}/mort4.gif',  xflip=True, tick=19, dx=-1 * Game.scx, dy=66 * Game.scy),  # manual, see vainqueurKO
             # @formatter:on
         ], actions=[
             Act(tick=1, act=Actions.snd, snd='mortKO.ogg'),
@@ -842,9 +842,9 @@ def barb_rtl(subdir: str):
         'mortSORCIER': Animation(frames=[
             # @formatter:off
             Frame(f'{subdir}/assis1.gif', xflip=True, tick=15, dy=26 * Game.scy),
-            Frame(f'{subdir}/mort2.gif',  xflip=True, tick=70, dx=-1 * Game.chw),
-            Frame(f'{subdir}/mort3.gif',  xflip=True, tick=85),
-            Frame(f'{subdir}/mort4.gif',  xflip=True, tick=87),
+            Frame(f'{subdir}/mort2.gif',  xflip=True, tick=70, dx=-6 * Game.scx, dy=54 * Game.scy),
+            Frame(f'{subdir}/mort3.gif',  xflip=True, tick=85,                   dy=52 * Game.scy),
+            Frame(f'{subdir}/mort4.gif',  xflip=True, tick=87, dx=-1 * Game.scx, dy=66 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=88, act=Actions.stop),
