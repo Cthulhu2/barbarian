@@ -1,3 +1,5 @@
+from pygame import Rect
+
 from barbariantuw import Game
 from barbariantuw.core import Frame, Act, Animation, Actions
 
@@ -287,17 +289,22 @@ def vie():
     }
 
 
+def rect(x, y, w, h):
+    return Rect(round(x * Game.scx), round(y * Game.scy),
+                round(w * Game.scx), round(h * Game.scy))
+
+
 def barb(subdir: str):
     return {
         'debout': Animation(frames=[
             Frame(f'{subdir}/debout.gif', dx=4 * Game.scx, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
-            Frame(f'{subdir}/attente1.gif', tick=15, dx=4 * Game.scx, dy=18 * Game.scy),
-            Frame(f'{subdir}/attente2.gif', tick=23, dx=2 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente3.gif', tick=30, dx=2 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente2.gif', tick=37, dx=2 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente1.gif', tick=50, dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  tick=15, dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), tick=23, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(78, 0, 42, 61), tick=30, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), tick=37, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  tick=50, dx=4 * Game.scx, dy=18 * Game.scy),
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),
@@ -571,11 +578,13 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/debout.gif', xflip=True, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
-            Frame(f'{subdir}/attente1.gif', xflip=True, tick=15,                   dy=18 * Game.scy),
-            Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-4 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-4 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-4 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente1.gif', xflip=True, tick=50,                   dy=18 * Game.scy),
+            # @formatter:off
+            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  xflip=True, tick=15,                   dy=18 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), xflip=True, tick=23, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(78, 0, 42, 61), xflip=True, tick=30, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), xflip=True, tick=37, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  xflip=True, tick=50,                   dy=18 * Game.scy),
+            # @formatter:on
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),

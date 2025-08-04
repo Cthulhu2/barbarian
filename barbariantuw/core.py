@@ -97,6 +97,7 @@ class Frame:
     mv: Tuple[float, float] = None
     tick: int = -1
     colorkey: Tuple[int, int, int] = None
+    src_rect: Rect = None
     is_tickable: bool = field(init=False, compare=False)
     image: Surface = field(init=False, compare=False)
     rect: Rect = field(init=False, compare=False)
@@ -106,8 +107,21 @@ class Frame:
         super(Frame, self).__setattr__(
             'image', get_img(self.name, self.w, self.h, self.angle, self.xflip,
                              self.fill, self.blend_flags, self.colorkey))
-        super(Frame, self).__setattr__(
-            'rect', self.image.get_rect().move(self.dx, self.dy))
+        if self.xflip and self.src_rect:
+            super(Frame, self).__setattr__(
+                # In WASM there is no width property
+                'src_rect', Rect(self.image.get_width() - self.src_rect[0] - self.src_rect[2],
+                                 self.src_rect[1],
+                                 self.src_rect[2],
+                                 self.src_rect[3]))
+        if self.src_rect:
+            super(Frame, self).__setattr__(
+                'rect',
+                Rect(0, 0, self.src_rect.size[0], self.src_rect.size[1])
+                    .move(self.dx, self.dy))
+        else:
+            super(Frame, self).__setattr__(
+                'rect', self.image.get_rect().move(self.dx, self.dy))
 
     def rtl(self):
         move_base = None
@@ -116,7 +130,8 @@ class Frame:
 
         return Frame(self.name, -self.dx, self.dy, self.w, self.h,
                      self.duration, -self.angle, not self.xflip, self.fill,
-                     self.blend_flags, move_base, self.tick, self.colorkey)
+                     self.blend_flags, move_base, self.tick, self.colorkey,
+                     self.src_rect)
 
 
 class Act:
@@ -474,7 +489,9 @@ class AnimatedSprite(DirtySprite):
                 self.frame_duration = self._calc(self.frame.duration)
 
             self.image = self.frame.image
-
+            self.source_rect = self.frame.src_rect
+            if self.frame.mv:
+                self.move(self.frame.mv[0], self.frame.mv[1])
             self._update_rect()
 
     def next_frame(self):
@@ -491,6 +508,7 @@ class AnimatedSprite(DirtySprite):
             else:
                 self.frame_duration = self._calc(self.frame.duration)
             self.image = self.frame.image
+            self.source_rect = self.frame.src_rect
             if self.frame.mv:
                 self.move(self.frame.mv[0], self.frame.mv[1])
             self._update_rect()
