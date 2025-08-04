@@ -469,10 +469,12 @@ def barb(subdir: str):
             Act(tick=15, act=Actions.snd, snd='decapite.ogg'),
         ]),
         'front': Animation(frames=[
-            Frame(f'{subdir}/front1.gif', tick=5, dx=-1 * Game.scx),
-            Frame(f'{subdir}/front2.gif', tick=23),
-            Frame(f'{subdir}/front3.gif', tick=30),
-            Frame(f'{subdir}/front2.gif', tick=46),
+            # @formatter:off
+            Frame(f'{subdir}/front1.gif', tick=5,  dx=-1 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/front2.gif', tick=23, dx=2 * Game.scx,  dy=3 * Game.scy),
+            Frame(f'{subdir}/front3.gif', tick=30, dx=2 * Game.scx,  dy=18 * Game.scy),
+            Frame(f'{subdir}/front2.gif', tick=46, dx=2 * Game.scx,  dy=3 * Game.scy),
+            # @formatter:on
         ], actions=[
             Act(tick=5, act=Actions.snd, snd='epee.ogg'),
         ]),
@@ -745,10 +747,10 @@ def barb_rtl(subdir: str):
         ]),
         'front': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/front1.gif', xflip=True, tick=5,  dx=-Game.chw + 1 * Game.scx),
-            Frame(f'{subdir}/front2.gif', xflip=True, tick=23, dx=-Game.chw),
-            Frame(f'{subdir}/front3.gif', xflip=True, tick=30, dx=-3 * Game.chw),
-            Frame(f'{subdir}/front2.gif', xflip=True, tick=46, dx=-Game.chw),
+            Frame(f'{subdir}/front1.gif', xflip=True, tick=5,                     dy=17 * Game.scy),
+            Frame(f'{subdir}/front2.gif', xflip=True, tick=23, dx=-5 * Game.scx,  dy=3 * Game.scy),
+            Frame(f'{subdir}/front3.gif', xflip=True, tick=30, dx=-22 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/front2.gif', xflip=True, tick=46, dx=-5 * Game.scx,  dy=3 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=5, act=Actions.snd, snd='epee.ogg'),
