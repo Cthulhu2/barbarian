@@ -435,9 +435,9 @@ def barb(subdir: str):
         ]),
         'coupdepied': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/pied1.gif',  tick=9),
-            Frame(f'{subdir}/pied2.gif',  tick=30),
-            Frame(f'{subdir}/pied1.gif',  tick=45),
+            Frame(f'{subdir}/pied1.gif',  tick=9,  dx=1 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied2.gif',  tick=30, dx=1 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied1.gif',  tick=45, dx=1 * Game.scx, dy=17 * Game.scy),
             Frame(f'{subdir}/debout.gif', tick=51, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
@@ -503,9 +503,9 @@ def barb(subdir: str):
             Frame(f'{subdir}/marche3.gif',                tick=40,  dx=8 * Game.scx, dy=18 * Game.scy),  # optional frame, see gestion on tick 35
             Frame(f'{subdir}/marche3.gif',    xflip=True, tick=40,                   dy=18 * Game.scy),  # optional frame, see gestion on tick 35
             Frame(f'{subdir}/debout.gif',                 tick=55,  dx=4 * Game.scx, dy=18 * Game.scy),
-            Frame(f'{subdir}/pied1.gif',                  tick=70),
-            Frame(f'{subdir}/pied2.gif',                  tick=75),
-            Frame(f'{subdir}/pied1.gif',                  tick=100),
+            Frame(f'{subdir}/pied1.gif',                  tick=70,  dx=1 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied2.gif',                  tick=75,  dx=1 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied1.gif',                  tick=100, dx=1 * Game.scx, dy=17 * Game.scy),
             Frame(f'{subdir}/debout.gif',                 tick=105, dx=4 * Game.scx, dy=18 * Game.scy),
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140),
@@ -712,10 +712,10 @@ def barb_rtl(subdir: str):
         ]),
         'coupdepied': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=9,  dx=-Game.chw),
-            Frame(f'{subdir}/pied2.gif',  xflip=True, tick=30, dx=-Game.chw),
-            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=45, dx=-Game.chw),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=51, dy=18 * Game.scy),
+            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=9,  dx=-3 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied2.gif',  xflip=True, tick=30, dx=-8 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied1.gif',  xflip=True, tick=45, dx=-3 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=51,                   dy=18 * Game.scy),
             # @formatter:on
         ]),
         'coupdetete': Animation(frames=[
@@ -778,14 +778,14 @@ def barb_rtl(subdir: str):
             Frame(f'{subdir}/retourne1.gif',  xflip=True, tick=15),
             Frame(f'{subdir}/retourne2.gif',  xflip=True, tick=23),
             Frame(f'{subdir}/retourne3.gif',  xflip=True, tick=30),
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=40,                   dy=18 * Game.scy),
-            Frame(f'{subdir}/marche3.gif',                tick=40,  dx=8 * Game.scx, dy=18 * Game.scy),  # optional frame, see gestion on tick 35
-            Frame(f'{subdir}/marche3.gif',    xflip=True, tick=40,                   dy=18 * Game.scy),  # optional frame, see gestion on tick 35
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=55,                   dy=18 * Game.scy),
-            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=70,  dx=-Game.chw),
-            Frame(f'{subdir}/pied2.gif',      xflip=True, tick=75,  dx=-Game.chw),
-            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=100, dx=-Game.chw),
-            Frame(f'{subdir}/debout.gif',     xflip=True, tick=105,                  dy=18 * Game.scy),
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=40,                    dy=18 * Game.scy),
+            Frame(f'{subdir}/marche3.gif',                tick=40,  dx=8 * Game.scx,  dy=18 * Game.scy),  # optional frame, see gestion on tick 35
+            Frame(f'{subdir}/marche3.gif',    xflip=True, tick=40,                    dy=18 * Game.scy),  # optional frame, see gestion on tick 35
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=55,                    dy=18 * Game.scy),
+            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=70,  dx=-3 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied2.gif',      xflip=True, tick=75,  dx=-8 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/pied1.gif',      xflip=True, tick=100, dx=-3 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/debout.gif',     xflip=True, tick=105,                   dy=18 * Game.scy),
             Frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123, dx=-Game.chw),
             Frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=-Game.chw),
             Frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=-Game.chw),
