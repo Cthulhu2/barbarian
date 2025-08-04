@@ -404,10 +404,10 @@ def barb(subdir: str):
         ]),
         'devant': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/devant1.gif', tick=10),
-            Frame(f'{subdir}/devant2.gif', tick=20),
-            Frame(f'{subdir}/devant3.gif', tick=30),
-            Frame(f'{subdir}/devant2.gif', tick=46),
+            Frame(f'{subdir}/devant1.gif', tick=10, dx=4 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/devant2.gif', tick=20, dx=0 * Game.scx, dy=23 * Game.scy),
+            Frame(f'{subdir}/devant3.gif', tick=30, dx=6 * Game.scx, dy=23 * Game.scy),
+            Frame(f'{subdir}/devant2.gif', tick=46, dx=0 * Game.scx, dy=23 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=10, act=Actions.snd, snd='epee.ogg'),
@@ -678,10 +678,10 @@ def barb_rtl(subdir: str):
         ]),
         'devant': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/devant1.gif', xflip=True, tick=10),
-            Frame(f'{subdir}/devant2.gif', xflip=True, tick=20),
-            Frame(f'{subdir}/devant3.gif', xflip=True, tick=30, dx=-3 * Game.chw),
-            Frame(f'{subdir}/devant2.gif', xflip=True, tick=46),
+            Frame(f'{subdir}/devant1.gif', xflip=True, tick=10,                    dy=17 * Game.scy),
+            Frame(f'{subdir}/devant2.gif', xflip=True, tick=20,                    dy=23 * Game.scy),
+            Frame(f'{subdir}/devant3.gif', xflip=True, tick=30, dx=-19 * Game.scx, dy=23 * Game.scy),
+            Frame(f'{subdir}/devant2.gif', xflip=True, tick=46,                    dy=23 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=10, act=Actions.snd, snd='epee.ogg'),

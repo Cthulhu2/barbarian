@@ -503,5 +503,5 @@ class AnimatedSprite(DirtySprite):
 
     def move(self, dx, dy):
         self.topleft = (self.topleft[0] + dx, self.topleft[1] + dy)
-        self.rect.move_ip(dx, dy)
+        self.rect.move(dx, dy)
         self.dirty = 1
