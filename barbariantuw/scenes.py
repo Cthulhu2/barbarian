@@ -597,7 +597,8 @@ class Battle(EmptyScene):
         self.joueurA.x = loc2pxX(17)
         # noinspection PyTypeChecker
         self.add(
-            StaticSprite(loc(16.5, 14), 'sprites/marianna.gif'),
+            StaticSprite((self.joueurA.rect.right, loc2pxY(17)),
+                         'sprites/marianna.gif'),
             StaticSprite((186 * Game.scx, 95 * Game.scy), 'fill',
                          w=15, h=20, fill=Theme.BLACK),
             StaticSprite((185 * Game.scx, 113 * Game.scy), 'fill',

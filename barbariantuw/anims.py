@@ -951,14 +951,14 @@ def feu():
 def sorcier():
     return {
         'debout': Animation(frames=[
-            Frame('sprites/drax1.gif'),
+            Frame('sprites/drax1.gif', dy=23 * Game.scy),
         ]),
         'attaque': Animation(frames=[
-            Frame('sprites/drax1.gif', tick=50),
-            Frame('sprites/drax2.gif', tick=60),
-            Frame('sprites/drax1.gif', tick=130),
-            Frame('sprites/drax2.gif', tick=140),
-            Frame('sprites/drax1.gif', tick=141),
+            Frame('sprites/drax1.gif', tick=50, dy=23 * Game.scy),
+            Frame('sprites/drax2.gif', tick=60, dy=23 * Game.scy),
+            Frame('sprites/drax1.gif', tick=130, dy=23 * Game.scy),
+            Frame('sprites/drax2.gif', tick=140, dy=23 * Game.scy),
+            Frame('sprites/drax1.gif', tick=141, dy=23 * Game.scy),
         ], actions=[
             Act(tick=50, act=Actions.snd, snd='feu.ogg'),
             Act(tick=130, act=Actions.snd, snd='feu.ogg'),
