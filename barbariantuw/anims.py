@@ -321,9 +321,9 @@ def barb(subdir: str):
         ]),
         'saute': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/saut1.gif',  tick=13),
-            Frame(f'{subdir}/saut2.gif',  tick=30),
-            Frame(f'{subdir}/saut1.gif',  tick=40),
+            Frame(f'{subdir}/saut1.gif',  tick=13, dx=6 * Game.scx, dy=6 * Game.scy),
+            Frame(f'{subdir}/saut2.gif',  tick=30, dx=8 * Game.scx, dy=5 * Game.scy),
+            Frame(f'{subdir}/saut1.gif',  tick=40, dx=6 * Game.scx, dy=6 * Game.scy),
             Frame(f'{subdir}/debout.gif', tick=47, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
@@ -443,11 +443,11 @@ def barb(subdir: str):
         ]),
         'coupdetete': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/debout.gif', tick=8,  dx=4 * Game.scx, dy=18 * Game.scy),
-            Frame(f'{subdir}/tete1.gif',  tick=18),
-            Frame(f'{subdir}/tete2.gif',  tick=28, mv=(Game.chw, 0)),
-            Frame(f'{subdir}/tete1.gif',  tick=38, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/debout.gif', tick=40, dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/debout.gif', tick=8,                     dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/tete1.gif',  tick=18,                    dx=4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/tete2.gif',  tick=28, mv=(Game.chw, 0),  dx=4 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/tete1.gif',  tick=38, mv=(-Game.chw, 0), dx=4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/debout.gif', tick=40,                    dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
         'decapite': Animation(frames=[
@@ -597,10 +597,10 @@ def barb_rtl(subdir: str):
         ]),
         'saute': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/saut1.gif',  xflip=True, tick=13, dx=-Game.chw),
-            Frame(f'{subdir}/saut2.gif',  xflip=True, tick=30, dx=-Game.chw),
-            Frame(f'{subdir}/saut1.gif',  xflip=True, tick=40, dx=-Game.chw),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=47, dy=18 * Game.scy),
+            Frame(f'{subdir}/saut1.gif',  xflip=True, tick=13, dx=-4 * Game.scx, dy=6 * Game.scy),
+            Frame(f'{subdir}/saut2.gif',  xflip=True, tick=30, dx=-8 * Game.scx, dy=5 * Game.scy),
+            Frame(f'{subdir}/saut1.gif',  xflip=True, tick=40, dx=-5 * Game.scx, dy=6 * Game.scy),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=47,                   dy=18 * Game.scy),
             # @formatter:on
         ]),
         'assis': Animation(frames=[
@@ -720,11 +720,11 @@ def barb_rtl(subdir: str):
         ]),
         'coupdetete': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=8,                    dy=18 * Game.scy),
-            Frame(f'{subdir}/tete1.gif',  xflip=True, tick=18, mv=(-Game.chw, 0)),
-            Frame(f'{subdir}/tete2.gif',  xflip=True, tick=28),
-            Frame(f'{subdir}/tete1.gif',  xflip=True, tick=38),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=40, mv=(Game.chw, 0), dy=18 * Game.scy),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=8,                                      dy=18 * Game.scy),
+            Frame(f'{subdir}/tete1.gif',  xflip=True, tick=18, mv=(-Game.chw, 0), dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/tete2.gif',  xflip=True, tick=28,                    dx=1 * Game.scx, dy=17 * Game.scy),
+            Frame(f'{subdir}/tete1.gif',  xflip=True, tick=38,                    dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=40, mv=(Game.chw, 0),                   dy=18 * Game.scy),
             # @formatter:on
         ]),
         'decapite': Animation(frames=[
