@@ -270,7 +270,7 @@ class Menu(_MenuBackScene):
         Txt(sz, '7 QUIT', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key == K_0:
             self.on_demo()
@@ -928,7 +928,7 @@ class HiScores(_MenuBackScene):
         if evt.type != KEYDOWN:
             return
         if self.pos >= 6:
-            if evt.key == K_ESCAPE:
+            if evt.key in (K_ESCAPE, K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER):
                 self.on_finish()
             return
 
