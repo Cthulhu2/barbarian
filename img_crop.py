@@ -60,8 +60,8 @@ def crop(filename: Path, same_output):
 
 
 if __name__ == '__main__':
-    for f in Path('barbariantuw/img/spritesA/').glob('tete?.gif'):
+    for f in Path('barbariantuw/img/spritesA/').glob('toile*.gif'):
         crop(f, False)
     for i in range(8):
-        for f in Path(f'barbariantuw/img/spritesB/spritesB{i}').glob('tete?.gif'):
+        for f in Path(f'barbariantuw/img/spritesB/spritesB{i}').glob('toile*.gif'):
             crop(f, True)

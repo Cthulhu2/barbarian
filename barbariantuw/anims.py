@@ -424,10 +424,10 @@ def barb(subdir: str):
         ]),
         'araignee': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/toile1.gif', tick=8),
-            Frame(f'{subdir}/toile2.gif', tick=15),
-            Frame(f'{subdir}/toile3.gif', tick=20),
-            Frame(f'{subdir}/toile4.gif', tick=33),
+            Frame(f'{subdir}/toile1.gif', tick=8,  dx=6 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/toile2.gif', tick=15, dx=6 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/toile3.gif', tick=20, dx=6 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/toile4.gif', tick=33, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='epee.ogg'),
@@ -701,10 +701,10 @@ def barb_rtl(subdir: str):
         ]),
         'araignee': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/toile1.gif', xflip=True, tick=8,  dx=-Game.chw),
-            Frame(f'{subdir}/toile2.gif', xflip=True, tick=15, dx=-Game.chw),
-            Frame(f'{subdir}/toile3.gif', xflip=True, tick=20, dx=-Game.chw),
-            Frame(f'{subdir}/toile4.gif', xflip=True, tick=33, dx=-3 * Game.chw),
+            Frame(f'{subdir}/toile1.gif', xflip=True, tick=8,  dx=-2 * Game.scx,  dy=18 * Game.scy),
+            Frame(f'{subdir}/toile2.gif', xflip=True, tick=15, dx=-8 * Game.scx,  dy=19 * Game.scy),
+            Frame(f'{subdir}/toile3.gif', xflip=True, tick=20, dx=-1 * Game.scx,  dy=18 * Game.scy),
+            Frame(f'{subdir}/toile4.gif', xflip=True, tick=33, dx=-21 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='epee.ogg'),
