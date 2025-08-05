@@ -518,10 +518,10 @@ def barb(subdir: str):
         ]),
         'touche1': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/touche2.gif', tick=1),
-            Frame(f'{subdir}/touche2.gif', tick=5,  mv=(-Game.chw,     0)),
-            Frame(f'{subdir}/touche1.gif', tick=10, mv=(-2 * Game.chw, 0)),
-            Frame(f'{subdir}/touche2.gif', tick=20, mv=(-Game.chw,     0)),
+            Frame(f'{subdir}/touche2.gif', tick=1,                         dx=5 * Game.scx, dy=20 * Game.scy),
+            Frame(f'{subdir}/touche2.gif', tick=5,  mv=(-Game.chw,     0), dx=5 * Game.scx, dy=20 * Game.scy),
+            Frame(f'{subdir}/touche1.gif', tick=10, mv=(-2 * Game.chw, 0),                  dy=21 * Game.scy),
+            Frame(f'{subdir}/touche2.gif', tick=20, mv=(-Game.chw,     0), dx=5 * Game.scx, dy=20 * Game.scy),
             Frame(f'{subdir}/debout.gif',  tick=21, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
         ]),
@@ -797,10 +797,10 @@ def barb_rtl(subdir: str):
         ]),
         'touche1': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/touche2.gif', xflip=True, tick=1),
-            Frame(f'{subdir}/touche2.gif', xflip=True, tick=5,  mv=(Game.chw,     0)),
-            Frame(f'{subdir}/touche1.gif', xflip=True, tick=10, mv=(2 * Game.chw, 0)),
-            Frame(f'{subdir}/touche2.gif', xflip=True, tick=20, mv=(Game.chw,     0)),
+            Frame(f'{subdir}/touche2.gif', xflip=True, tick=1,                        dx=2 * Game.scx, dy=20 * Game.scy),  # noqa
+            Frame(f'{subdir}/touche2.gif', xflip=True, tick=5,  mv=(Game.chw,     0), dx=2 * Game.scx, dy=20 * Game.scy),  # noqa
+            Frame(f'{subdir}/touche1.gif', xflip=True, tick=10, mv=(2 * Game.chw, 0), dx=6 * Game.scx, dy=21 * Game.scy),  # noqa
+            Frame(f'{subdir}/touche2.gif', xflip=True, tick=20, mv=(Game.chw,     0), dx=2 * Game.scx, dy=20 * Game.scy),  # noqa
             Frame(f'{subdir}/debout.gif',  xflip=True, tick=21, dy=18 * Game.scy),
             # @formatter:on
         ]),
