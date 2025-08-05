@@ -527,11 +527,11 @@ def barb(subdir: str):
         ]),
         'tombe1': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/tombe1.gif', tick=1,                     dx=-2 * Game.chw),
-            Frame(f'{subdir}/tombe1.gif', tick=9,  mv=(-Game.chw, 0), dx=-2 * Game.chw),
-            Frame(f'{subdir}/tombe2.gif', tick=15, mv=(-Game.chw, 0), dx=-3 * Game.chw),
-            Frame(f'{subdir}/tombe3.gif', tick=25,                    dx=-3 * Game.chw),
-            Frame(f'{subdir}/debout.gif', tick=27, mv=(-Game.chw, 0), dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/tombe1.gif', tick=1,                     dx=-16 * Game.scx, dy=21 * Game.scy),
+            Frame(f'{subdir}/tombe1.gif', tick=9,  mv=(-Game.chw, 0), dx=-16 * Game.scx, dy=21 * Game.scy),
+            Frame(f'{subdir}/tombe2.gif', tick=15, mv=(-Game.chw, 0), dx=-26 * Game.scx, dy=58 * Game.scy),
+            Frame(f'{subdir}/tombe3.gif', tick=25,                    dx=-26 * Game.scx, dy=41 * Game.scy),
+            Frame(f'{subdir}/debout.gif', tick=27, mv=(-Game.chw, 0), dx=4 * Game.scx,   dy=18 * Game.scy),
             # @formatter:on
         ]),
         'mort': Animation(frames=[
@@ -806,11 +806,11 @@ def barb_rtl(subdir: str):
         ]),
         'tombe1': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=1,                    dx=Game.chw),
-            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=9,  mv=(Game.chw, 0), dx=Game.chw),
-            Frame(f'{subdir}/tombe2.gif', xflip=True, tick=15, mv=(Game.chw, 0), dx=Game.chw),
-            Frame(f'{subdir}/tombe3.gif', xflip=True, tick=25,                   dx=Game.chw),
-            Frame(f'{subdir}/debout.gif', xflip=True, tick=27, mv=(Game.chw, 0), dy=18 * Game.scy),
+            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=1,                    dx=4 * Game.scx,  dy=21 * Game.scy),
+            Frame(f'{subdir}/tombe1.gif', xflip=True, tick=9,  mv=(Game.chw, 0), dx=4 * Game.scx,  dy=21 * Game.scy),
+            Frame(f'{subdir}/tombe2.gif', xflip=True, tick=15, mv=(Game.chw, 0), dx=10 * Game.scx, dy=58 * Game.scy),
+            Frame(f'{subdir}/tombe3.gif', xflip=True, tick=25,                   dx=8 * Game.scx,  dy=41 * Game.scy),
+            Frame(f'{subdir}/debout.gif', xflip=True, tick=27, mv=(Game.chw, 0),                   dy=18 * Game.scy),
             # @formatter:on
         ]),
         'mort': Animation(frames=[
