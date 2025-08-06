@@ -856,10 +856,10 @@ def barb_rtl(subdir: str):
 def gnome():
     return {
         'gnome': Animation(frames=[
-            Frame('sprites/gnome1.gif', tick=6, mv=(Game.chw, 0)),
-            Frame('sprites/gnome2.gif', tick=12),
-            Frame('sprites/gnome3.gif', tick=18, mv=(Game.chw, 0)),
-            Frame('sprites/gnome4.gif', tick=24),
+            Frame('sprites/gnome1.gif', tick=5, mv=(Game.chw, 0)),
+            Frame('sprites/gnome2.gif', tick=11),
+            Frame('sprites/gnome3.gif', tick=17, mv=(Game.chw, 0)),
+            Frame('sprites/gnome4.gif', tick=23),
         ]),
     }
 
