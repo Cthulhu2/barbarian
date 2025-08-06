@@ -1030,7 +1030,7 @@ class Display(_MenuBackScene):
         Txt(sz, '2 WINDOWS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key == K_1:
             self.on_fullscreen()
@@ -1058,7 +1058,7 @@ class SelectStage(_MenuBackScene):
         Txt(sz, '6 BACK', col, (112 * Game.scx, txt.rect.bottom + sz + 4 * Game.scy), self)
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key == K_1:
             Game.decor = 'plaine'
@@ -1108,7 +1108,7 @@ class ControlsKeys(_MenuBackScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
             self.on_next()
@@ -1140,7 +1140,7 @@ class ControlsMoves(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
             self.on_next()
@@ -1173,7 +1173,7 @@ class ControlsFight(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
             self.on_next()
@@ -1212,7 +1212,7 @@ class Credits(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
             self.on_back()
@@ -1250,7 +1250,7 @@ class History(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
+        if evt.type != KEYDOWN:
             return
         elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
             self.on_back()
