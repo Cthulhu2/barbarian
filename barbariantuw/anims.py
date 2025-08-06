@@ -414,9 +414,9 @@ def barb(subdir: str):
         ]),
         'genou': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/genou1.gif', tick=10, dx=Game.chw / 4),
+            Frame(f'{subdir}/genou1.gif', tick=10, dx=7 * Game.scx, dy=38 * Game.scy),
             Frame(f'{subdir}/assis2.gif', tick=20, dx=2 * Game.scx, dy=38 * Game.scy),
-            Frame(f'{subdir}/genou3.gif', tick=30, dx=Game.chw / 4),
+            Frame(f'{subdir}/genou3.gif', tick=30, dx=8 * Game.scx, dy=38 * Game.scy),
             Frame(f'{subdir}/assis2.gif', tick=46, dx=2 * Game.scx, dy=38 * Game.scy),
             # @formatter:on
         ], actions=[
@@ -692,10 +692,9 @@ def barb_rtl(subdir: str):
         ]),
         'genou': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/genou1.gif', xflip=True, tick=10, dx=-Game.chw / 4),
+            Frame(f'{subdir}/genou1.gif', xflip=True, tick=10, dx=-2 * Game.scx, dy=38 * Game.scy),
             Frame(f'{subdir}/assis2.gif', xflip=True, tick=20, dy=38 * Game.scy),
-            Frame(f'{subdir}/genou3.gif', xflip=True, tick=30, dx=-Game.chw / 4
-                                                                  - 3 * Game.chw),
+            Frame(f'{subdir}/genou3.gif', xflip=True, tick=30, dx=-26 * Game.scx, dy=38 * Game.scy),
             Frame(f'{subdir}/assis2.gif', xflip=True, tick=46, dy=38 * Game.scy),
             # @formatter:on
         ], actions=[
