@@ -35,7 +35,6 @@ def sang_decap():
         ]),
         'sang': Animation(frames=[
             # @formatter:off
-            # TODO: invisible tickable sprites
             Frame('empty',              tick=5),  # noqa
             Frame('sprites/gicle1.gif', tick=10, dx=Game.chw, dy=0.8 * Game.chh),
             Frame('sprites/gicle2.gif', tick=15, dx=Game.chw, dy=0.8 * Game.chh),
@@ -300,11 +299,11 @@ def barb(subdir: str):
             Frame(f'{subdir}/debout.gif', dx=4 * Game.scx, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
-            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  tick=15, dx=4 * Game.scx, dy=18 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), tick=23, dx=2 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(78, 0, 42, 61), tick=30, dx=2 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), tick=37, dx=2 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  tick=50, dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/attente1.gif', tick=15, dx=4 * Game.scx, dy=18 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', tick=23, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente3.gif', tick=30, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', tick=37, dx=2 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente1.gif', tick=50, dx=4 * Game.scx, dy=18 * Game.scy),
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),
@@ -579,11 +578,11 @@ def barb_rtl(subdir: str):
         ]),
         'attente': Animation(frames=[
             # @formatter:off
-            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  xflip=True, tick=15,                   dy=18 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), xflip=True, tick=23, dx=-4 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(78, 0, 42, 61), xflip=True, tick=30, dx=-4 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(36, 0, 42, 61), xflip=True, tick=37, dx=-4 * Game.scx, dy=19 * Game.scy),
-            Frame(f'{subdir}/attente.gif', src_rect=rect(0, 0, 36, 62),  xflip=True, tick=50,                   dy=18 * Game.scy),
+            Frame(f'{subdir}/attente1.gif', xflip=True, tick=15,                   dy=18 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=23, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente3.gif', xflip=True, tick=30, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente2.gif', xflip=True, tick=37, dx=-4 * Game.scx, dy=19 * Game.scy),
+            Frame(f'{subdir}/attente1.gif', xflip=True, tick=50,                   dy=18 * Game.scy),
             # @formatter:on
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='attente.ogg')
