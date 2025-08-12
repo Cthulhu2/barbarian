@@ -17,12 +17,11 @@ class SkylinePacker:
         best_x, best_y = None, None
         min_y = float('inf')
 
-        for x, seg_width, seg_height in self.skyline:
-            if seg_width >= w:
-                if seg_height < min_y:
-                    min_y = seg_height
-                    best_x = x
-                    best_y = seg_height
+        for seg_x, seg_w, seg_y in self.skyline:
+            if seg_w >= w and seg_y < min_y:
+                min_y = seg_y
+                best_x = seg_x
+                best_y = seg_y
 
         if best_x is not None:
             return best_x, best_y
@@ -33,16 +32,16 @@ class SkylinePacker:
         sprite_right = x + w
         sprite_top = y + h
 
-        for seg_x, seg_w, seg_h in self.skyline:
+        for seg_x, seg_w, seg_y in self.skyline:
             seg_right = seg_x + seg_w
 
             if seg_right <= x or seg_x >= sprite_right:
-                new_skyline.append((seg_x, seg_w, seg_h))
+                new_skyline.append((seg_x, seg_w, seg_y))
             else:
                 if seg_x < x:
-                    new_skyline.append((seg_x, x - seg_x, seg_h))
+                    new_skyline.append((seg_x, x - seg_x, seg_y))
                 if seg_right > sprite_right:
-                    new_skyline.append((sprite_right, seg_right - sprite_right, seg_h))
+                    new_skyline.append((sprite_right, seg_right - sprite_right, seg_y))
                 new_skyline.append((x, w, sprite_top))
 
         merged = []
@@ -61,7 +60,7 @@ class SkylinePacker:
         self.skyline = merged
 
     def get_height(self) -> int:
-        return max((h for _, _, h in self.skyline), default=0)
+        return max((y for _, _, y in self.skyline), default=0)
 
     def get_width(self) -> int:
         return self.width
@@ -70,8 +69,8 @@ class SkylinePacker:
 def pack_sprites_skyline(
         frames: List[Path],
         output: Path,
-        max_width: int = 860,
-        max_height: int = 1024
+        max_width: int = 994,
+        max_height: int = 2048
 ):
     sprites = []
     for frame in frames:
