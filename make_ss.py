@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 
 from PIL import Image
+from pygame import Rect
 
 
 class SkylinePacker:
@@ -98,7 +99,7 @@ def pack_sprites_skyline(
 
         packer.update_skyline(x, y, s.width, s.height)
 
-        sprite_data[s.name] = (x, y, s.width, s.height)
+        sprite_data[s.name] = Rect(x, y, s.width, s.height)
         used_sprites.append(s)
 
     total_width = max_width
@@ -110,13 +111,12 @@ def pack_sprites_skyline(
             atlas.paste(s, (rect[0], rect[1]))
         atlas.save(output)
 
-    class_def = ast.ClassDef(
-        output.stem[0].upper() + output.stem[1:], [], keywords=[], body=[
-            ast.Assign([ast.Name(name.upper(), ast.Store())],
-                       value=ast.Constant(value, name))
-            for name, value in sorted(sprite_data.items())
-            if not name.startswith('__') and not callable(value)
-        ], decorator_list=[])
+    class_def = ast.ClassDef(output.stem, [], keywords=[], body=[
+        ast.Assign([ast.Name(name.upper(), ast.Store())],
+                   value=ast.Constant(value, name))
+        for name, value in sorted(sprite_data.items())
+        if not name.startswith('__') and not callable(value)
+    ], decorator_list=[])
     ast.fix_missing_locations(class_def)
     return ast.unparse(class_def)
 
@@ -140,7 +140,9 @@ if __name__ == "__main__":
     sorted(class_defs)
     ss_py = Path('barbariantuw/spritesheets.py')
     with open(ss_py, 'w', encoding='utf-8') as f:
-        f.writelines(('# GENERATED SPRITES SOURCE RECTS\n',
-                      '# DO NOT EDIT MANUALLY\n'))
-        for clazz in class_defs:
-            f.writelines((clazz, '\n', '\n', '\n'))
+        f.write('\n'.join(('# GENERATED SPRITES SOURCE RECTS',
+                           '# DO NOT EDIT MANUALLY',
+                           'from pygame import Rect',
+                           '\n\n')))
+        f.write('\n\n\n'.join(class_defs))
+        f.write('\n')

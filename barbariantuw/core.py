@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from math import ceil
 from os.path import join
-from typing import Dict, Callable, TypedDict, Tuple, List, Optional, Iterator
+from typing import (
+    Dict, Callable, TypedDict, Tuple, List, Optional, Iterator, Union, Type
+)
 
 from pygame import Surface, image, Rect, Font
 from pygame.mixer import Sound  # import pygame.Sound breaks WASM!!!
@@ -84,7 +86,8 @@ class Frame:
     """
     `tick` end tick. A next tick will apply a next frame.
     """
-    name: str
+    name: Union[str, Type]
+    src_rect: Rect = None
     dx: float = 0
     dy: float = 0
     w: float = 0
@@ -97,41 +100,44 @@ class Frame:
     mv: Tuple[float, float] = None
     tick: int = -1
     colorkey: Tuple[int, int, int] = None
-    src_rect: Rect = None
-    is_tickable: bool = field(init=False, compare=False)
-    image: Surface = field(init=False, compare=False)
-    rect: Rect = field(init=False, compare=False)
+    image: Surface = field(compare=False, default=None)
+    rect: Rect = field(compare=False, default=None)
 
-    def __post_init__(self):
-        super(Frame, self).__setattr__('is_tickable', self.tick >= 0)
-        super(Frame, self).__setattr__(
-            'image', get_img(self.name, self.w, self.h, self.angle, self.xflip,
-                             self.fill, self.blend_flags, self.colorkey))
-        if self.xflip and self.src_rect:
-            super(Frame, self).__setattr__(
-                # In WASM there is no width property
-                'src_rect', Rect(self.image.get_width() - self.src_rect[0] - self.src_rect[2],
-                                 self.src_rect[1],
-                                 self.src_rect[2],
-                                 self.src_rect[3]))
-        if self.src_rect:
-            super(Frame, self).__setattr__(
-                'rect',
-                Rect(0, 0, self.src_rect.size[0], self.src_rect.size[1])
-                    .move(self.dx, self.dy))
-        else:
-            super(Frame, self).__setattr__(
-                'rect', self.image.get_rect().move(self.dx, self.dy))
 
-    def rtl(self):
-        move_base = None
-        if self.mv:
-            move_base = (-self.mv[0], self.mv[1])
+def frame(name: Union[str, Type], src_rect: Rect = None,
+          dx: float = 0, dy: float = 0,
+          w: float = 0, h: float = 0,
+          duration: int = 125, angle: float = 0, xflip: bool = False,
+          fill: Tuple[int, int, int] = None, blend_flags: int = 0,
+          mv: Tuple[float, float] = None,
+          tick: int = -1, colorkey: Tuple[int, int, int] = None):
+    if isinstance(name, type):
+        name = f'{name.__name__}.gif'
+    img = get_img(name, w, h, angle, xflip, fill, blend_flags, colorkey)
+    if src_rect:
+        src_rect = Rect(src_rect.x * Game.scx, src_rect.y * Game.scy,
+                        src_rect.w * Game.scx, src_rect.h * Game.scy)
+    if xflip and src_rect:
+        # In WASM there is no width property
+        src_rect = Rect(img.get_width() - src_rect.x - src_rect.w,
+                        src_rect.y, src_rect.w, src_rect.h)
+    if src_rect:
+        rect = Rect(0, 0, src_rect.w, src_rect.h).move(dx, dy)
+    else:
+        rect = img.get_rect().move(dx, dy)
+    return Frame(name, src_rect, dx, dy, w, h,
+                 duration, angle, xflip, fill, blend_flags, mv, tick, colorkey,
+                 img, rect)
 
-        return Frame(self.name, -self.dx, self.dy, self.w, self.h,
-                     self.duration, -self.angle, not self.xflip, self.fill,
-                     self.blend_flags, move_base, self.tick, self.colorkey,
-                     self.src_rect)
+
+def rtl_frame(f: Frame):
+    move_base = None
+    if f.mv:
+        move_base = (-f.mv[0], f.mv[1])
+
+    return frame(f.name, f.src_rect, -f.dx, f.dy, f.w, f.h,
+                 f.duration, -f.angle, not f.xflip, f.fill,
+                 f.blend_flags, move_base, f.tick, f.colorkey)
 
 
 class Act:
@@ -173,7 +179,7 @@ class Actions:
 def rtl_anims(animations: Dict[str, Animation]):
     rtl = {}
     for name, anim in animations.items():
-        rtl[name] = Animation(frames=[f.rtl() for f in anim.frames],
+        rtl[name] = Animation(frames=[rtl_frame(f) for f in anim.frames],
                               actions=anim.actions)
     return rtl
 
@@ -455,7 +461,7 @@ class AnimatedSprite(DirtySprite):
             return
         self.animTick += 1
         self.call_acts()
-        if self.frame.is_tickable:
+        if self.frame.tick >= 0:
             while not self.stopped and self.animTick > self.frame_tick:
                 self.animTimer = current_time
                 self.next_frame()
@@ -483,7 +489,7 @@ class AnimatedSprite(DirtySprite):
             if self.frame.mv:  # Undo the current frame move_base
                 self.move(-self.frame.mv[0], -self.frame.mv[1])
             self.frame = prev
-            if self.frame.is_tickable:
+            if self.frame.tick >= 0:
                 self.frame_tick = self._calc(self.frame.tick)
             else:
                 self.frame_duration = self._calc(self.frame.duration)
@@ -503,7 +509,7 @@ class AnimatedSprite(DirtySprite):
         next_ = self.frames[self.frameNum]
         if self.frame != next_ or len(self.frames) == 1:
             self.frame = next_
-            if self.frame.is_tickable:
+            if self.frame.tick >= 0:
                 self.frame_tick = self._calc(self.frame.tick)
             else:
                 self.frame_duration = self._calc(self.frame.duration)

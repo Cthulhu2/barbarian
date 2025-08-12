@@ -70,16 +70,17 @@ class Barbarian(AnimatedSprite):
     on_score: Callable[[int], None]
     on_mort: Callable[['Barbarian'], None]
 
-    def __init__(self, opts, x, y, subdir: str, rtl=False, anim='debout'):
-        super().__init__((x, y), anims.barb(subdir))
+    def __init__(self, opts, x, y, ss: anims.BarbSpriteSheetType,
+                 rtl=False, anim='debout'):
+        super().__init__((x, y), anims.barb(ss))
         self.opts = opts
         self.rtl = rtl
         #
         self.sang = AnimatedSprite(self.topleft, anims.sang_decap())
-        self.tete = AnimatedSprite(self.topleft, anims.tete_decap(subdir))
+        self.tete = AnimatedSprite(self.topleft, anims.tete_decap(ss))
         self.teteOmbre = AnimatedSprite(self.topleft, anims.teteombre_decap())
         self.ltr_anims = self.anims
-        self.rtl_anims = anims.barb_rtl(subdir)
+        self.rtl_anims = anims.barb_rtl(ss)
         self.anims = self.rtl_anims if rtl else self.ltr_anims
         self._xLoc = px2locX(self.x)
         self.animate(anim)

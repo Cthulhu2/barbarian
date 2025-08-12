@@ -17,6 +17,7 @@ from barbariantuw.core import (
     Rectangle, Txt, StaticSprite, AnimatedSprite
 )
 from barbariantuw.sprites import Barbarian, loc2pxX, loc2pxY, loc, Sorcier
+from barbariantuw import spritesheets
 
 
 class EmptyScene(LayeredDirty):
@@ -282,10 +283,12 @@ class Battle(EmptyScene):
             layer=5)
 
         self.joueurA = Barbarian(opts, loc2pxX(1), loc2pxY(14),
-                                 'spritesA', rtl=False)
+                                 spritesheets.spritesA,
+                                 rtl=False)
         self.joueurA.infoCoup = 3
         self.joueurB = Barbarian(opts, loc2pxX(36), loc2pxY(14),
-                                 f'spritesB/spritesB{Game.ia}', rtl=True)
+                                 getattr(spritesheets, f'spritesB{Game.ia}'),
+                                 rtl=True)
         sz = Game.chh
         if Game.partie == Partie.solo:
             Txt(sz, 'ONE  PLAYER', Theme.TXT, loc(16, 25), self)
