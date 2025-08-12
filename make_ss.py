@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json
+import ast
 import os
 from pathlib import Path
 from typing import List, Tuple, Optional
@@ -67,16 +67,15 @@ class SkylinePacker:
 
 
 def pack_sprites_skyline(
-    frames: List[Path],
-    output_image: str,
-    output_json: str,
-    max_width: int = 860,
-    max_height: int = 1024
+        frames: List[Path],
+        output: Path,
+        max_width: int = 860,
+        max_height: int = 1024
 ):
     sprites = []
-    for f in frames:
-        img = Image.open(f)
-        img.name = f.name
+    for frame in frames:
+        img = Image.open(frame)
+        img.name = frame.stem
         sprites.append(img)
 
     sprites.sort(key=lambda sprite: (-sprite.height, -sprite.width))
@@ -99,7 +98,7 @@ def pack_sprites_skyline(
 
         packer.update_skyline(x, y, s.width, s.height)
 
-        sprite_data[s.name] = {'x': x, 'y': y, 'w': s.width, 'h': s.height}
+        sprite_data[s.name] = (x, y, s.width, s.height)
         used_sprites.append(s)
 
     total_width = max_width
@@ -108,22 +107,40 @@ def pack_sprites_skyline(
     with Image.new('RGBA', (total_width, total_height), (0, 0, 0, 0)) as atlas:
         for s in used_sprites:
             rect = sprite_data[s.name]
-            atlas.paste(s, (rect['x'], rect['y']))
-        atlas.save(output_image)
+            atlas.paste(s, (rect[0], rect[1]))
+        atlas.save(output)
 
-    metadata = {
-        "width": total_width,
-        "height": total_height,
-        "sprites": sprite_data
-    }
-    with open(output_json, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, indent=2)
+    class_def = ast.ClassDef(
+        output.stem[0].upper() + output.stem[1:], [], keywords=[], body=[
+            ast.Assign([ast.Name(name.upper(), ast.Store())],
+                       value=ast.Constant(value, name))
+            for name, value in sorted(sprite_data.items())
+            if not name.startswith('__') and not callable(value)
+        ], decorator_list=[])
+    ast.fix_missing_locations(class_def)
+    return ast.unparse(class_def)
 
 
 if __name__ == "__main__":
     ssA_path = Path('barbariantuw/img/spritesA.gif')
     if ssA_path.exists():
         os.remove(ssA_path)
-    ssA_frames = sorted(list(Path('barbariantuw/img/spritesA/').glob('*.gif')))
+    ssA_frames = sorted(list(Path('barbariantuw/img/spritesA/')
+                             .glob('*.gif')))
+    class_defs = [pack_sprites_skyline(ssA_frames, ssA_path)]
 
-    pack_sprites_skyline(ssA_frames, ssA_path, ssA_path.with_name('spritesA.json'))
+    for i in range(8):
+        ssB_path = Path(f'barbariantuw/img/spritesB{i}.gif')
+        if ssB_path.exists():
+            os.remove(ssB_path)
+        ssB_frames = sorted(list(Path(f'barbariantuw/img/spritesB/spritesB{i}')
+                                 .glob('*.gif')))
+        class_defs.append(pack_sprites_skyline(ssB_frames, ssB_path))
+
+    sorted(class_defs)
+    ss_py = Path('barbariantuw/spritesheets.py')
+    with open(ss_py, 'w', encoding='utf-8') as f:
+        f.writelines(('# GENERATED SPRITES SOURCE RECTS\n',
+                      '# DO NOT EDIT MANUALLY\n'))
+        for clazz in class_defs:
+            f.writelines((clazz, '\n', '\n', '\n'))
