@@ -104,98 +104,6 @@ class Logo(EmptyScene):
             get_snd('grogne1.ogg')
             get_snd('grogne2.ogg')
 
-        get_img('spritesA/debout.gif')
-        get_img('spritesA/assis1.gif')
-        get_img('spritesA/assis2.gif')
-        get_img('spritesA/attente1.gif')
-        get_img('spritesA/attente2.gif')
-        get_img('spritesA/attente3.gif')
-        get_img('spritesA/protegeH.gif')
-        get_img('spritesA/cou2.gif')
-        get_img('spritesA/cou3.gif')
-        get_img('spritesA/devant1.gif')
-        get_img('spritesA/devant2.gif')
-        get_img('spritesA/devant3.gif')
-        get_img('spritesA/genou1.gif')
-        get_img('spritesA/genou3.gif')
-        get_img('spritesA/marche1.gif')
-        get_img('spritesA/marche2.gif')
-        get_img('spritesA/marche3.gif')
-        get_img('spritesA/saut1.gif')
-        get_img('spritesA/saut2.gif')
-        get_img('spritesA/vainqueur1.gif')
-        get_img('spritesA/vainqueur2.gif')
-        get_img('spritesA/vainqueur3.gif')
-        get_img('spritesA/retourne1.gif')
-        get_img('spritesA/retourne2.gif')
-        get_img('spritesA/retourne3.gif')
-        get_img('spritesA/front1.gif')
-        get_img('spritesA/front2.gif')
-        get_img('spritesA/front3.gif')
-        get_img('spritesA/toile1.gif')
-        get_img('spritesA/toile2.gif')
-        get_img('spritesA/toile3.gif')
-        get_img('spritesA/toile4.gif')
-        get_img('spritesA/tombe1.gif')
-        get_img('spritesA/tombe2.gif')
-        get_img('spritesA/tombe3.gif')
-        get_img('spritesA/protegeD.gif')
-        get_img('spritesA/protegeH.gif')
-        get_img('spritesA/tete1.gif')
-        get_img('spritesA/tete2.gif')
-        get_img('spritesA/touche2.gif')
-        get_img('spritesA/touche1.gif')
-        get_img('spritesA/touche2.gif')
-
-        get_img('spritesA/pied1.gif')
-        get_img('spritesA/pied2.gif')
-        get_img('spritesA/decap1.gif')
-        get_img('spritesA/decap2.gif')
-        get_img('spritesA/decap3.gif')
-        get_img('spritesA/decap4.gif')
-        get_img('spritesA/assis1.gif')
-        get_img('spritesA/mort2.gif')
-        get_img('spritesA/mort3.gif')
-        get_img('spritesA/mort4.gif')
-
-        get_img('spritesA/roulade1.gif')
-        get_img('spritesA/roulade2.gif')
-        get_img('spritesA/roulade3.gif')
-        get_img('spritesA/roulade5.gif')
-
-        get_img('sprites/drax1.gif')
-        get_img('sprites/drax2.gif')
-        get_img('sprites/marianna.gif')
-
-        # gnome
-        get_img('sprites/gnome1.gif')
-        get_img('sprites/gnome2.gif')
-        get_img('sprites/gnome3.gif')
-        get_img('sprites/gnome4.gif')
-
-        # divers
-        get_img('sprites/sang.gif')
-        get_img('spritesA/teteombre.gif')
-
-        get_img('spritesA/tetedecap1.gif')
-        get_img('spritesA/tetedecap2.gif')
-        get_img('spritesA/tetedecap3.gif')
-        get_img('spritesA/tetedecap4.gif')
-        get_img('spritesA/tetedecap5.gif')
-        get_img('spritesA/tetedecap6.gif')
-
-        get_img('sprites/feu1.gif')
-        get_img('sprites/feu2.gif')
-        get_img('sprites/feu3.gif')
-
-        get_img('sprites/gicle1.gif')
-        get_img('sprites/gicle2.gif')
-        get_img('sprites/gicle3.gif')
-
-        get_img('stage/serpent1.gif')
-        get_img('stage/serpent2.gif')
-        get_img('stage/serpent3.gif')
-
     def update(self, current_time, *args):
         super(Logo, self).update(current_time, *args)
         passed = current_time - self.timer
@@ -452,7 +360,6 @@ class Battle(EmptyScene):
         if Game.partie == Partie.demo:
             return
 
-        # TODO: Joystick events
         keyState = (True if evt.type == KEYDOWN else
                     False if evt.type == KEYUP else
                     None)
@@ -479,6 +386,41 @@ class Battle(EmptyScene):
                 self.joueurB.pressedRight = keyState
             elif evt.key == K_SPACE:
                 self.joueurB.pressedFire = keyState
+
+        elif evt.type == JOYAXISMOTION:
+            joueur = self.joueurA if evt.instance_id == 0 else self.joueurB
+            if evt.axis == 0:
+                if -1.1 < evt.value < -0.1:
+                    joueur.pressedLeft = True
+                elif 0.1 < evt.value < 1.1:
+                    joueur.pressedRight = True
+                else:
+                    joueur.pressedLeft = False
+                    joueur.pressedRight = False
+            elif evt.axis == 1:
+                if -1.1 < evt.value < -0.1:
+                    joueur.pressedUp = True
+                elif 0.1 < evt.value < 1.1:
+                    joueur.pressedDown = True
+                else:
+                    joueur.pressedDown = False
+                    joueur.pressedUp = False
+
+        keyState = (True if evt.type == JOYBUTTONDOWN else
+                    False if evt.type == JOYBUTTONUP else
+                    None)
+        if keyState is not None:
+            joueur = self.joueurA if evt.instance_id == 0 else self.joueurB
+            if evt.button == 0:
+                joueur.pressedFire = keyState
+            elif evt.button == 7:
+                joueur.pressedDown = keyState
+            elif evt.button == 6:
+                joueur.pressedUp = keyState
+            elif evt.button == 4:
+                joueur.pressedLeft = keyState
+            elif evt.button == 5:
+                joueur.pressedRight = keyState
 
     def animate_gnome(self):
         if not self.gnome:
