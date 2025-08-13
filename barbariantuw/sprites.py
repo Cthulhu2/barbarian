@@ -805,11 +805,12 @@ class Barbarian(AnimatedSprite):
 
     def gestion_coupdepied(self, temps, opponent):
         self.reset_xX_front()
-        self.xF = self.xLoc + 2
-        self.xT = self.xLoc + 2
+        self.xF = self.xLoc + (1 if self.rtl else 3)
+        self.xT = self.xLoc + (1 if self.rtl else 3)
         self.yAtt = self.yM
         self.yM = YM
         self.yT = YT
+        self.yF = YF
         if temps > self.reftemps + 50:
             self.deoccupe_state(State.debout)
             self.xF = self.xLoc + (0 if self.rtl else 4)
