@@ -13,8 +13,7 @@ import barbariantuw.ai as ai
 import barbariantuw.anims as anims
 from barbariantuw import Game, Partie, Theme, Levier, State
 from barbariantuw.core import (
-    get_img, get_snd, snd_play, rtl_anims,
-    Rectangle, Txt, StaticSprite, AnimatedSprite
+    get_img, get_snd, snd_play, Rectangle, Txt, StaticSprite, AnimatedSprite
 )
 from barbariantuw.sprites import Barbarian, loc2pxX, loc2pxY, loc, Sorcier
 
@@ -403,7 +402,7 @@ class Battle(EmptyScene):
         self.serpentA = AnimatedSprite((11 * Game.scx, 22 * Game.scy),
                                        anims.serpent(), self)
         self.serpentB = AnimatedSprite((275 * Game.scx, 22 * Game.scy),
-                                       rtl_anims(anims.serpent()), self)
+                                       anims.serpent_rtl(), self)
         self.temps = 0
         self.tempsfini = False
         self.inverse = False

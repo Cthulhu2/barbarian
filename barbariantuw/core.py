@@ -85,38 +85,27 @@ class Frame:
     `tick` end tick. A next tick will apply a next frame.
     """
     name: str
-    dx: float = 0
-    dy: float = 0
+    x: float = 0
+    y: float = 0
     w: float = 0
     h: float = 0
     duration: int = 125
-    angle: float = 0
-    xflip: bool = False
-    fill: Tuple[int, int, int] = None  # import pygame.typing.ColorLike breaks WASM!!!
-    blend_flags: int = 0
     mv: Tuple[float, float] = None
     tick: int = -1
-    colorkey: Tuple[int, int, int] = None
-    is_tickable: bool = field(init=False, compare=False)
-    image: Surface = field(init=False, compare=False)
-    rect: Rect = field(init=False, compare=False)
+    image: Surface = field(compare=False, default=None)
 
-    def __post_init__(self):
-        super(Frame, self).__setattr__('is_tickable', self.tick >= 0)
-        super(Frame, self).__setattr__(
-            'image', get_img(self.name, self.w, self.h, self.angle, self.xflip,
-                             self.fill, self.blend_flags, self.colorkey))
-        super(Frame, self).__setattr__(
-            'rect', self.image.get_rect().move(self.dx, self.dy))
 
-    def rtl(self):
-        move_base = None
-        if self.mv:
-            move_base = (-self.mv[0], self.mv[1])
-
-        return Frame(self.name, -self.dx, self.dy, self.w, self.h,
-                     self.duration, -self.angle, not self.xflip, self.fill,
-                     self.blend_flags, move_base, self.tick, self.colorkey)
+def frame(name: str, *,
+          dx: float = 0, dy: float = 0, w: float = 0, h: float = 0,
+          duration: int = 125, angle: float = 0, xflip: bool = False,
+          fill: Tuple[int, int, int] = None, blend_flags: int = 0,
+          mv: Tuple[float, float] = None, tick: int = -1,
+          colorkey: Tuple[int, int, int] = None):
+    img = get_img(name, w, h, angle, xflip, fill, blend_flags, colorkey)
+    rect = img.get_rect()
+    if dx or dy:
+        rect = rect.move(dx, dy)
+    return Frame(name, dx, dy, rect.w, rect.h, duration, mv, tick, img)
 
 
 class Act:
@@ -153,14 +142,6 @@ class Actions:
     def val(sprite, **kwargs):
         for k, v in kwargs:
             setattr(sprite, k, v)
-
-
-def rtl_anims(animations: Dict[str, Animation]):
-    rtl = {}
-    for name, anim in animations.items():
-        rtl[name] = Animation(frames=[f.rtl() for f in anim.frames],
-                              actions=anim.actions)
-    return rtl
 
 
 class Rectangle(Group):
@@ -440,7 +421,7 @@ class AnimatedSprite(DirtySprite):
             return
         self.animTick += 1
         self.call_acts()
-        if self.frame.is_tickable:
+        if self.frame.tick >= 0:
             while not self.stopped and self.animTick > self.frame_tick:
                 self.animTimer = current_time
                 self.next_frame()
@@ -468,7 +449,7 @@ class AnimatedSprite(DirtySprite):
             if self.frame.mv:  # Undo the current frame move_base
                 self.move(-self.frame.mv[0], -self.frame.mv[1])
             self.frame = prev
-            if self.frame.is_tickable:
+            if self.frame.tick >= 0:
                 self.frame_tick = self._calc(self.frame.tick)
             else:
                 self.frame_duration = self._calc(self.frame.duration)
@@ -486,7 +467,7 @@ class AnimatedSprite(DirtySprite):
         next_ = self.frames[self.frameNum]
         if self.frame != next_ or len(self.frames) == 1:
             self.frame = next_
-            if self.frame.is_tickable:
+            if self.frame.tick >= 0:
                 self.frame_tick = self._calc(self.frame.tick)
             else:
                 self.frame_duration = self._calc(self.frame.duration)
@@ -496,9 +477,10 @@ class AnimatedSprite(DirtySprite):
             self._update_rect()
 
     def _update_rect(self):
-        self.rect.size = self.frame.rect.size
+        self.rect.size = (self.frame.w, self.frame.h)
         self.rect.topleft = self.topleft
-        self.rect.move_ip(self.frame.rect.x, self.frame.rect.y)
+        if self.frame.x or self.frame.y:
+            self.rect.move_ip(self.frame.x, self.frame.y)
         self.dirty = 1
 
     def move(self, dx, dy):
