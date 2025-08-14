@@ -353,7 +353,7 @@ class Battle(EmptyScene):
 
         self.joueurA = Barbarian(opts, loc2pxX(1), loc2pxY(14),
                                  'spritesA', rtl=False)
-        self.joueurA.infoCoup = 3
+        self.joueurA.infoCoup = 1
         self.joueurB = Barbarian(opts, loc2pxX(36), loc2pxY(14),
                                  f'spritesB/spritesB{Game.ia}', rtl=True)
         sz = Game.chh
@@ -1104,6 +1104,7 @@ class Display(_MenuBackScene):
                 self.on_back()
 
     def process_event(self, evt):
+        super().process_event(evt)
         if evt.type == KEYDOWN:
             if evt.key == K_1:
                 self.select(0, True)
