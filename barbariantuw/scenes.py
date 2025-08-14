@@ -33,6 +33,12 @@ class EmptyScene(LayeredDirty):
         pass
 
 
+def is_any_key_pressed(evt):
+    return ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+            or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
+                                                    K_ESCAPE, K_SPACE)))
+
+
 class Logo(EmptyScene):
     def __init__(self, opts, *, on_load):
         super(Logo, self).__init__(opts)
@@ -130,7 +136,7 @@ class Logo(EmptyScene):
                 self.on_load()
 
     def process_event(self, evt):
-        if evt.type == KEYUP or evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+        if is_any_key_pressed(evt):
             self.skip = True
 
 
@@ -411,8 +417,11 @@ class Battle(EmptyScene):
                 self.remove(self.attAreas)
 
         if Game.partie == Partie.demo:
-            if evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+            if is_any_key_pressed(evt):
                 self.on_esc()
+            return
+        if self.bState != BattleState.in_progress and is_any_key_pressed(evt):
+            self.finish()
             return
 
         keyState = (True if evt.type == KEYDOWN else
@@ -1230,9 +1239,7 @@ class ControlsKeys(_MenuBackScene):
         ])
 
     def process_event(self, evt):
-        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
-                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
-                                                        K_ESCAPE, K_SPACE))):
+        if is_any_key_pressed(evt):
             self.on_next()
 
 
@@ -1262,9 +1269,7 @@ class ControlsMoves(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
-                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
-                                                        K_ESCAPE, K_SPACE))):
+        if is_any_key_pressed(evt):
             self.on_next()
 
 
@@ -1295,9 +1300,7 @@ class ControlsFight(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
-                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
-                                                        K_ESCAPE, K_SPACE))):
+        if is_any_key_pressed(evt):
             self.on_next()
 
 
@@ -1334,9 +1337,7 @@ class Credits(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
-                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
-                                                        K_ESCAPE, K_SPACE))):
+        if is_any_key_pressed(evt):
             self.on_back()
 
 
@@ -1372,7 +1373,5 @@ class History(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
-                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
-                                                        K_ESCAPE, K_SPACE))):
+        if is_any_key_pressed(evt):
             self.on_back()
