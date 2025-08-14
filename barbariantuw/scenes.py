@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import enum
 from itertools import cycle
+from typing import List
 
 import pygame.key
 from pygame import Surface, mixer
@@ -141,6 +142,9 @@ class Logo(EmptyScene):
 
 
 class _MenuBackScene(EmptyScene):
+    items: List[Txt]
+    cursorIdx: int = 0
+
     def __init__(self, opts, back: str):
         super(_MenuBackScene, self).__init__(opts)
         if Game.country == 'USA':
@@ -151,6 +155,30 @@ class _MenuBackScene(EmptyScene):
             back = get_img(back)
         # noinspection PyTypeChecker
         self.clear(None, back)
+        self.items = []
+
+    def select(self, idx, run):
+        if self.items:
+            idx = min(len(self.items) - 1, max(0, idx))
+            self.items[self.cursorIdx].color = Theme.MENU_TXT
+            self.cursorIdx = idx
+            self.items[self.cursorIdx].color = Theme.BLACK
+
+    def process_event(self, evt):
+        if evt.type == KEYDOWN:
+            if evt.key in (K_RETURN, K_KP_ENTER):
+                self.select(self.cursorIdx, True)
+            elif evt.key in (K_UP, K_KP_8):
+                self.select(self.cursorIdx - 1, False)
+            elif evt.key in (K_DOWN, K_KP_2):
+                self.select(self.cursorIdx + 1, False)
+        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+            self.select(self.cursorIdx, True)
+        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+            if -1.1 < evt.value < -0.1:
+                self.select(self.cursorIdx - 1, False)
+            elif 0.1 < evt.value < 1.1:
+                self.select(self.cursorIdx + 1, False)
 
 
 class Menu(_MenuBackScene):
@@ -167,7 +195,6 @@ class Menu(_MenuBackScene):
         self.on_history = on_history
         self.on_credits = on_credits
         self.on_quit = on_quit
-        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
@@ -177,7 +204,7 @@ class Menu(_MenuBackScene):
         #
         x = 112 * Game.scx
         txt = Txt(sz, '0 DEMO', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
-        self.items = [txt]
+        self.items.append(txt)
 
         txt = Txt(sz, '1 ONE PLAYER', col, (x, txt.rect.bottom + 2 * Game.scy), self)
         self.items.append(txt)
@@ -201,29 +228,27 @@ class Menu(_MenuBackScene):
         self.items.append(txt)
 
     def select(self, idx, run):
-        idx = min(len(self.items) - 1, max(0, idx))
-        self.items[self.cursorIdx].color = Theme.MENU_TXT
-        self.cursorIdx = idx
-        self.items[self.cursorIdx].color = Theme.BLACK
+        super().select(idx, run)
         if run:
-            if idx == 0:
+            if self.cursorIdx == 0:
                 self.on_demo()
-            elif idx == 1:
+            elif self.cursorIdx == 1:
                 self.on_solo()
-            elif idx == 2:
+            elif self.cursorIdx == 2:
                 self.on_duel()
-            elif idx == 3:
+            elif self.cursorIdx == 3:
                 self.on_options()
-            elif idx == 4:
+            elif self.cursorIdx == 4:
                 self.on_controls()
-            elif idx == 5:
+            elif self.cursorIdx == 5:
                 self.on_history()
-            elif idx == 6:
+            elif self.cursorIdx == 6:
                 self.on_credits()
-            elif idx == 7:
+            elif self.cursorIdx == 7:
                 self.on_quit()
 
     def process_event(self, evt):
+        super().process_event(evt)
         if evt.type == KEYDOWN:
             if evt.key == K_0:
                 self.select(0, True)
@@ -241,19 +266,6 @@ class Menu(_MenuBackScene):
                 self.select(6, True)
             elif evt.key in (K_7, K_ESCAPE):
                 self.select(7, True)
-            elif evt.key in (K_RETURN, K_KP_ENTER):
-                self.select(self.cursorIdx, True)
-            elif evt.key in (K_UP, K_KP_8):
-                self.select(self.cursorIdx - 1, False)
-            elif evt.key in (K_DOWN, K_KP_2):
-                self.select(self.cursorIdx + 1, False)
-        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
-            self.select(self.cursorIdx, True)
-        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
-            if -1.1 < evt.value < -0.1:
-                self.select(self.cursorIdx - 1, False)
-            elif 0.1 < evt.value < 1.1:
-                self.select(self.cursorIdx + 1, False)
 
 
 def area(color, lbl, border_width=2):
@@ -1017,7 +1029,6 @@ class Version(_MenuBackScene):
         super(Version, self).__init__(opts, 'menu/menu.png')
         self.on_display = on_display
         self.on_back = on_back
-        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
@@ -1027,7 +1038,7 @@ class Version(_MenuBackScene):
         #
         x = 112 * Game.scx
         txt = Txt(sz, '1 EUROPE', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
-        self.items = [txt]
+        self.items.append(txt)
 
         txt = Txt(sz, '2 USA', col, (x, txt.rect.bottom + 2 * Game.scy), self)
         self.items.append(txt)
@@ -1036,21 +1047,19 @@ class Version(_MenuBackScene):
         self.items.append(txt)
 
     def select(self, idx, run):
-        idx = min(len(self.items) - 1, max(0, idx))
-        self.items[self.cursorIdx].color = Theme.MENU_TXT
-        self.cursorIdx = idx
-        self.items[self.cursorIdx].color = Theme.BLACK
+        super().select(idx, run)
         if run:
-            if idx == 0:
+            if self.cursorIdx == 0:
                 Game.country = 'EUROPE'
                 self.on_display()
-            elif idx == 1:
+            elif self.cursorIdx == 1:
                 Game.country = 'USA'
                 self.on_display()
-            elif idx == 2:
+            elif self.cursorIdx == 2:
                 self.on_back()
 
     def process_event(self, evt):
+        super().process_event(evt)
         if evt.type == KEYDOWN:
             if evt.key == K_1:
                 self.select(0, True)
@@ -1058,19 +1067,6 @@ class Version(_MenuBackScene):
                 self.select(1, True)
             elif evt.key in (K_4, K_ESCAPE):
                 self.select(2, True)
-            elif evt.key in (K_RETURN, K_KP_ENTER):
-                self.select(self.cursorIdx, True)
-            elif evt.key in (K_UP, K_KP_8):
-                self.select(self.cursorIdx - 1, False)
-            elif evt.key in (K_DOWN, K_KP_2):
-                self.select(self.cursorIdx + 1, False)
-        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
-            self.select(self.cursorIdx, True)
-        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
-            if -1.1 < evt.value < -0.1:
-                self.select(self.cursorIdx - 1, False)
-            elif 0.1 < evt.value < 1.1:
-                self.select(self.cursorIdx + 1, False)
 
 
 class Display(_MenuBackScene):
@@ -1079,7 +1075,6 @@ class Display(_MenuBackScene):
         self.on_fullscreen = on_fullscreen
         self.on_window = on_window
         self.on_back = on_back
-        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
@@ -1090,7 +1085,7 @@ class Display(_MenuBackScene):
         #
         x = 112 * Game.scx
         txt = Txt(sz, '1 FULLSCREEN', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
-        self.items = [txt]
+        self.items.append(txt)
 
         txt = Txt(sz, '2 WINDOWS', col, (x, txt.rect.bottom + 2 * Game.scy), self)
         self.items.append(txt)
@@ -1099,16 +1094,13 @@ class Display(_MenuBackScene):
         self.items.append(txt)
 
     def select(self, idx, run):
-        idx = min(len(self.items), max(0, idx))
-        self.items[self.cursorIdx].color = Theme.MENU_TXT
-        self.cursorIdx = idx
-        self.items[self.cursorIdx].color = Theme.BLACK
+        super().select(idx, run)
         if run:
-            if idx == 0:
+            if self.cursorIdx == 0:
                 self.on_fullscreen()
-            elif idx == 1:
+            elif self.cursorIdx == 1:
                 self.on_window()
-            elif idx == 2:
+            elif self.cursorIdx == 2:
                 self.on_back()
 
     def process_event(self, evt):
@@ -1119,19 +1111,6 @@ class Display(_MenuBackScene):
                 self.select(1, True)
             elif evt.key in (K_4, K_ESCAPE):
                 self.select(2, True)
-            elif evt.key in (K_RETURN, K_KP_ENTER):
-                self.select(self.cursorIdx, True)
-            elif evt.key in (K_UP, K_KP_8):
-                self.select(self.cursorIdx - 1, False)
-            elif evt.key in (K_DOWN, K_KP_2):
-                self.select(self.cursorIdx + 1, False)
-        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
-            self.select(self.cursorIdx, True)
-        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
-            if -1.1 < evt.value < -0.1:
-                self.select(self.cursorIdx - 1, False)
-            elif 0.1 < evt.value < 1.1:
-                self.select(self.cursorIdx + 1, False)
 
 
 class SelectStage(_MenuBackScene):
@@ -1139,7 +1118,6 @@ class SelectStage(_MenuBackScene):
         super(SelectStage, self).__init__(opts, 'menu/menu.png')
         self.on_start = on_start
         self.on_back = on_back
-        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
@@ -1149,7 +1127,7 @@ class SelectStage(_MenuBackScene):
 
         x = 112 * Game.scx
         txt = Txt(sz, '1 WASTELAND', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
-        self.items = [txt]
+        self.items.append(txt)
         txt = Txt(sz, '2 FOREST', col, (x, txt.rect.bottom + 2 * Game.scy), self)
         self.items.append(txt)
         txt = Txt(sz, '3 THRONE', col, (x, txt.rect.bottom + 2 * Game.scy), self)
@@ -1160,27 +1138,25 @@ class SelectStage(_MenuBackScene):
         self.items.append(txt)
 
     def select(self, idx, run):
-        idx = min(len(self.items) - 1, max(0, idx))
-        self.items[self.cursorIdx].color = Theme.MENU_TXT
-        self.cursorIdx = idx
-        self.items[self.cursorIdx].color = Theme.BLACK
+        super().select(idx, run)
         if run:
-            if idx == 0:
+            if self.cursorIdx == 0:
                 Game.decor = 'plaine'
                 self.on_start()
-            elif idx == 1:
+            elif self.cursorIdx == 1:
                 Game.decor = 'foret'
                 self.on_start()
-            elif idx == 2:
+            elif self.cursorIdx == 2:
                 Game.decor = 'trone'
                 self.on_start()
-            elif idx == 3:
+            elif self.cursorIdx == 3:
                 Game.decor = 'arene'
                 self.on_start()
-            elif idx == 4:
+            elif self.cursorIdx == 4:
                 self.on_back()
 
     def process_event(self, evt):
+        super().process_event(evt)
         if evt.type == KEYDOWN:
             if evt.key == K_1:
                 self.select(0, True)
@@ -1192,19 +1168,6 @@ class SelectStage(_MenuBackScene):
                 self.select(3, True)
             elif evt.key in (K_6, K_ESCAPE):
                 self.select(4, True)
-            elif evt.key in (K_RETURN, K_KP_ENTER):
-                self.select(self.cursorIdx, True)
-            elif evt.key in (K_UP, K_KP_8):
-                self.select(self.cursorIdx - 1, False)
-            elif evt.key in (K_DOWN, K_KP_2):
-                self.select(self.cursorIdx + 1, False)
-        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
-            self.select(self.cursorIdx, True)
-        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
-            if -1.1 < evt.value < -0.1:
-                self.select(self.cursorIdx - 1, False)
-            elif 0.1 < evt.value < 1.1:
-                self.select(self.cursorIdx + 1, False)
 
 
 class ControlsKeys(_MenuBackScene):
