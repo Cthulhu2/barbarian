@@ -130,7 +130,7 @@ class Logo(EmptyScene):
                 self.on_load()
 
     def process_event(self, evt):
-        if evt.type == KEYUP:
+        if evt.type == KEYUP or evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
             self.skip = True
 
 
@@ -161,40 +161,93 @@ class Menu(_MenuBackScene):
         self.on_history = on_history
         self.on_credits = on_credits
         self.on_quit = on_quit
+        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, 'OPTION', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
-        txt = Txt(sz, '0 DEMO', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
-        txt = Txt(sz, '1 ONE PLAYER', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt = Txt(sz, '2 TWO PLAYERS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt = Txt(sz, '3 OPTIONS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt = Txt(sz, '4 CONTROLS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt = Txt(sz, '5 STORY', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt = Txt(sz, '6 CREDITS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        Txt(sz, '7 QUIT', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        #
+        x = 112 * Game.scx
+        txt = Txt(sz, '0 DEMO', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
+        self.items = [txt]
+
+        txt = Txt(sz, '1 ONE PLAYER', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '2 TWO PLAYERS', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '3 OPTIONS', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '4 CONTROLS', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '5 STORY', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '6 CREDITS', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '7 QUIT', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+    def select(self, idx, run):
+        idx = min(len(self.items) - 1, max(0, idx))
+        self.items[self.cursorIdx].color = Theme.MENU_TXT
+        self.cursorIdx = idx
+        self.items[self.cursorIdx].color = Theme.BLACK
+        if run:
+            if idx == 0:
+                self.on_demo()
+            elif idx == 1:
+                self.on_solo()
+            elif idx == 2:
+                self.on_duel()
+            elif idx == 3:
+                self.on_options()
+            elif idx == 4:
+                self.on_controls()
+            elif idx == 5:
+                self.on_history()
+            elif idx == 6:
+                self.on_credits()
+            elif idx == 7:
+                self.on_quit()
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key == K_0:
-            self.on_demo()
-        elif evt.key == K_1:
-            self.on_solo()
-        elif evt.key == K_2:
-            self.on_duel()
-        elif evt.key == K_3:
-            self.on_options()
-        elif evt.key == K_4:
-            self.on_controls()
-        elif evt.key == K_5:
-            self.on_history()
-        elif evt.key == K_6:
-            self.on_credits()
-        elif evt.key in (K_7, K_ESCAPE):
-            self.on_quit()
+        if evt.type == KEYDOWN:
+            if evt.key == K_0:
+                self.select(0, True)
+            elif evt.key == K_1:
+                self.select(1, True)
+            elif evt.key == K_2:
+                self.select(2, True)
+            elif evt.key == K_3:
+                self.select(3, True)
+            elif evt.key == K_4:
+                self.select(4, True)
+            elif evt.key == K_5:
+                self.select(5, True)
+            elif evt.key == K_6:
+                self.select(6, True)
+            elif evt.key in (K_7, K_ESCAPE):
+                self.select(7, True)
+            elif evt.key in (K_RETURN, K_KP_ENTER):
+                self.select(self.cursorIdx, True)
+            elif evt.key in (K_UP, K_KP_8):
+                self.select(self.cursorIdx - 1, False)
+            elif evt.key in (K_DOWN, K_KP_2):
+                self.select(self.cursorIdx + 1, False)
+        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+            self.select(self.cursorIdx, True)
+        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+            if -1.1 < evt.value < -0.1:
+                self.select(self.cursorIdx - 1, False)
+            elif 0.1 < evt.value < 1.1:
+                self.select(self.cursorIdx + 1, False)
 
 
 def area(color, lbl, border_width=2):
@@ -358,6 +411,8 @@ class Battle(EmptyScene):
                 self.remove(self.attAreas)
 
         if Game.partie == Partie.demo:
+            if evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+                self.on_esc()
             return
 
         keyState = (True if evt.type == KEYDOWN else
@@ -866,66 +921,86 @@ class HiScores(_MenuBackScene):
             self.add(self.cursor)
         pygame.key.set_repeat(600, 100)
 
-    def process_event(self, evt: Event):
-        if evt.type != KEYDOWN:
-            return
-        if self.pos >= 6:
-            if evt.key in (K_ESCAPE, K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER):
-                self.on_finish()
-            return
+    def finish(self):
+        pygame.key.set_repeat(0, 0)  # disable
+        self.on_finish()
 
-        if evt.unicode and evt.unicode.upper() in self.chars:
-            self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
-                            evt.unicode.upper() +
-                            self.txt.msg[self.cursorLoc + 1:])
-            self.charIdx = self.chars.index(evt.unicode.upper())
-
-        elif evt.key in (K_UP, K_KP_8):
-            self.charIdx += 1
-            if self.charIdx >= len(self.chars):
-                self.charIdx = 0
-            self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
-                            self.chars[self.charIdx] +
-                            self.txt.msg[self.cursorLoc + 1:])
-
-        elif evt.key in (K_DOWN, K_KP_2):
-            self.charIdx -= 1
-            if self.charIdx < 0:
-                self.charIdx = len(self.chars) - 1
-            self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
-                            self.chars[self.charIdx] +
-                            self.txt.msg[self.cursorLoc + 1:])
-
-        elif evt.key in (K_LEFT, K_KP_4):
-            self.cursorLoc -= 1
-            if self.cursorLoc < 0:
-                self.cursorLoc = 0
-            else:
-                self.cursor.move_to(self.cursor.rect.x - self.sz,
-                                    self.cursor.rect.y)
-                self.charIdx = self.chars.index(self.txt.msg[self.cursorLoc])
-
-        elif evt.key in (K_RIGHT, K_KP_6):
-            self.cursorLoc += 1
-            if self.cursorLoc > 2:
-                self.cursorLoc = 2
-            else:
-                self.cursor.move_to(self.cursor.rect.x + self.sz,
-                                    self.cursor.rect.y)
-                self.charIdx = self.chars.index(self.txt.msg[self.cursorLoc])
-
-        elif evt.key in (K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER):
-            self.cursorLoc += 1
-            self.cursor.move_to(self.cursor.rect.x + self.sz,
-                                self.cursor.rect.y)
+    def on_up_pressed(self):
+        self.charIdx += 1
+        if self.charIdx >= len(self.chars):
             self.charIdx = 0
-            self.hiscores[self.pos] = (self.hiscores[self.pos][0],
-                                       self.txt.msg[0:3])
-            if self.cursorLoc > 2:
-                pygame.key.set_repeat(0, 0)  # disable
-                Game.save_hiscores(self.hiscores)
+        self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
+                        self.chars[self.charIdx] +
+                        self.txt.msg[self.cursorLoc + 1:])
+
+    def on_down_pressed(self):
+        self.charIdx -= 1
+        if self.charIdx < 0:
+            self.charIdx = len(self.chars) - 1
+        self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
+                        self.chars[self.charIdx] +
+                        self.txt.msg[self.cursorLoc + 1:])
+
+    def on_fire_pressed(self):
+        self.cursor.move_to(self.cursor.rect.x + self.sz,
+                            self.cursor.rect.y)
+        self.charIdx = 0
+        self.hiscores[self.pos] = (self.hiscores[self.pos][0],
+                                   self.txt.msg[0:3])
+        self.cursorLoc += 1
+        if self.cursorLoc > 2:
+            Game.save_hiscores(self.hiscores)
+            self.finish()
+
+    def process_event(self, evt: Event):
+        if self.pos >= 6:
+            if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+                    or (evt.type == K_DOWN and evt.key in (
+                            K_ESCAPE, K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER))):
                 self.on_finish()
-                return
+            return
+
+        if evt.type == KEYDOWN:
+            if evt.unicode and evt.unicode.upper() in self.chars:
+                self.txt.msg = (self.txt.msg[0:self.cursorLoc] +
+                                evt.unicode.upper() +
+                                self.txt.msg[self.cursorLoc + 1:])
+                self.charIdx = self.chars.index(evt.unicode.upper())
+
+            elif evt.key in (K_UP, K_KP_8):
+                self.on_up_pressed()
+
+            elif evt.key in (K_DOWN, K_KP_2):
+                self.on_down_pressed()
+
+            elif evt.key in (K_LEFT, K_KP_4):
+                self.cursorLoc -= 1
+                if self.cursorLoc < 0:
+                    self.cursorLoc = 0
+                else:
+                    self.cursor.move_to(self.cursor.rect.x - self.sz,
+                                        self.cursor.rect.y)
+                    self.charIdx = self.chars.index(self.txt.msg[self.cursorLoc])
+
+            elif evt.key in (K_RIGHT, K_KP_6):
+                self.cursorLoc += 1
+                if self.cursorLoc > 2:
+                    self.cursorLoc = 2
+                else:
+                    self.cursor.move_to(self.cursor.rect.x + self.sz,
+                                        self.cursor.rect.y)
+                    self.charIdx = self.chars.index(self.txt.msg[self.cursorLoc])
+
+            elif evt.key in (K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER):
+                self.on_fire_pressed()
+
+        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+            self.on_fire_pressed()
+        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+            if -1.1 < evt.value < -0.1:
+                self.on_up_pressed()
+            elif 0.1 < evt.value < 1.1:
+                self.on_down_pressed()
 
 
 class Version(_MenuBackScene):
@@ -933,26 +1008,60 @@ class Version(_MenuBackScene):
         super(Version, self).__init__(opts, 'menu/menu.png')
         self.on_display = on_display
         self.on_back = on_back
+        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, 'VERSION', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
-        txt = Txt(sz, '1 EUROPE', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
-        Txt(sz, '2 USA', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        #
+        x = 112 * Game.scx
+        txt = Txt(sz, '1 EUROPE', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
+        self.items = [txt]
+
+        txt = Txt(sz, '2 USA', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '4 BACK', col, (x, txt.rect.bottom + sz + 4 * Game.scy), self)
+        self.items.append(txt)
+
+    def select(self, idx, run):
+        idx = min(len(self.items) - 1, max(0, idx))
+        self.items[self.cursorIdx].color = Theme.MENU_TXT
+        self.cursorIdx = idx
+        self.items[self.cursorIdx].color = Theme.BLACK
+        if run:
+            if idx == 0:
+                Game.country = 'EUROPE'
+                self.on_display()
+            elif idx == 1:
+                Game.country = 'USA'
+                self.on_display()
+            elif idx == 2:
+                self.on_back()
 
     def process_event(self, evt):
-        if evt.type != KEYUP:
-            return
-        elif evt.key == K_1:
-            Game.country = 'EUROPE'
-            self.on_display()
-        elif evt.key == K_2:
-            Game.country = 'USA'
-            self.on_display()
-        elif evt.key == K_ESCAPE:
-            self.on_back()
+        if evt.type == KEYDOWN:
+            if evt.key == K_1:
+                self.select(0, True)
+            elif evt.key == K_2:
+                self.select(1, True)
+            elif evt.key in (K_4, K_ESCAPE):
+                self.select(2, True)
+            elif evt.key in (K_RETURN, K_KP_ENTER):
+                self.select(self.cursorIdx, True)
+            elif evt.key in (K_UP, K_KP_8):
+                self.select(self.cursorIdx - 1, False)
+            elif evt.key in (K_DOWN, K_KP_2):
+                self.select(self.cursorIdx + 1, False)
+        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+            self.select(self.cursorIdx, True)
+        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+            if -1.1 < evt.value < -0.1:
+                self.select(self.cursorIdx - 1, False)
+            elif 0.1 < evt.value < 1.1:
+                self.select(self.cursorIdx + 1, False)
 
 
 class Display(_MenuBackScene):
@@ -961,24 +1070,59 @@ class Display(_MenuBackScene):
         self.on_fullscreen = on_fullscreen
         self.on_window = on_window
         self.on_back = on_back
+        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
-        txt = Txt(sz, 'DISPLAY', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        txt = Txt(sz, 'DISPLAY', col,
+                  (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
-        txt = Txt(sz, '1 FULLSCREEN', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
-        Txt(sz, '2 WINDOWS', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
+        #
+        x = 112 * Game.scx
+        txt = Txt(sz, '1 FULLSCREEN', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
+        self.items = [txt]
+
+        txt = Txt(sz, '2 WINDOWS', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+
+        txt = Txt(sz, '4 BACK', col, (x, txt.rect.bottom + sz + 4 * Game.scy), self)
+        self.items.append(txt)
+
+    def select(self, idx, run):
+        idx = min(len(self.items), max(0, idx))
+        self.items[self.cursorIdx].color = Theme.MENU_TXT
+        self.cursorIdx = idx
+        self.items[self.cursorIdx].color = Theme.BLACK
+        if run:
+            if idx == 0:
+                self.on_fullscreen()
+            elif idx == 1:
+                self.on_window()
+            elif idx == 2:
+                self.on_back()
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key == K_1:
-            self.on_fullscreen()
-        elif evt.key == K_2:
-            self.on_window()
-        elif evt.key == K_ESCAPE:
-            self.on_back()
+        if evt.type == KEYDOWN:
+            if evt.key == K_1:
+                self.select(0, True)
+            elif evt.key == K_2:
+                self.select(1, True)
+            elif evt.key in (K_4, K_ESCAPE):
+                self.select(2, True)
+            elif evt.key in (K_RETURN, K_KP_ENTER):
+                self.select(self.cursorIdx, True)
+            elif evt.key in (K_UP, K_KP_8):
+                self.select(self.cursorIdx - 1, False)
+            elif evt.key in (K_DOWN, K_KP_2):
+                self.select(self.cursorIdx + 1, False)
+        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+            self.select(self.cursorIdx, True)
+        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+            if -1.1 < evt.value < -0.1:
+                self.select(self.cursorIdx - 1, False)
+            elif 0.1 < evt.value < 1.1:
+                self.select(self.cursorIdx + 1, False)
 
 
 class SelectStage(_MenuBackScene):
@@ -986,35 +1130,72 @@ class SelectStage(_MenuBackScene):
         super(SelectStage, self).__init__(opts, 'menu/menu.png')
         self.on_start = on_start
         self.on_back = on_back
+        self.cursorIdx = 0
         sz = int(7 * Game.scy)
         col = Theme.MENU_TXT
         txt = Txt(sz, 'SELECT', col, (136 * Game.scx, 86 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
         txt = Txt(sz, 'STAGE', col, (136 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
         txt.rect.x = Game.screen[0] / 2 - txt.rect.w / 2 - 3 * Game.scx
-        txt = Txt(sz, '1 WASTELAND', col, (112 * Game.scx, txt.rect.bottom + 10 * Game.scy), self)
-        txt = Txt(sz, '2 FOREST', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt = Txt(sz, '3 THRONE', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        txt = Txt(sz, '4 ARENA', col, (112 * Game.scx, txt.rect.bottom + 2 * Game.scy), self)
-        Txt(sz, '6 BACK', col, (112 * Game.scx, txt.rect.bottom + sz + 4 * Game.scy), self)
+
+        x = 112 * Game.scx
+        txt = Txt(sz, '1 WASTELAND', Theme.BLACK, (x, txt.rect.bottom + 10 * Game.scy), self)
+        self.items = [txt]
+        txt = Txt(sz, '2 FOREST', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+        txt = Txt(sz, '3 THRONE', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+        txt = Txt(sz, '4 ARENA', col, (x, txt.rect.bottom + 2 * Game.scy), self)
+        self.items.append(txt)
+        txt = Txt(sz, '6 BACK', col, (x, txt.rect.bottom + sz + 4 * Game.scy), self)
+        self.items.append(txt)
+
+    def select(self, idx, run):
+        idx = min(len(self.items) - 1, max(0, idx))
+        self.items[self.cursorIdx].color = Theme.MENU_TXT
+        self.cursorIdx = idx
+        self.items[self.cursorIdx].color = Theme.BLACK
+        if run:
+            if idx == 0:
+                Game.decor = 'plaine'
+                self.on_start()
+            elif idx == 1:
+                Game.decor = 'foret'
+                self.on_start()
+            elif idx == 2:
+                Game.decor = 'trone'
+                self.on_start()
+            elif idx == 3:
+                Game.decor = 'arene'
+                self.on_start()
+            elif idx == 4:
+                self.on_back()
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key == K_1:
-            Game.decor = 'plaine'
-            self.on_start()
-        elif evt.key == K_2:
-            Game.decor = 'foret'
-            self.on_start()
-        elif evt.key == K_3:
-            Game.decor = 'trone'
-            self.on_start()
-        elif evt.key == K_4:
-            Game.decor = 'arene'
-            self.on_start()
-        elif evt.key in (K_6, K_ESCAPE):
-            self.on_back()
+        if evt.type == KEYDOWN:
+            if evt.key == K_1:
+                self.select(0, True)
+            elif evt.key == K_2:
+                self.select(1, True)
+            elif evt.key == K_3:
+                self.select(2, True)
+            elif evt.key == K_4:
+                self.select(3, True)
+            elif evt.key in (K_6, K_ESCAPE):
+                self.select(4, True)
+            elif evt.key in (K_RETURN, K_KP_ENTER):
+                self.select(self.cursorIdx, True)
+            elif evt.key in (K_UP, K_KP_8):
+                self.select(self.cursorIdx - 1, False)
+            elif evt.key in (K_DOWN, K_KP_2):
+                self.select(self.cursorIdx + 1, False)
+        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+            self.select(self.cursorIdx, True)
+        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+            if -1.1 < evt.value < -0.1:
+                self.select(self.cursorIdx - 1, False)
+            elif 0.1 < evt.value < 1.1:
+                self.select(self.cursorIdx + 1, False)
 
 
 class ControlsKeys(_MenuBackScene):
@@ -1049,9 +1230,9 @@ class ControlsKeys(_MenuBackScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
+        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
+                                                        K_ESCAPE, K_SPACE))):
             self.on_next()
 
 
@@ -1081,9 +1262,9 @@ class ControlsMoves(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
+        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
+                                                        K_ESCAPE, K_SPACE))):
             self.on_next()
 
 
@@ -1114,9 +1295,9 @@ class ControlsFight(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
+        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
+                                                        K_ESCAPE, K_SPACE))):
             self.on_next()
 
 
@@ -1153,9 +1334,9 @@ class Credits(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
+        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
+                                                        K_ESCAPE, K_SPACE))):
             self.on_back()
 
 
@@ -1191,7 +1372,7 @@ class History(EmptyScene):
         ])
 
     def process_event(self, evt):
-        if evt.type != KEYDOWN:
-            return
-        elif evt.key in (K_KP_ENTER, K_RETURN, K_ESCAPE, K_SPACE):
+        if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+                or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
+                                                        K_ESCAPE, K_SPACE))):
             self.on_back()
