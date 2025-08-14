@@ -487,7 +487,7 @@ class Battle(EmptyScene):
                     None)
         if keyState is not None:
             joueur = self.joueurA if evt.instance_id == 0 else self.joueurB
-            if evt.button == 0:
+            if 0 <= evt.button <= 3:
                 joueur.pressedFire = keyState
             elif evt.button == 7:
                 joueur.pressedDown = keyState
