@@ -88,56 +88,39 @@ class Frame:
     """
     name: Union[str, Type]
     src_rect: Rect = None
-    dx: float = 0
-    dy: float = 0
+    x: float = 0
+    y: float = 0
     w: float = 0
     h: float = 0
     duration: int = 125
-    angle: float = 0
-    xflip: bool = False
-    fill: Tuple[int, int, int] = None  # import pygame.typing.ColorLike breaks WASM!!!
-    blend_flags: int = 0
     mv: Tuple[float, float] = None
     tick: int = -1
-    colorkey: Tuple[int, int, int] = None
     image: Surface = field(compare=False, default=None)
-    rect: Rect = field(compare=False, default=None)
 
 
-def frame(name: Union[str, Type], src_rect: Rect = None,
-          dx: float = 0, dy: float = 0,
-          w: float = 0, h: float = 0,
+def frame(name: str, src_rect: Rect = None, *,
+          dx: float = 0, dy: float = 0, w: float = 0, h: float = 0,
           duration: int = 125, angle: float = 0, xflip: bool = False,
           fill: Tuple[int, int, int] = None, blend_flags: int = 0,
-          mv: Tuple[float, float] = None,
-          tick: int = -1, colorkey: Tuple[int, int, int] = None):
+          mv: Tuple[float, float] = None, tick: int = -1,
+          colorkey: Tuple[int, int, int] = None):
     if isinstance(name, type):
         name = f'{name.__name__}.gif'
     img = get_img(name, w, h, angle, xflip, fill, blend_flags, colorkey)
     if src_rect:
-        src_rect = Rect(src_rect.x * Game.scx, src_rect.y * Game.scy,
-                        src_rect.w * Game.scx, src_rect.h * Game.scy)
+        src_rect = Rect(ceil(src_rect.x * Game.scx),
+                        ceil(src_rect.y * Game.scy),
+                        ceil(src_rect.w * Game.scx),
+                        ceil(src_rect.h * Game.scy))
     if xflip and src_rect:
         # In WASM there is no width property
         src_rect = Rect(img.get_width() - src_rect.x - src_rect.w,
                         src_rect.y, src_rect.w, src_rect.h)
     if src_rect:
-        rect = Rect(0, 0, src_rect.w, src_rect.h).move(dx, dy)
+        w, h = src_rect.w, src_rect.h
     else:
-        rect = img.get_rect().move(dx, dy)
-    return Frame(name, src_rect, dx, dy, w, h,
-                 duration, angle, xflip, fill, blend_flags, mv, tick, colorkey,
-                 img, rect)
-
-
-def rtl_frame(f: Frame):
-    move_base = None
-    if f.mv:
-        move_base = (-f.mv[0], f.mv[1])
-
-    return frame(f.name, f.src_rect, -f.dx, f.dy, f.w, f.h,
-                 f.duration, -f.angle, not f.xflip, f.fill,
-                 f.blend_flags, move_base, f.tick, f.colorkey)
+        w, h = img.get_width(), img.get_height()
+    return Frame(name, src_rect, dx, dy, w, h, duration, mv, tick, img)
 
 
 class Act:
@@ -174,14 +157,6 @@ class Actions:
     def val(sprite, **kwargs):
         for k, v in kwargs:
             setattr(sprite, k, v)
-
-
-def rtl_anims(animations: Dict[str, Animation]):
-    rtl = {}
-    for name, anim in animations.items():
-        rtl[name] = Animation(frames=[rtl_frame(f) for f in anim.frames],
-                              actions=anim.actions)
-    return rtl
 
 
 class Rectangle(Group):
@@ -520,9 +495,10 @@ class AnimatedSprite(DirtySprite):
             self._update_rect()
 
     def _update_rect(self):
-        self.rect.size = self.frame.rect.size
+        self.rect.size = (self.frame.w, self.frame.h)
         self.rect.topleft = self.topleft
-        self.rect.move_ip(self.frame.rect.x, self.frame.rect.y)
+        if self.frame.x or self.frame.y:
+            self.rect.move_ip(self.frame.x, self.frame.y)
         self.dirty = 1
 
     def move(self, dx, dy):

@@ -2,6 +2,7 @@ from typing import Union, Type
 
 from barbariantuw import Game
 from barbariantuw.core import Act, Animation, Actions, frame
+from barbariantuw.core import Act, Animation, Actions, frame
 from barbariantuw.spritesheets import *
 
 BarbSpriteSheetType = Type[Union[
@@ -30,6 +31,27 @@ def serpent():
     }
 
 
+def serpent_rtl():
+    return {
+        'idle': Animation(frames=[
+            frame('stage/serpent1.gif', xflip=True),
+        ], actions=[
+            Act(tick=1, act=Actions.stop),
+        ]),
+        'bite': Animation(frames=[
+            frame('stage/serpent1.gif', xflip=True, tick=1),
+            frame('stage/serpent2.gif', xflip=True, tick=6),
+            frame('stage/serpent3.gif', xflip=True, tick=11),
+            frame('stage/serpent4.gif', xflip=True, tick=16, dx=3 * Game.scx, dy=-1 * Game.scy),
+            frame('stage/serpent3.gif', xflip=True, tick=21),
+            frame('stage/serpent2.gif', xflip=True, tick=26),
+            frame('stage/serpent1.gif', xflip=True, tick=27),
+        ], actions=[
+            Act(tick=28, act=Actions.stop),
+        ]),
+    }
+
+
 def sang_decap():
     return {
         'sang_touche': Animation(frames=[
@@ -40,6 +62,7 @@ def sang_decap():
         ]),
         'sang': Animation(frames=[
             # @formatter:off
+            # TODO: invisible tickable sprites
             frame('empty',              tick=5),  # noqa
             frame('sprites/gicle1.gif', tick=10, dx=Game.chw, dy=0.8 * Game.chh),
             frame('sprites/gicle2.gif', tick=15, dx=Game.chw, dy=0.8 * Game.chh),
@@ -973,7 +996,7 @@ def sorcier():
             frame('sprites/drax2.gif', tick=140, dy=23 * Game.scy),
             frame('sprites/drax1.gif', tick=141, dy=23 * Game.scy),
         ], actions=[
-            Act(tick=50, act=Actions.snd, snd='feu.ogg'),
+            Act(tick=50,  act=Actions.snd, snd='feu.ogg'),
             Act(tick=130, act=Actions.snd, snd='feu.ogg'),
             Act(tick=141, act=Actions.stop),
         ]),

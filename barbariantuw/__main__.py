@@ -31,6 +31,9 @@ class BarbarianMain(object):
     _scene: scenes.EmptyScene = None
 
     def __init__(self, opts):
+        pygame.joystick.init()
+        self.joysticks = [pygame.joystick.Joystick(x)
+                          for x in range(pygame.joystick.get_count())]
         init()
         pgdi = display.Info()
         self.desktopSize = (pgdi.current_w, pgdi.current_h)
@@ -248,6 +251,18 @@ class BarbarianMain(object):
                 if evt.type == pygame.QUIT:
                     if not self.opts.web:
                         self.quit()
+
+                elif evt.type == pygame.JOYDEVICEREMOVED:
+                    if joy := next(filter(
+                            lambda j: j.get_instance_id() == evt.instance_id,
+                            self.joysticks), None):
+                        joy.quit()
+                        self.joysticks.remove(joy)
+
+                elif evt.type == pygame.JOYDEVICEADDED:
+                    self.joysticks.append(pygame.joystick.Joystick(evt.device_index))
+                    self.joysticks[-1].init()
+
                 if self.opts.debug:
                     if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKQUOTE:
                         slowmo = True
