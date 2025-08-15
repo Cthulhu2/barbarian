@@ -627,6 +627,8 @@ def barb_rtl(subdir: str):
             frame(f'{subdir}/saut1.gif',  xflip=True, tick=40, dx=-5 * Game.scx, dy=6 * Game.scy),
             frame(f'{subdir}/debout.gif', xflip=True, tick=47,                   dy=18 * Game.scy),
             # @formatter:on
+        ], actions=[
+            Act(tick=47, act=Actions.stop)
         ]),
         'assis': Animation(frames=[
             frame(f'{subdir}/assis1.gif', xflip=True, dy=26 * Game.scy),
