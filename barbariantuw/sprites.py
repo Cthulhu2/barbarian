@@ -538,7 +538,7 @@ class Barbarian(AnimatedSprite):
         elif temps > self.reftemps + 2:
             self.xM = self.xLoc + (0 if self.rtl else 4)
             self.xG = self.xLoc + (3 if self.rtl else 1)
-        elif self.anim != 'saute':
+        elif temps == self.reftemps:
             self.animate('saute')
 
     def gestion_assis(self, temps):

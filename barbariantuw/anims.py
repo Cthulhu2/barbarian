@@ -347,6 +347,8 @@ def barb(subdir: str):
             frame(f'{subdir}/saut1.gif',  tick=40, dx=6 * Game.scx, dy=6 * Game.scy),
             frame(f'{subdir}/debout.gif', tick=47, dx=4 * Game.scx, dy=18 * Game.scy),
             # @formatter:on
+        ], actions=[
+            Act(tick=47, act=Actions.stop)
         ]),
         'assis': Animation(frames=[
             frame(f'{subdir}/assis1.gif', dx=4 * Game.scx, dy=26 * Game.scy),
