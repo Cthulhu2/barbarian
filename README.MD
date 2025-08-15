@@ -88,3 +88,18 @@ Executable:
 ```shell
 (.venv) $ python3 -m build_nuitka
 ```
+
+## Profiling
+Memory:
+```shell
+(.venv) $ rm barbariantuw.bin
+(.venv) $ python3 -m memray run -o barbariantuw.bin -m barbariantuw
+(.venv) $ python3 -m memray flamegraph barbariantuw.bin
+(.venv) $ <browser> memray-flamegraph-barbariantuw.html
+```
+
+CPU:
+```shell
+(.venv) $ python -m cProfile -o barbariantuw.prof -m barbariantuw
+(.venv) $ snakeviz barbariantuw.prof
+```

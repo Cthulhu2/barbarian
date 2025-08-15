@@ -18,7 +18,9 @@ classifiers = [
     "Topic :: Games/Entertainment :: Arcade"
 ]
 dependencies = ["pygame-ce"]
-optional-dependencies.dev = ["psutil", "build", "nuitka", "pygbag"]
+optional-dependencies.dev = [
+    "psutil", "build", "nuitka", "pygbag", "memray", "snakeviz"
+]
 scripts.barbariantuw = "barbariantuw.__main__:run"
 urls.Homepage = "https://codeberg.org/cthulhu/barbarian"
 urls.Issues = "https://codeberg.org/cthulhu/barbarian/issues"

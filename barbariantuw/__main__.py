@@ -8,8 +8,7 @@ from argparse import Action, ArgumentParser
 from os import getpid
 from os.path import join
 
-import pygame
-from pygame import display, event, mixer, init, time, image
+import pygame as pg
 
 import barbariantuw.core
 import barbariantuw.scenes as scenes
@@ -31,18 +30,18 @@ class BarbarianMain(object):
     _scene: scenes.EmptyScene = None
 
     def __init__(self, opts):
-        pygame.joystick.init()
-        self.joysticks = [pygame.joystick.Joystick(x)
-                          for x in range(pygame.joystick.get_count())]
-        init()
-        pgdi = display.Info()
+        pg.joystick.init()
+        self.joysticks = [pg.joystick.Joystick(x)
+                          for x in range(pg.joystick.get_count())]
+        pg.init()
+        pgdi = pg.display.Info()
         self.desktopSize = (pgdi.current_w, pgdi.current_h)
-        self.screen = display.set_mode(Game.screen)
+        self.screen = pg.display.set_mode(Game.screen)
         if opts.sound:
-            mixer.pre_init(44100, -16, 1, 4096)
-        display.set_caption('BARBARIAN AMIGA (PyGame)', 'BARBARIAN')
-        icon = image.load(join(IMG_PATH, 'menu/icone.gif')).convert_alpha()
-        display.set_icon(icon)
+            pg.mixer.pre_init(44100, -16, 1, 4096)
+        pg.display.set_caption('BARBARIAN AMIGA (PyGame)', 'BARBARIAN')
+        pg.display.set_icon(pg.image.load(join(IMG_PATH, 'menu/icone.gif'))
+                            .convert_alpha())
         self.opts = opts
         self.running = True
         #
@@ -217,21 +216,21 @@ class BarbarianMain(object):
     def on_fullscreen(self):
         Game.fullscreen = True
         # TODO: Toggle fullscreen with multi-display
-        if not self.opts.web and not pygame.display.is_fullscreen():
+        if not self.opts.web and not pg.display.is_fullscreen():
             scx = self.desktopSize[0] / 320
             scy = self.desktopSize[1] / 200
             self.reinit(self.desktopSize, scx, scy)
-            pygame.display.set_mode(self.desktopSize)
-            pygame.display.toggle_fullscreen()
+            pg.display.set_mode(self.desktopSize)
+            pg.display.toggle_fullscreen()
         Game.save_options()
         self.show_logo()
 
     def on_window(self):
         Game.fullscreen = False
-        if not self.opts.web and pygame.display.is_fullscreen():
+        if not self.opts.web and pg.display.is_fullscreen():
             self.reinit()
-            pygame.display.toggle_fullscreen()
-            pygame.display.set_mode(Game.screen)
+            pg.display.toggle_fullscreen()
+            pg.display.set_mode(Game.screen)
         Game.save_options()
         self.show_logo()
 
@@ -244,35 +243,35 @@ class BarbarianMain(object):
             pu = psutil.Process(pid)
         slowmo = False
 
-        clock = time.Clock()
+        clock = pg.time.Clock()
 
         while self.running:
-            for evt in event.get():
-                if evt.type == pygame.QUIT:
+            for evt in pg.event.get():
+                if evt.type == pg.QUIT:
                     if not self.opts.web:
                         self.quit()
 
-                elif evt.type == pygame.JOYDEVICEREMOVED:
+                elif evt.type == pg.JOYDEVICEREMOVED:
                     if joy := next(filter(
                             lambda j: j.get_instance_id() == evt.instance_id,
                             self.joysticks), None):
                         joy.quit()
                         self.joysticks.remove(joy)
 
-                elif evt.type == pygame.JOYDEVICEADDED:
-                    self.joysticks.append(pygame.joystick.Joystick(evt.device_index))
+                elif evt.type == pg.JOYDEVICEADDED:
+                    self.joysticks.append(pg.joystick.Joystick(evt.device_index))
                     self.joysticks[-1].init()
 
                 if self.opts.debug:
-                    if evt.type == pygame.KEYDOWN and evt.key == pygame.K_BACKQUOTE:
+                    if evt.type == pg.KEYDOWN and evt.key == pg.K_BACKQUOTE:
                         slowmo = True
                         self.lblSlowmo.msg = 'SlowMo'
-                    if evt.type == pygame.KEYUP and evt.key == pygame.K_BACKQUOTE:
+                    if evt.type == pg.KEYUP and evt.key == pg.K_BACKQUOTE:
                         slowmo = False
                         self.lblSlowmo.msg = ''
                 self.scene.process_event(evt)
 
-            current_time = time.get_ticks()
+            current_time = pg.time.get_ticks()
             if not self.opts.web and self.opts.debug:
                 self.fps.msg = f'FPS: {clock.get_fps():.0f}'
                 if psutil:
@@ -291,7 +290,7 @@ class BarbarianMain(object):
             self._scene.update(current_time)
 
             dirty = self._scene.draw(self.screen)
-            display.update(dirty)
+            pg.display.update(dirty)
             if self.opts.web:
                 await asyncio.sleep(0)
             elif slowmo:
@@ -300,8 +299,8 @@ class BarbarianMain(object):
                 clock.tick(FRAME_RATE)
 
         if self.opts.sound:
-            pygame.mixer.stop()
-            pygame.mixer.quit()
+            pg.mixer.stop()
+            pg.mixer.quit()
 
 
 class BooleanAction(Action):

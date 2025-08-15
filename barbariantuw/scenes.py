@@ -1058,6 +1058,7 @@ class Version(_MenuBackScene):
             elif self.cursorIdx == 2:
                 self.on_back()
 
+    # noinspection DuplicatedCode
     def process_event(self, evt):
         super().process_event(evt)
         if evt.type == KEYDOWN:
@@ -1103,6 +1104,7 @@ class Display(_MenuBackScene):
             elif self.cursorIdx == 2:
                 self.on_back()
 
+    # noinspection DuplicatedCode
     def process_event(self, evt):
         super().process_event(evt)
         if evt.type == KEYDOWN:
