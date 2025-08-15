@@ -6,7 +6,6 @@ from typing import Dict, Callable, TypedDict, Tuple, List, Optional, Iterator
 from pygame import Surface, image, Rect, Font
 from pygame.mixer import Sound  # import pygame.Sound breaks WASM!!!
 from pygame.sprite import Group, AbstractGroup, DirtySprite
-from pygame.time import get_ticks
 from pygame.transform import scale, rotate, flip
 
 from barbariantuw import IMG_PATH, Game, SND_PATH, OPTS, FONT, Theme
@@ -89,23 +88,22 @@ class Frame:
     y: float = 0
     w: float = 0
     h: float = 0
-    duration: int = 125
     mv: Tuple[float, float] = None
-    tick: int = -1
+    tick: int = 1
     image: Surface = field(compare=False, default=None)
 
 
 def frame(name: str, *,
           dx: float = 0, dy: float = 0, w: float = 0, h: float = 0,
-          duration: int = 125, angle: float = 0, xflip: bool = False,
+          angle: float = 0, xflip: bool = False,
           fill: Tuple[int, int, int] = None, blend_flags: int = 0,
-          mv: Tuple[float, float] = None, tick: int = -1,
+          mv: Tuple[float, float] = None, tick: int = 1,
           colorkey: Tuple[int, int, int] = None):
     img = get_img(name, w, h, angle, xflip, fill, blend_flags, colorkey)
     rect = img.get_rect()
     if dx or dy:
         rect = rect.move(dx, dy)
-    return Frame(name, dx, dy, rect.w, rect.h, duration, mv, tick, img)
+    return Frame(name, dx, dy, rect.w, rect.h, mv, tick, img)
 
 
 class Act:
@@ -299,7 +297,6 @@ class AnimatedSprite(DirtySprite):
                  *groups):
         super().__init__(*groups)
         self.anims = animations
-        self.animTimer = get_ticks()
         self.animTick = 0
         self._speed = 1.0
         self._stopped = False
@@ -308,8 +305,7 @@ class AnimatedSprite(DirtySprite):
         self.frames = self.anims[self.anim].frames
         self.frameNum = 0
         self.frame = self.frames[self.frameNum]
-        self.frame_duration = self.frame.duration
-        self.frame_tick = self.frame.tick
+        self.frameTick = self.frame.tick
 
         self.image = self.frame.image
         self.rect = Rect(0, 0, 0, 0)
@@ -377,8 +373,7 @@ class AnimatedSprite(DirtySprite):
     @speed.setter
     def speed(self, speed: float):
         self._speed = round(min(3.0, max(0.0, speed)), 3)
-        self.frame_duration = self._calc(self.frame.duration)
-        self.frame_tick = self._calc(self.frame.tick)
+        self.frameTick = self._calc(self.frame.tick)
 
     @property
     def stopped(self) -> bool:
@@ -393,7 +388,6 @@ class AnimatedSprite(DirtySprite):
             self.stopped = False
             self.anim = anim
             self.frames = self.anims[anim].frames
-            self.animTimer = get_ticks()
             self.animTick = tick
             self.frameNum = -1
             self.frame = None
@@ -404,7 +398,7 @@ class AnimatedSprite(DirtySprite):
         else:
             self.visible = False
 
-    def set_frame(self, anim: str, frame: int = 0):
+    def set_frame(self, anim: str, frameNum: int = 0):
         if not self.stopped:
             self.stopped = True
         if not self.visible:
@@ -413,7 +407,7 @@ class AnimatedSprite(DirtySprite):
             self.anim = anim
             self.frames = self.anims[anim].frames
             self.init_acts()
-        self.frameNum = frame - 1
+        self.frameNum = frameNum - 1
         self.next_frame()
 
     def update(self, current_time, *args):
@@ -421,17 +415,8 @@ class AnimatedSprite(DirtySprite):
             return
         self.animTick += 1
         self.call_acts()
-        if self.frame.tick >= 0:
-            while not self.stopped and self.animTick > self.frame_tick:
-                self.animTimer = current_time
-                self.next_frame()
-        else:
-            passed = current_time - self.animTimer
-            while not self.stopped and passed > self.frame_duration:
-                # TODO: Rewind mixed frame types
-                passed -= self.frame_duration
-                self.animTimer = current_time
-                self.next_frame()
+        while not self.stopped and self.animTick > self.frameTick:
+            self.next_frame()
 
     def _calc(self, time):
         if self.speed == 0 or self.speed == 1:
@@ -449,11 +434,7 @@ class AnimatedSprite(DirtySprite):
             if self.frame.mv:  # Undo the current frame move_base
                 self.move(-self.frame.mv[0], -self.frame.mv[1])
             self.frame = prev
-            if self.frame.tick >= 0:
-                self.frame_tick = self._calc(self.frame.tick)
-            else:
-                self.frame_duration = self._calc(self.frame.duration)
-
+            self.frameTick = self._calc(self.frame.tick)
             self.image = self.frame.image
 
             self._update_rect()
@@ -467,10 +448,7 @@ class AnimatedSprite(DirtySprite):
         next_ = self.frames[self.frameNum]
         if self.frame != next_ or len(self.frames) == 1:
             self.frame = next_
-            if self.frame.tick >= 0:
-                self.frame_tick = self._calc(self.frame.tick)
-            else:
-                self.frame_duration = self._calc(self.frame.duration)
+            self.frameTick = self._calc(self.frame.tick)
             self.image = self.frame.image
             if self.frame.mv:
                 self.move(self.frame.mv[0], self.frame.mv[1])
