@@ -277,6 +277,7 @@ MORT_RIGHT_BORDER = 34
 
 class BattleState(enum.Enum):
     in_progress = enum.auto()
+    pause = enum.auto()
     win = enum.auto()
     loose = enum.auto()
 
@@ -401,6 +402,7 @@ class Battle(EmptyScene):
         #
         self.gnome = False
         self.gnomeSprite = AnimatedSprite((0, loc2pxY(20)), anims.gnome())
+        self.pauseTxt = Group(*self._center_txt('PAUSE'))
 
     def finish(self):
         if self.opts.sound:
@@ -413,8 +415,16 @@ class Battle(EmptyScene):
         self.on_next()
 
     def process_event(self, evt):
-        if evt.type == KEYUP and evt.key == K_ESCAPE:
+        if evt.type == KEYDOWN and evt.key == K_F5:
             if self.bState == BattleState.in_progress:
+                self.bState = BattleState.pause
+                self.add(self.pauseTxt)
+            elif self.bState == BattleState.pause:
+                self.bState = BattleState.in_progress
+                self.remove(self.pauseTxt)
+            return
+        if evt.type == KEYUP and evt.key == K_ESCAPE:
+            if self.bState in (BattleState.in_progress, BattleState.pause):
                 if self.opts.sound:
                     mixer.stop()
                 self.on_esc()
@@ -432,7 +442,8 @@ class Battle(EmptyScene):
             if is_any_key_pressed(evt):
                 self.on_esc()
             return
-        if self.bState != BattleState.in_progress and is_any_key_pressed(evt):
+        if (self.bState in (BattleState.win, BattleState.loose)
+                and is_any_key_pressed(evt)):
             self.finish()
             return
 
@@ -824,6 +835,11 @@ class Battle(EmptyScene):
         jb = self.joueurB
         ja.xLocPrev = ja.xLoc  # for collision
         jb.xLocPrev = jb.xLoc  # for collision
+        if self.bState == BattleState.pause:
+            if self.chronoOn:
+                ms = self.chrono - current_time
+                self.chrono = current_time + ms
+            return
         super(Battle, self).update(current_time, *args)
         if self.bState != BattleState.in_progress:
             return
@@ -975,9 +991,7 @@ class HiScores(_MenuBackScene):
 
     def process_event(self, evt: Event):
         if self.pos >= 6:
-            if ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
-                    or (evt.type == K_DOWN and evt.key in (
-                            K_ESCAPE, K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER))):
+            if is_any_key_pressed(evt):
                 self.on_finish()
             return
 
@@ -1202,6 +1216,7 @@ class ControlsKeys(_MenuBackScene):
 
             Txt(sz, 'ABORT GAME...........ESC', Theme.OPTS_TXT, loc(9, 21)),
             Txt(sz, 'GOTO MENU..........ENTER', Theme.OPTS_TXT, loc(9, 23)),
+            Txt(sz, 'PAUSE.................F5', Theme.OPTS_TXT, loc(9, 25)),
         ])
 
     def process_event(self, evt):
