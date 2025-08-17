@@ -35,7 +35,7 @@ class EmptyScene(LayeredDirty):
 
 
 def is_any_key_pressed(evt):
-    return ((evt.type == JOYBUTTONDOWN and evt.instance_id == 0)
+    return (evt.type == JOYBUTTONDOWN
             or (evt.type == KEYDOWN and evt.key in (K_KP_ENTER, K_RETURN,
                                                     K_ESCAPE, K_SPACE)))
 
@@ -172,9 +172,9 @@ class _MenuBackScene(EmptyScene):
                 self.select(self.cursorIdx - 1, False)
             elif evt.key in (K_DOWN, K_KP_2):
                 self.select(self.cursorIdx + 1, False)
-        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+        elif evt.type == JOYBUTTONDOWN:
             self.select(self.cursorIdx, True)
-        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+        elif evt.type == JOYAXISMOTION and evt.axis == 1:
             if -1.1 < evt.value < -0.1:
                 self.select(self.cursorIdx - 1, False)
             elif 0.1 < evt.value < 1.1:
@@ -235,6 +235,7 @@ class Menu(_MenuBackScene):
             elif self.cursorIdx == 1:
                 self.on_solo()
             elif self.cursorIdx == 2:
+                Game.joyA_id = 0
                 self.on_duel()
             elif self.cursorIdx == 3:
                 self.on_options()
@@ -248,13 +249,17 @@ class Menu(_MenuBackScene):
                 self.on_quit()
 
     def process_event(self, evt):
+        if evt.type == JOYBUTTONDOWN and self.cursorIdx == 1:
+            Game.joyA_id = evt.instance_id
         super().process_event(evt)
         if evt.type == KEYDOWN:
             if evt.key == K_0:
                 self.select(0, True)
             elif evt.key == K_1:
+                Game.joyA_id = 0
                 self.select(1, True)
             elif evt.key == K_2:
+                Game.joyA_id = 0
                 self.select(2, True)
             elif evt.key == K_3:
                 self.select(3, True)
@@ -475,7 +480,8 @@ class Battle(EmptyScene):
                 self.joueurB.pressedFire = keyState
 
         elif evt.type == JOYAXISMOTION:
-            joueur = self.joueurA if evt.instance_id == 0 else self.joueurB
+            joueur = (self.joueurA if evt.instance_id == Game.joyA_id else
+                      self.joueurB)
             if evt.axis == 0:
                 if -1.1 < evt.value < -0.1:
                     joueur.pressedLeft = True
@@ -497,7 +503,8 @@ class Battle(EmptyScene):
                     False if evt.type == JOYBUTTONUP else
                     None)
         if keyState is not None:
-            joueur = self.joueurA if evt.instance_id == 0 else self.joueurB
+            joueur = (self.joueurA if evt.instance_id == Game.joyA_id else
+                      self.joueurB)
             if 0 <= evt.button <= 3:
                 joueur.pressedFire = keyState
             elif evt.button == 7:
@@ -1029,9 +1036,11 @@ class HiScores(_MenuBackScene):
             elif evt.key in (K_RSHIFT, K_KP_0, K_RETURN, K_KP_ENTER):
                 self.on_fire_pressed()
 
-        elif evt.type == JOYBUTTONDOWN and evt.instance_id == 0:
+        elif evt.type == JOYBUTTONDOWN and evt.instance_id == Game.joyA_id:
             self.on_fire_pressed()
-        elif evt.type == JOYAXISMOTION and evt.instance_id == 0 and evt.axis == 1:
+        elif (evt.type == JOYAXISMOTION
+              and evt.instance_id == Game.joyA_id
+              and evt.axis == 1):
             if -1.1 < evt.value < -0.1:
                 self.on_up_pressed()
             elif 0.1 < evt.value < 1.1:

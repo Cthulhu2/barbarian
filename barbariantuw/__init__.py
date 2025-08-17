@@ -64,6 +64,7 @@ class Game:  # Mutable options
     decor = 'foret'  # foret, plaine, trone, arene
     partie = Partie.solo
     ia = 0
+    joyA_id = 0
     scoreA = 0
     scoreB = 0
     scx = 2 if sys.platform == 'emscripten' else 3  # scale X
