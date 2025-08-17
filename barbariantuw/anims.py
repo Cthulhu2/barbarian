@@ -314,11 +314,11 @@ def barb(subdir: str):
             frame(f'{subdir}/debout.gif', dx=4 * Game.scx, dy=18 * Game.scy),
         ]),
         'attente': Animation(frames=[
-            frame(f'{subdir}/attente1.gif', tick=15, dx=4 * Game.scx, dy=18 * Game.scy),
-            frame(f'{subdir}/attente2.gif', tick=23, dx=2 * Game.scx, dy=19 * Game.scy),
-            frame(f'{subdir}/attente3.gif', tick=30, dx=2 * Game.scx, dy=19 * Game.scy),
-            frame(f'{subdir}/attente2.gif', tick=37, dx=2 * Game.scx, dy=19 * Game.scy),
-            frame(f'{subdir}/attente1.gif', tick=50, dx=4 * Game.scx, dy=18 * Game.scy),
+            frame(f'{subdir}/attente1.gif', tick=15, dx=4 * Game.scx,   dy=18 * Game.scy),
+            frame(f'{subdir}/attente2.gif', tick=23, dx=2.1 * Game.scx, dy=19 * Game.scy),
+            frame(f'{subdir}/attente3.gif', tick=30, dx=2.1 * Game.scx, dy=19 * Game.scy),
+            frame(f'{subdir}/attente2.gif', tick=37, dx=2.1 * Game.scx, dy=19 * Game.scy),
+            frame(f'{subdir}/attente1.gif', tick=50, dx=4 * Game.scx,   dy=18 * Game.scy),
         ], actions=[
             Act(tick=8, act=Actions.snd, snd='attente.ogg')
         ]),
@@ -512,7 +512,7 @@ def barb(subdir: str):
             # @formatter:off
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=18,  dx=2 * Game.scx, dy=17 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=35,  dx=4 * Game.scx, dy=8 * Game.scy),
-            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85,  dx=6 * Game.scx, dy=10 * Game.scy),
+            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85,  dx=6 * Game.scx, dy=10.1 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=100, dx=4 * Game.scx, dy=8 * Game.scy),
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101, dx=2 * Game.scx, dy=17 * Game.scy),
             # @formatter:on
@@ -534,7 +534,7 @@ def barb(subdir: str):
             frame(f'{subdir}/debout.gif',                 tick=105, dx=4 * Game.scx, dy=18 * Game.scy),
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123, dx=2 * Game.scx, dy=17 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=4 * Game.scx, dy=8 * Game.scy),
-            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=6 * Game.scx, dy=10 * Game.scy),
+            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195, dx=6 * Game.scx, dy=10.1 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205, dx=4 * Game.scx, dy=8 * Game.scy),
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, dx=2 * Game.scx, dy=17 * Game.scy),
             # @formatter:on
@@ -792,7 +792,7 @@ def barb_rtl(subdir: str):
             # @formatter:off
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=18,  dx=-4 * Game.scx, dy=17 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=35,  dx=-2 * Game.scx, dy=8 * Game.scy),
-            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85,  dx=-0 * Game.scx, dy=10 * Game.scy),
+            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=85,  dx=-0 * Game.scx, dy=10.1 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=100, dx=-2 * Game.scx, dy=8 * Game.scy),
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=101, dx=-4 * Game.scx, dy=17 * Game.scy),
             # @formatter:on
@@ -814,7 +814,7 @@ def barb_rtl(subdir: str):
             frame(f'{subdir}/debout.gif',     xflip=True, tick=105,                   dy=18 * Game.scy),
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=123, dx=-4 * Game.scx, dy=17 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=140, dx=-2 * Game.scx, dy=8 * Game.scy),
-            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195,                   dy=10 * Game.scy),
+            frame(f'{subdir}/vainqueur3.gif', xflip=True, tick=195,                   dy=10.1 * Game.scy),
             frame(f'{subdir}/vainqueur2.gif', xflip=True, tick=205, dx=-2 * Game.scx, dy=8 * Game.scy),
             frame(f'{subdir}/vainqueur1.gif', xflip=True, tick=231, dx=-4 * Game.scx, dy=17 * Game.scy),
             # @formatter:oon

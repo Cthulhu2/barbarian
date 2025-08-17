@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from math import ceil
 from os.path import join
 from typing import Dict, Callable, TypedDict, Tuple, List, Optional, Iterator
 
@@ -41,10 +40,10 @@ def get_img(name, w: float = 0, h: float = 0, angle: float = 0, xflip=False,
         img = img.copy()
         img.fill(fill, special_flags=blend_flags)
     if w > 0 or h > 0:
-        img = scale(img, (ceil(w * Game.scx), ceil(h * Game.scy)))
+        img = scale(img, (round(w * Game.scx), round(h * Game.scy)))
     else:
-        img = scale(img, (ceil(img.get_width() * Game.scx),
-                          ceil(img.get_height() * Game.scy)))
+        img = scale(img, (round(img.get_width() * Game.scx),
+                          round(img.get_height() * Game.scy)))
     if angle != 0:
         img = rotate(img, angle)
     if xflip:
@@ -101,9 +100,7 @@ def frame(name: str, *,
           colorkey: Tuple[int, int, int] = None):
     img = get_img(name, w, h, angle, xflip, fill, blend_flags, colorkey)
     rect = img.get_rect()
-    if dx or dy:
-        rect = rect.move(dx, dy)
-    return Frame(name, dx, dy, rect.w, rect.h, mv, tick, img)
+    return Frame(name, round(dx), round(dy), rect.w, rect.h, mv, tick, img)
 
 
 class Act:
