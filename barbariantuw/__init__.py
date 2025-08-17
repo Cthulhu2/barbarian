@@ -51,7 +51,7 @@ def appdata(file: str) -> Union[Path, str]:
     if sys.platform == 'emscripten':
         return f'{PROG}/{file}'
 
-    if sys.platform == 'windows':
+    if sys.platform == 'win32':
         return Path(os.getenv('LOCALAPPDATA')) / f'{PROG}/{file}'
 
     return Path.home() / f'.local/share/{PROG}/{file}'
@@ -84,7 +84,7 @@ class Game:  # Mutable options
             elif fOptions.is_file():
                 opts = fOptions.read_text()
 
-            for line in opts.split(os.linesep):
+            for line in opts.split('\n'):
                 opt, val = line.split('=', maxsplit=1) if '=' in line else ('', '')
                 if opt.strip().lower() == 'country' and val:
                     Game.country = 'USA' if val.strip().upper() == 'USA' else 'EUROPE'
@@ -95,8 +95,8 @@ class Game:  # Mutable options
 
     @staticmethod
     def save_options():
-        opts = os.linesep.join((f'country={Game.country.upper()}',
-                                f'fullscreen={Game.fullscreen}'))
+        opts = '\n'.join((f'country={Game.country.upper()}',
+                          f'fullscreen={Game.fullscreen}'))
         try:
             fOptions = appdata('options.dat')
             if sys.platform == 'emscripten':
@@ -125,7 +125,7 @@ class Game:  # Mutable options
             if hiscores:
                 scores = []
 
-                for line in hiscores.split(os.linesep):
+                for line in hiscores.split('\n'):
                     if line:
                         score, name = line.split(' ', maxsplit=1)
                         scores.append((min(99999, int(score)), name[0:3]))
@@ -143,8 +143,8 @@ class Game:  # Mutable options
 
     @staticmethod
     def save_hiscores(hiscores: List[Tuple[int, str]]):
-        hiscores = os.linesep.join([f'{score} {name}'
-                                    for score, name in hiscores])
+        hiscores = '\n'.join([f'{score} {name}'
+                              for score, name in hiscores])
         #
         try:
             fScores = appdata('hiscores.dat')

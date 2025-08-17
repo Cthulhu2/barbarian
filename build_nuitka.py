@@ -29,10 +29,10 @@ def main(*args):
             '--linux-icon=barbariantuw/img/menu/icone.gif',
             f'--output-filename={PROG}-{__version__}_linux_{arch}.bin',
         ])
-    elif sys.platform == "windows":
+    elif sys.platform == "win32":
         cmd = 'nuitka.cmd'
         nuitka_args.extend([
-            '--windows-icon-from-ico=barbariantuw/img/menu/icone.gif',
+            #'--windows-icon-from-ico=barbariantuw/img/menu/icone.gif',
             '--windows-console-mode=disable',
             f'--output-filename=barbariantuw-{__version__}_win_{arch}.exe',
         ])
