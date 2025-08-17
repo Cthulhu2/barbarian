@@ -23,12 +23,14 @@ def main(*args):
         '--include-data-dir=barbariantuw/snd=barbariantuw/snd',
     ]
     # TODO: Linux/Windows-icon
+    cmd = 'nuitka'
     if sys.platform == "linux":
         nuitka_args.extend([
             '--linux-icon=barbariantuw/img/menu/icone.gif',
             f'--output-filename={PROG}-{__version__}_linux_{arch}.bin',
         ])
     elif sys.platform == "windows":
+        cmd = 'nuitka.cmd'
         nuitka_args.extend([
             '--windows-icon-from-ico=barbariantuw/img/menu/icone.gif',
             '--windows-console-mode=disable',
@@ -37,7 +39,7 @@ def main(*args):
     if args:
         nuitka_args.extend(args)
     subprocess.run([
-        'nuitka', *nuitka_args, 'barbariantuw'
+        cmd, *nuitka_args, 'barbariantuw'
     ], check=True)
 
 

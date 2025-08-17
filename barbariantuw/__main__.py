@@ -213,24 +213,28 @@ class BarbarianMain(object):
         Game.chw = int(320 / 40 * scx)
         Game.chh = int(200 / 25 * scy)
 
-    def on_fullscreen(self):
-        Game.fullscreen = True
+    def toggle_fullscreen(self, fullscreen):
         # TODO: Toggle fullscreen with multi-display
-        if not self.opts.web and not pg.display.is_fullscreen():
+        if fullscreen and not self.opts.web and not pg.display.is_fullscreen():
             scx = self.desktopSize[0] / 320
             scy = self.desktopSize[1] / 200
             self.reinit(self.desktopSize, scx, scy)
             pg.display.set_mode(self.desktopSize)
             pg.display.toggle_fullscreen()
+        if not fullscreen and not self.opts.web and pg.display.is_fullscreen():
+            self.reinit()
+            pg.display.toggle_fullscreen()
+            pg.display.set_mode(Game.screen)
+
+    def on_fullscreen(self):
+        Game.fullscreen = True
+        self.toggle_fullscreen(Game.fullscreen)
         Game.save_options()
         self.show_logo()
 
     def on_window(self):
         Game.fullscreen = False
-        if not self.opts.web and pg.display.is_fullscreen():
-            self.reinit()
-            pg.display.toggle_fullscreen()
-            pg.display.set_mode(Game.screen)
+        self.toggle_fullscreen(Game.fullscreen)
         Game.save_options()
         self.show_logo()
 

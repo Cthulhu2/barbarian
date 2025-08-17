@@ -5,7 +5,7 @@ import gc
 import importlib
 from typing import Any
 
-from pygame import key, Surface, display
+import pygame as pg
 from pygame.locals import *
 
 import barbariantuw.anims as anims
@@ -15,8 +15,6 @@ from barbariantuw.core import Rectangle, Txt, img_cache
 from barbariantuw.scenes import EmptyScene
 from barbariantuw.sprites import Barbarian
 
-BACKGROUND = Surface(Game.screen)
-BACKGROUND.fill(Theme.VIEWER_BACK, BACKGROUND.get_rect())
 ANIM_KEYS = [
     K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0,
     K_q, K_w, K_e, K_r, K_t, K_y, K_u, K_i, K_o, K_p,
@@ -37,10 +35,10 @@ def txt_selected(msg, size, *groups):
 
 
 class AnimationViewerScene(EmptyScene):
-    def __init__(self, opts, screen: Surface, *, on_quit):
+    def __init__(self, opts, main: BarbarianMain):
         super(AnimationViewerScene, self).__init__(opts)
-        self.screen = screen
-        self.on_quit = on_quit
+        self.main = main
+        self.screen = main.screen
         self.canMove = True
         self.border = False
         self.target = self.create_barbarian(400, 300)
@@ -82,13 +80,15 @@ class AnimationViewerScene(EmptyScene):
             f' ({self.target.frame.name})',
             (int(lbl.rect.right), int(lbl.rect.top)),
             self)
-        self.clear(None, BACKGROUND)
+        bg = pg.Surface(Game.screen)
+        bg.fill(Theme.VIEWER_BACK, bg.get_rect())
+        self.clear(None, bg)
 
-    def create_anims_txt(self, anims):
+    def create_anims_txt(self, animations):
         txt_list = []
         ix = 0
-        for anim in anims:
-            key_name = key.name(ANIM_KEYS[ix])
+        for anim in animations:
+            key_name = pg.key.name(ANIM_KEYS[ix])
             txt_list.append(txt(f'({key_name}): {anim}',
                                 (700, ix * 12 + 10), self))
             ix += 1
@@ -139,6 +139,11 @@ class AnimationViewerScene(EmptyScene):
                 ix = self.anims.index(self.target.anim) + 1
                 self.animate(ix)
 
+            elif evt.key == K_a:
+                Game.fullscreen = not Game.fullscreen
+                self.main.toggle_fullscreen(Game.fullscreen)
+                self.main.scene = AnimationViewerScene(self.opts, self.main)
+
             elif evt.key == K_m:
                 self.canMove = not self.canMove
                 self.canMoveTxt.msg = self.canMove
@@ -170,7 +175,7 @@ class AnimationViewerScene(EmptyScene):
                     self.remove(self.borderGroup)
 
             elif evt.key == K_ESCAPE:
-                self.on_quit()
+                self.main.quit()
 
     def animate(self, ix: int):
         if ix < 0:
@@ -185,6 +190,7 @@ class AnimationViewerScene(EmptyScene):
                 self.target.animate(anim)
                 self.animsTxtList[ix].color = Theme.VIEWER_TXT_SELECTED
 
+    # noinspection PyShadowingNames
     def update(self, *args: Any, **kwargs: Any) -> None:
         prev = self.target.rect.left
         super().update(*args, **kwargs)
@@ -211,6 +217,6 @@ if __name__ == '__main__':
     for k, v in args.__dict__.items():
         OPTS.__setattr__(k, v)
     main = BarbarianMain(args)
-    main.scene = AnimationViewerScene(args, main.screen, on_quit=main.quit)
-    display.set_caption('Barbarian - Animation viewer')
+    main.scene = AnimationViewerScene(args, main)
+    pg.display.set_caption('Barbarian - Animation viewer')
     asyncio.run(main.main())
