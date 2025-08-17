@@ -84,9 +84,15 @@ WebAssembly zip-archive for itch.io:
 ```
 
 ### Nuitka
+To reduce output filesize use virtual environment with nuitka package only.
+```shell
+$ python3 -m venv .venv-nuitka
+$ source .venv-nuitka/bin/activate
+(.venv-nuitka) $ pip install .[nuitka]
+```
 Executable:
 ```shell
-(.venv) $ python3 -m build_nuitka
+(.venv-nuitka) $ python3 -m build_nuitka
 ```
 
 ## Profiling
@@ -97,6 +103,7 @@ Memory:
 (.venv) $ python3 -m memray flamegraph barbariantuw.bin
 (.venv) $ <browser> memray-flamegraph-barbariantuw.html
 ```
+> NOTE: memray not available on Windows
 
 CPU:
 ```shell

@@ -22,17 +22,16 @@ def main(*args):
         '--include-data-dir=barbariantuw/img=barbariantuw/img',
         '--include-data-dir=barbariantuw/snd=barbariantuw/snd',
     ]
-    # TODO: Linux/Windows-icon
     cmd = 'nuitka'
     if sys.platform == "linux":
         nuitka_args.extend([
-            '--linux-icon=barbariantuw/img/menu/icone.gif',
+            '--linux-icon=barbariantuw/img/menu/icone.ico',
             f'--output-filename={PROG}-{__version__}_linux_{arch}.bin',
         ])
     elif sys.platform == "win32":
         cmd = 'nuitka.cmd'
         nuitka_args.extend([
-            #'--windows-icon-from-ico=barbariantuw/img/menu/icone.gif',
+            '--windows-icon-from-ico=barbariantuw/img/menu/icone.ico',
             '--windows-console-mode=disable',
             f'--output-filename=barbariantuw-{__version__}_win_{arch}.exe',
         ])
